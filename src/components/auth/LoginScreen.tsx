@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
 import { motion, useAnimationControls } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { AUTH_PASSWORD, AUTH_USER } from '@/lib/auth';
 import {
   Monitor,
   TrendingUp,
@@ -484,6 +485,11 @@ export function LoginScreen() {
   const [errors, setErrors] = useState<{ user?: string; password?: string }>({});
   const [touched, setTouched] = useState<{ user?: boolean; password?: boolean }>({});
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    console.log('[AUTH] AUTH_USER en /login:', JSON.stringify(AUTH_USER));
+    console.log('[AUTH] AUTH_PASSWORD en /login (longitud):', AUTH_PASSWORD.length);
+  }, []);
 
   const shake = () => {
     controls.start({ x: [0, -12, 12, -8, 8, -4, 0], transition: { duration: 0.45, ease: 'easeInOut' } });

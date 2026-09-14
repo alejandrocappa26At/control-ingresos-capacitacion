@@ -1,5 +1,14 @@
-export const AUTH_USER = process.env.NEXT_PUBLIC_APP_USER || 'capacitacion';
-export const AUTH_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD || 'Capacitacion2026*';
+export const AUTH_USER = (process.env.NEXT_PUBLIC_APP_USER ?? 'capacitacion').trim();
+export const AUTH_PASSWORD = (process.env.NEXT_PUBLIC_APP_PASSWORD ?? 'Capacitacion2026*').trim();
+
+const DEBUG_LOGIN = true;
+
+if (DEBUG_LOGIN) {
+  console.log('[AUTH] AUTH_USER:', JSON.stringify(AUTH_USER));
+  console.log('[AUTH] AUTH_PASSWORD_EXISTS:', !!AUTH_PASSWORD);
+  console.log('[AUTH] NEXT_PUBLIC_APP_USER:', JSON.stringify(process.env.NEXT_PUBLIC_APP_USER));
+  console.log('[AUTH] NEXT_PUBLIC_APP_PASSWORD_EXISTS:', !!process.env.NEXT_PUBLIC_APP_PASSWORD);
+}
 
 const SESSION_KEY = 'cic_session';
 const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
@@ -46,5 +55,34 @@ export function clearStoredSession(): void {
 }
 
 export function credentialsAreValid(user: string, password: string): boolean {
-  return user.trim() === AUTH_USER && password === AUTH_PASSWORD;
+  const safeUser = user.trim();
+  const safePassword = password.trim();
+
+  const expectedUser = AUTH_USER.trim();
+  const expectedPassword = AUTH_PASSWORD.trim();
+
+  const result =
+    safeUser === expectedUser &&
+    safePassword === expectedPassword;
+
+  if (DEBUG_LOGIN && typeof window !== 'undefined') {
+    console.log('[AUTH·val] Usuario ingresado  :', JSON.stringify(safeUser));
+    console.log('[AUTH·val] Usuario esperado   :', JSON.stringify(expectedUser));
+    console.log('[AUTH·val] Longitud password ingresada:', safePassword.length);
+    console.log('[AUTH·val] Longitud password esperada :', expectedPassword.length);
+    console.log('[AUTH·val] Variables leídas   :', {
+      user: AUTH_USER,
+      passwordOK: !!AUTH_PASSWORD,
+    });
+    console.log('[AUTH·val] Resultado validación:', result);
+  }
+
+  if (DEBUG_LOGIN) {
+    const hardcodedResult =
+      safeUser === 'capacitacion' &&
+      safePassword === 'Capacitacion2026*';
+    console.log('[AUTH·test] Validación con valores fijos (sin env):', hardcodedResult);
+  }
+
+  return result;
 }

@@ -13,3 +13,14 @@
  GET /login 200 in 135ms (next.js: 89ms, application-code: 46ms)
  GET / 200 in 79ms (next.js: 23ms, application-code: 56ms)
  GET / 200 in 93ms (next.js: 9ms, application-code: 84ms)
+✓ Compiled in 659ms
+ GET / 200 in 104ms (next.js: 52ms, application-code: 51ms)
+✓ Compiled in 373ms
+ GET / 200 in 84ms (next.js: 26ms, application-code: 57ms)
+ GET / 200 in 64ms (next.js: 18ms, application-code: 47ms)
+ GET / 200 in 70ms (next.js: 21ms, application-code: 49ms)
+✓ Compiled in 246ms
+ GET / 200 in 58ms (next.js: 19ms, application-code: 40ms)
+✓ Compiled in 134ms
+ GET / 200 in 59ms (next.js: 21ms, application-code: 38ms)
+ GET / 200 in 51ms (next.js: 12ms, application-code: 39ms)
