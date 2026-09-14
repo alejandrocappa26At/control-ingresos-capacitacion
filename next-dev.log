@@ -1,0 +1,15 @@
+
+> capacitacion-app@0.1.0 dev
+> next dev
+
+▲ Next.js 16.3.4 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.39:3000
+- Environments: .env.local
+✓ Ready in 1401ms
+✓ Running next.config.ts took 178ms
+
+ GET / 200 in 3.1s (next.js: 2.4s, application-code: 673ms)
+ GET /login 200 in 135ms (next.js: 89ms, application-code: 46ms)
+ GET / 200 in 79ms (next.js: 23ms, application-code: 56ms)
+ GET / 200 in 93ms (next.js: 9ms, application-code: 84ms)
