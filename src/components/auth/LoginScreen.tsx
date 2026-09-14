@@ -507,6 +507,7 @@ export function LoginScreen() {
       return;
     }
     setSubmitting(true);
+    console.log('[AUTH] Formulario enviado. Invocando login() con user:', JSON.stringify(user), '| password.length:', password.length);
     window.setTimeout(() => {
       const ok = useSessionStore.getState().login(user, password);
       setSubmitting(false);
