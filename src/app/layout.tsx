@@ -40,8 +40,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           position="bottom-right"
           expand
           richColors
+          theme="dark"
           toastOptions={{
-            style: { fontFamily: 'var(--font-geist-sans)' },
+            style: {
+              fontFamily: 'var(--font-geist-sans)',
+              background: 'rgba(19, 19, 19, 0.92)',
+              border: '1px solid rgba(255, 39, 53, 0.25)',
+              backdropFilter: 'blur(16px)',
+            },
           }}
         />
       </body>

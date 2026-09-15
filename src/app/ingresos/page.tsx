@@ -31,8 +31,8 @@ export default function IngresosPage() {
         description={`${kpis.totalIngresos} promotores registrados · la información responde a los filtros activos`}
         actions={
           <div className="hidden items-center gap-2 md:flex">
-            <MiniChip label="Lima" value={kpis.lima} icon={MapPin} color="text-sky-500" />
-            <MiniChip label="Provincia" value={kpis.provincia} icon={MapPin} color="text-violet-500" />
+            <MiniChip label="Lima" value={kpis.lima} icon={MapPin} color="text-brand-400" />
+            <MiniChip label="Provincia" value={kpis.provincia} icon={MapPin} color="text-zinc-300" />
           </div>
         }
       />

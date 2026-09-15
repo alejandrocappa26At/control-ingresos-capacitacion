@@ -28,7 +28,7 @@ export function CaidasRanking({ motivo, subMotivo, total }: { motivo: CaidaRanki
       {total > 0 && (
         <div className="rounded-2xl border border-line bg-surface-2 p-5 shadow-card transition-all duration-300 hover:shadow-glow lg:col-span-2">
           <div className="mb-3 flex items-center gap-2">
-            <span className="flex size-8 items-center justify-center rounded-lg border border-white/10 bg-gradient-to-b from-sky-500/25 to-sky-500/5 text-cyan-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+            <span className="flex size-8 items-center justify-center rounded-lg border border-white/10 bg-gradient-to-b from-[#ff2735]/25 to-[#ff2735]/5 text-[#ff8b8f] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
               <TrendingDown className="size-4" />
             </span>
             <div>

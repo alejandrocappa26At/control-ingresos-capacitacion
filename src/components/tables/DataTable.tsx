@@ -215,7 +215,7 @@ export function DataTable({ data, onRowClick, pageSize = 10, loading }: DataTabl
                           type="checkbox"
                           checked={checked}
                           onChange={() => setColumnVisibility((prev) => ({ ...prev, [key]: !checked }))}
-                          className="size-3.5 accent-indigo-500"
+                          className="size-3.5 accent-[#e30613]"
                         />
                         {label}
                       </label>
@@ -238,7 +238,7 @@ export function DataTable({ data, onRowClick, pageSize = 10, loading }: DataTabl
                   return (
                     <th
                       key={header.id}
-                      className="sticky top-0 z-10 border-b border-line bg-surface-2/95 px-3 py-2.5 text-[11px] font-bold tracking-wide whitespace-nowrap text-ink-muted uppercase backdrop-blur first:rounded-tl-xl"
+                      className="sticky top-0 z-10 border-b border-line bg-[#0d0d0d]/95 px-3 py-2.5 text-[11px] font-bold tracking-wide whitespace-nowrap text-ink-muted uppercase backdrop-blur shadow-[inset_0_-1px_0_rgba(227,6,19,0.18)] first:rounded-tl-xl"
                       style={{ width: header.getSize() }}
                     >
                       {header.column.getCanSort() ? (
@@ -272,7 +272,7 @@ export function DataTable({ data, onRowClick, pageSize = 10, loading }: DataTabl
                 className={cn(
                   'group border-b border-line transition-all duration-200 last:border-0',
                   rowIndex % 2 === 1 && 'bg-surface/40',
-                  onRowClick && 'cursor-pointer hover:bg-brand-500/[0.06] hover:shadow-[inset_3px_0_0_rgba(99,102,241,0.7)]',
+                  onRowClick && 'cursor-pointer hover:bg-brand-500/[0.07] hover:shadow-[inset_3px_0_0_rgba(227,6,19,0.85)]',
                 )}
               >
                 {row.getVisibleCells().map((cell) => (

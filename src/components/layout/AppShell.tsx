@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { FilterChips } from '@/components/filters/FilterChips';
@@ -12,8 +13,16 @@ import { usePathname } from 'next/navigation';
 export function AppShell({ children }: { children: React.ReactNode }) {
   useThemeEffect();
   const collapsed = useDataStore((s) => s.sidebarCollapsed);
+  const setSidebarCollapsed = useDataStore((s) => s.setSidebarCollapsed);
   const pathname = usePathname();
   const isLogin = pathname === '/login';
+
+  useEffect(() => {
+    const onResize = () => setSidebarCollapsed(window.innerWidth < 768);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [setSidebarCollapsed]);
 
   return (
     <AuthGate>

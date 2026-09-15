@@ -16,34 +16,40 @@ const ALERT_META = {
   'riesgo-desaprobacion': { icon: ShieldAlert, tone: 'brand' as const },
 } as const;
 
-const LEVEL_STYLES: Record<Alerta['nivel'], { label: string; badge: string; bar: string; glow: string; value: number }> = {
+const LEVEL_STYLES: Record<Alerta['nivel'], { label: string; badge: string; bar: string; glow: string; value: number; dot: string; accent: string }> = {
   alta: {
-    label: 'Prioridad ALTA',
-    badge: 'border-rose-500/30 bg-rose-500/12 text-rose-400',
+    label: 'Crítico',
+    badge: 'border-[#ff2735]/30 bg-[#ff2735]/12 text-[#ff8b8f]',
     bar: 'gradient-danger',
     glow: 'hover:shadow-glow-rose',
     value: 92,
+    dot: 'bg-[#ff2735]',
+    accent: 'gradient-danger',
   },
   media: {
-    label: 'Prioridad MEDIA',
+    label: 'Atención',
     badge: 'border-amber-500/30 bg-amber-500/12 text-amber-400',
     bar: 'gradient-warning',
     glow: 'hover:shadow-glow-amber',
     value: 58,
+    dot: 'bg-amber-400',
+    accent: 'gradient-warning',
   },
   baja: {
-    label: 'Prioridad BAJA',
+    label: 'Correcto',
     badge: 'border-emerald-500/30 bg-emerald-500/12 text-emerald-400',
     bar: 'gradient-success',
     glow: 'hover:shadow-glow-emerald',
     value: 30,
+    dot: 'bg-emerald-400',
+    accent: 'gradient-success',
   },
 };
 
 const TILE_STYLES: Record<string, string> = {
   warning: 'from-amber-500/20 to-amber-500/5 text-amber-400',
-  info: 'from-cyan-500/20 to-cyan-500/5 text-cyan-400',
-  danger: 'from-rose-500/20 to-rose-500/5 text-rose-400',
+  info: 'from-white/10 to-white/[0.02] text-zinc-300',
+  danger: 'from-rose-500/25 to-rose-500/5 text-rose-400',
   brand: 'from-brand-500/25 to-brand-500/5 text-brand-300',
 };
 
@@ -75,10 +81,11 @@ export function AlertCards({ alertas }: { alertas: Alerta[] }) {
               hoverable
               className={cn(
                 'relative h-full overflow-hidden p-4 transition-all duration-300 ease-out',
-                alerta.nivel === 'alta' && 'ring-1 ring-rose-500/20',
+                alerta.nivel === 'alta' && 'ring-1 ring-[#ff2735]/25',
                 level.glow,
               )}
             >
+              <div className={cn('pointer-events-none absolute inset-y-3 left-0 w-[3px] rounded-r-full gradient-danger', level.accent)} />
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
               <div className="flex items-start gap-3">
@@ -93,8 +100,9 @@ export function AlertCards({ alertas }: { alertas: Alerta[] }) {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <p className="truncate text-sm font-bold text-ink">{alerta.titulo}</p>
-                    <span className={cn('shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase', level.badge)}>
-                      {alerta.nivel}
+                    <span className={cn('inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase', level.badge)}>
+                      <span className={cn('size-1.5 rounded-full', level.dot, alerta.nivel === 'alta' && 'animate-pulse-glow')} />
+                      {level.label}
                     </span>
                   </div>
                   <p className="mt-1 text-xs leading-relaxed text-ink-muted">{alerta.mensaje}</p>

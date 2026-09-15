@@ -15,10 +15,10 @@ const toneColors: Record<string, string> = {
 };
 
 const glowColors: Record<string, string> = {
-  brand: 'shadow-[0_0_10px_rgba(99,102,241,0.55)]',
-  success: 'shadow-[0_0_10px_rgba(16,185,129,0.5)]',
+  brand: 'shadow-[0_0_10px_rgba(227,6,19,0.6)]',
+  success: 'shadow-[0_0_10px_rgba(34,197,94,0.5)]',
   warning: 'shadow-[0_0_10px_rgba(245,158,11,0.5)]',
-  danger: 'shadow-[0_0_10px_rgba(239,68,68,0.5)]',
+  danger: 'shadow-[0_0_10px_rgba(227,6,19,0.55)]',
 };
 
 export function Progress({ value, className, barClassName, tone = 'brand' }: ProgressProps) {

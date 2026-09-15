@@ -69,7 +69,7 @@ export default function DashboardPage() {
           description="Cantidad y porcentaje por jurisdicción"
           icon={<MapPin className="size-4" />}
         >
-          <BaseBarChart data={jurisdiccion} color="#6366f1" height={240} />
+          <BaseBarChart data={jurisdiccion} color="#e30613" height={240} />
         </ChartCard>
 
         <ChartCard title="2. INGRESOS POR ZONA COMERCIAL" description="Distribución por zona comercial" icon={<MapPin className="size-4" />}>
@@ -87,7 +87,7 @@ export default function DashboardPage() {
 
       <section className="mt-4 grid gap-4 lg:grid-cols-2">
         <ChartCard title="INGRESOS POR MES" description="Evolución de ingresos mensuales" icon={<TrendingUp className="size-4" />}>
-          {porMes.length ? <BaseBarChart data={porMes} color="#06b6d4" height={240} /> : <ChartEmpty />}
+          {porMes.length ? <BaseBarChart data={porMes} color="#ff2735" height={240} /> : <ChartEmpty />}
         </ChartCard>
 
         <ChartCard title="4. CARGA DE CAPACITACIÓN POR CAPACITADOR" description="Resumen de carga por capacitador" icon={<GraduationCap className="size-4" />}>

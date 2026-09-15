@@ -49,7 +49,7 @@ export default function ReportesPage() {
       <section className="grid gap-4 md:grid-cols-3">
         <ReportCard title="Total de registros analizados" value={formatNumber(kpis.totalIngresos)} detail="Conjunto de datos completo" tone="text-brand-500" />
         <ReportCard title="Registros con filtros activos" value={formatNumber(filtered.length)} detail="Base del reporte exportado" tone="text-emerald-500" />
-        <ReportCard title="Tasa de aprobación" value={`${kpis.porcentajeAprobacion.toFixed(1)}%`} detail="Sobre procesos finalizados" tone="text-sky-500" />
+        <ReportCard title="Tasa de aprobación" value={`${kpis.porcentajeAprobacion.toFixed(1)}%`} detail="Sobre procesos finalizados" tone="text-brand-400" />
       </section>
 
       <section className="mt-8">
@@ -68,7 +68,7 @@ export default function ReportesPage() {
           </ChartCard>
 
           <ChartCard title="Evolución de ingresos" description="Cantidad de ingresos por mes" icon={<BarChart3 className="size-4" />}>
-            {porMes.length ? <BaseBarChart data={porMes} color="#8b5cf6" height={260} /> : <p className="text-sm text-ink-soft">Sin datos mensuales</p>}
+            {porMes.length ? <BaseBarChart data={porMes} color="#e30613" height={260} /> : <p className="text-sm text-ink-soft">Sin datos mensuales</p>}
           </ChartCard>
         </div>
       </section>

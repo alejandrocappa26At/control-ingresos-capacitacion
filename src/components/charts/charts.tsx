@@ -21,16 +21,16 @@ import { formatNumber } from '@/lib/utils';
 import { CountUp } from '@/components/ui/count-up';
 import { BarChart3 } from 'lucide-react';
 
-export const CHART_COLORS = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6', '#14b8a6', '#f97316'];
+export const CHART_COLORS = ['#e30613', '#ff2735', '#ffffff', '#52525b', '#a1a1aa', '#ff6b6b', '#71717a', '#ffb9bc'];
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const RANK_GRADIENTS: Array<[string, string]> = [
-  ['#6366f1', '#22d3ee'],
-  ['#8b5cf6', '#3b82f6'],
-  ['#10b981', '#34d399'],
-  ['#f59e0b', '#fb923c'],
-  ['#ef4444', '#f43f5e'],
-  ['#06b6d4', '#22d3ee'],
+  ['#e30613', '#ff2735'],
+  ['#ff2735', '#ff6b6b'],
+  ['#ffffff', '#d4d4d8'],
+  ['#52525b', '#a1a1aa'],
+  ['#7a030a', '#e30613'],
+  ['#ff6b6b', '#e30613'],
 ];
 
 function hexToRgba(hex: string, alpha: number): string {
@@ -314,7 +314,7 @@ export function DonutChart({
   return (
     <motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}>
       <div className="relative" style={{ height }}>
-        <div className="absolute inset-0" style={{ filter: 'drop-shadow(0 0 22px rgba(99,102,241,0.22))' }}>
+        <div className="absolute inset-0" style={{ filter: 'drop-shadow(0 0 22px rgba(227,6,19,0.28))' }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <defs>
@@ -355,11 +355,11 @@ export function DonutChart({
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pb-8">
             <span className="text-[10px] font-bold tracking-[0.2em] text-ink-muted uppercase">TOTAL</span>
             {typeof centerValue === 'number' ? (
-              <span className="text-4xl font-bold tracking-tight text-ink" style={{ textShadow: '0 0 18px rgba(99,102,241,0.45)' }}>
+              <span className="text-4xl font-bold tracking-tight text-ink" style={{ textShadow: '0 0 18px rgba(227,6,19,0.5)' }}>
                 <CountUp value={centerValue} />
               </span>
             ) : centerValue ? (
-              <span className="text-4xl font-bold tracking-tight text-ink" style={{ textShadow: '0 0 18px rgba(99,102,241,0.45)' }}>
+              <span className="text-4xl font-bold tracking-tight text-ink" style={{ textShadow: '0 0 18px rgba(227,6,19,0.5)' }}>
                 {centerValue}
               </span>
             ) : null}

@@ -11,12 +11,12 @@ import { ResumenDeCaidas } from '@/components/dashboard/caidas/ResumenDeCaidas';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const AVATAR_GRADIENTS: Array<[string, string]> = [
-  ['#6366f1', '#22d3ee'],
-  ['#8b5cf6', '#3b82f6'],
-  ['#10b981', '#34d399'],
+  ['#e30613', '#ff2735'],
+  ['#ff2735', '#ff6b6b'],
+  ['#22c55e', '#4ade80'],
   ['#f59e0b', '#fb923c'],
-  ['#ef4444', '#f43f5e'],
-  ['#06b6d4', '#22d3ee'],
+  ['#a8050f', '#e30613'],
+  ['#ff6b6b', '#e30613'],
 ];
 
 function initialsOf(name: string): string {
@@ -224,7 +224,7 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
             </div>
 
             <div className="mt-2.5 grid grid-cols-3 gap-2 text-center">
-              <MiniStat label="Finalizados" value={c.finalizados} tone="text-sky-400" />
+              <MiniStat label="Finalizados" value={c.finalizados} tone="text-zinc-300" />
               <MiniStat label="En proceso" value={c.enProceso} tone="text-amber-400" />
               <MiniStat label="Pendientes" value={pendientes} tone="text-ink-soft" />
             </div>

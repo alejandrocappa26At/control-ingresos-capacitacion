@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useDataStore } from '@/store/useDataStore';
 import { useAppData } from '@/hooks/useAppData';
+import { useSessionStore } from '@/store/useSessionStore';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePathname } from 'next/navigation';
 import { exportExcel, exportCSV } from '@/services/export/exporter';
@@ -51,6 +52,7 @@ export function Header() {
   const debounced = useDebounce(value, 250);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const activeFiltersCount = useDataStore((s) => s.activeFiltersCount);
+  const sessionUser = useSessionStore((s) => s.user);
 
   useEffect(() => {
     setSearchTerm(debounced);
@@ -150,7 +152,7 @@ export function Header() {
                   exportCSV(filtered);
                   toast.success(`Se exportaron ${filtered.length} registros a CSV`);
                 }}
-                className="inline-flex size-10 items-center justify-center rounded-xl border border-line bg-surface/40 text-ink-soft transition-all duration-300 hover:border-cyan-500/30 hover:bg-cyan-500/10 hover:text-cyan-400 hover:shadow-glow-cyan"
+                className="inline-flex size-10 items-center justify-center rounded-xl border border-line bg-surface/40 text-ink-soft transition-all duration-300 hover:border-white/30 hover:bg-white/10 hover:text-zinc-200 hover:shadow-glow-sm"
                 aria-label="Exportar CSV"
               >
                 <FileDown className="size-4" />
@@ -182,12 +184,21 @@ export function Header() {
         </Tooltip>
 
         <div className="relative ml-1 hidden items-center gap-2 rounded-xl border border-line bg-surface/40 py-1 pr-3 pl-1 sm:flex">
-          <div className="flex size-8 items-center justify-center rounded-lg gradient-brand text-xs font-bold text-white shadow-glow-sm">
-            IN
+          <div className="relative">
+            <div className="flex size-8 items-center justify-center rounded-lg gradient-brand text-xs font-bold text-white shadow-glow-sm">
+              {sessionUser ? sessionUser.slice(0, 2).toUpperCase() : 'IN'}
+            </div>
+            <span
+              className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-2 bg-emerald-400"
+              style={{ boxShadow: '0 0 8px rgba(34,197,94,0.9)' }}
+            />
           </div>
           <div className="leading-tight">
-            <p className="text-xs font-bold text-ink">Ingresos y</p>
-            <p className="text-[10px] font-medium text-ink-soft">Capacitación</p>
+            <p className="max-w-[9rem] truncate text-xs font-bold text-ink">{sessionUser ?? 'Operador'}</p>
+            <p className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-400">
+              <span className="size-1 animate-pulse-glow rounded-full bg-emerald-400 shadow-[0_0_6px_currentColor]" />
+              En línea
+            </p>
           </div>
         </div>
       </div>

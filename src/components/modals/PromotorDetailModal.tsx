@@ -144,7 +144,7 @@ export function PromotorDetailModal({ promotor, onClose }: { promotor: Promotor 
       <div className="grid gap-3 px-6 py-4 sm:px-8 sm:grid-cols-2 lg:grid-cols-4">
         <QuickMetric icon={<CalendarCheck2 className="size-4" />} label="Días asistidos" value={`${promotor.diasAsistidos} / 10`} tone="from-emerald-500/25 to-emerald-500/5 text-emerald-400" />
         <QuickMetric icon={<CalendarX2 className="size-4" />} label="Días faltantes" value={String(promotor.diasFaltantes)} tone="from-rose-500/25 to-rose-500/5 text-rose-400" />
-        <QuickMetric icon={<Percent className="size-4" />} label="% Asistencia" value={`${pct}%`} tone="from-cyan-500/25 to-cyan-500/5 text-cyan-400" />
+        <QuickMetric icon={<Percent className="size-4" />} label="% Asistencia" value={`${pct}%`} tone="from-white/10 to-white/[0.02] text-zinc-300" />
         <QuickMetric
           icon={promotor.resultado === 'APROBADO' ? <CheckCircle2 className="size-4" /> : promotor.resultado === 'NO_APROBADO' ? <XCircle className="size-4" /> : <UserRound className="size-4" />}
           label="Estado"

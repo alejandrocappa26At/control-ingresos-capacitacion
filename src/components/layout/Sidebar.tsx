@@ -53,7 +53,6 @@ const NAV_SECTIONS: Array<{ section: string; items: NavItem[] }> = [
     items: [
       { href: '/ingresos', label: 'Ingresos', icon: Users },
       { href: '/capacitacion', label: 'Capacitación', icon: GraduationCap, badge: 'amber' },
-      { href: '/upload', label: 'Cargar Excel', icon: UploadCloud },
     ],
   },
   {
@@ -62,6 +61,10 @@ const NAV_SECTIONS: Array<{ section: string; items: NavItem[] }> = [
       { href: '/asistencia', label: 'Asistencia', icon: CalendarCheck2 },
       { href: '/caidas', label: 'Caídas', icon: TrendingDown, badge: 'red' },
     ],
+  },
+  {
+    section: 'Configuración',
+    items: [{ href: '/upload', label: 'Cargar Excel', icon: UploadCloud }],
   },
 ];
 
@@ -83,7 +86,7 @@ export function Sidebar() {
   const my = useMotionValue(0);
   const sx = useSpring(mx, { stiffness: 180, damping: 24, mass: 0.6 });
   const sy = useSpring(my, { stiffness: 180, damping: 24, mass: 0.6 });
-  const cursorGlow = useMotionTemplate`radial-gradient(340px circle at ${sx}px ${sy}px, rgba(99,102,241,0.13), transparent 62%)`;
+  const cursorGlow = useMotionTemplate`radial-gradient(340px circle at ${sx}px ${sy}px, rgba(255,39,53,0.14), transparent 62%)`;
 
   const badges = useMemo(() => {
     if (!records.length) return { alertas: 0, capacitacion: 0, caidas: 0 };
@@ -125,11 +128,11 @@ export function Sidebar() {
       <div className="pointer-events-none absolute inset-0 z-0">
         <div
           className="absolute -top-16 -right-10 size-52 rounded-full opacity-40"
-          style={{ background: 'radial-gradient(circle at 40% 40%, rgba(99,102,241,0.22), transparent 68%)', filter: 'blur(46px)', animation: 'aurora-drift 26s ease-in-out infinite alternate' }}
+          style={{ background: 'radial-gradient(circle at 40% 40%, rgba(227,6,19,0.24), transparent 68%)', filter: 'blur(46px)', animation: 'aurora-drift 26s ease-in-out infinite alternate' }}
         />
         <div
           className="absolute -bottom-20 -left-14 size-56 rounded-full opacity-30"
-          style={{ background: 'radial-gradient(circle at 60% 40%, rgba(6,182,212,0.14), transparent 66%)', filter: 'blur(52px)', animation: 'aurora-drift 32s ease-in-out infinite alternate-reverse' }}
+          style={{ background: 'radial-gradient(circle at 60% 40%, rgba(255,39,53,0.15), transparent 66%)', filter: 'blur(52px)', animation: 'aurora-drift 32s ease-in-out infinite alternate-reverse' }}
         />
       </div>
 
@@ -206,7 +209,7 @@ export function Sidebar() {
                             layoutId="sidebar-active-line"
                             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                             className="absolute inset-y-2.5 left-0 w-[3px] rounded-r-full gradient-brand"
-                            style={{ boxShadow: '0 0 14px rgba(99,102,241,0.95), 0 0 4px rgba(139,92,246,0.8)' }}
+                            style={{ boxShadow: '0 0 14px rgba(227,6,19,0.95), 0 0 4px rgba(255,39,53,0.7)' }}
                           />
                         </>
                       )}
@@ -215,7 +218,7 @@ export function Sidebar() {
                         className={cn(
                           'relative flex size-8 shrink-0 items-center justify-center rounded-[10px] border transition-all duration-300',
                           active
-                            ? 'border-brand-400/40 bg-brand-500/15 text-brand-200 shadow-[0_0_16px_rgba(99,102,241,0.4)]'
+                            ? 'border-brand-400/40 bg-brand-500/15 text-brand-200 shadow-[0_0_16px_rgba(227,6,19,0.45)]'
                             : 'border-white/10 bg-white/[0.05] text-ink-muted group-hover:border-brand-400/25 group-hover:text-brand-300',
                         )}
                       >

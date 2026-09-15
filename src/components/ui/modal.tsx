@@ -35,25 +35,26 @@ export function Modal({ open, onClose, children, className, fullscreen, title }:
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="absolute inset-0 bg-black/70 backdrop-blur-md"
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, y: 24, scale: fullscreen ? 0.98 : 0.95 }}
+            initial={{ opacity: 0, y: 28, scale: fullscreen ? 0.98 : 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: fullscreen ? 0.98 : 0.95 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              'relative flex flex-col overflow-hidden rounded-2xl border border-line/80 bg-surface-2 shadow-[0_40px_120px_-24px_rgba(0,0,0,0.6)] sm:rounded-3xl',
+              'gradient-border-card relative flex flex-col overflow-hidden rounded-2xl border border-white/5 shadow-[0_40px_120px_-24px_rgba(0,0,0,0.8),0_0_60px_-24px_rgba(227,6,19,0.4)] sm:rounded-3xl',
               fullscreen
                 ? 'size-full sm:size-auto sm:max-h-[84vh] sm:w-[min(92vw,1120px)]'
                 : 'w-[92vw] max-w-md',
               className,
             )}
           >
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-[#ff2735]/70 to-transparent" />
             {title && (
-              <div className="flex items-center justify-between border-b border-line px-6 py-4">
+              <div className="flex items-center justify-between border-b border-line/80 px-6 py-4">
                 <div className="text-base font-bold text-ink">{title}</div>
                 <ModalClose onClose={onClose} />
               </div>
