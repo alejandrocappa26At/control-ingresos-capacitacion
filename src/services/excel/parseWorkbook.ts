@@ -1,7 +1,8 @@
 import type { Jurisdiccion, ParseResult, Promotor, ValidationIssue } from '@/types';
 import type { WorkBook } from 'xlsx';
 import { MAX_DAYS, EMPTY_TEXT, PENDING_TEXT } from '@/lib/constants';
-import { toDisplayDate, toISODate } from '@/lib/dates';
+import { normalizeDateValue } from '@/lib/dates';
+import { format, formatISO } from 'date-fns';
 import { normalizeKey } from '@/lib/utils';
 import {
   normalizeHeader,
@@ -55,9 +56,9 @@ function toFecha(value: unknown): { display: string; iso: string } {
   if (/^(pendiente|sin registro|n\/a|-)$/i.test(text)) {
     return { display: PENDING_TEXT, iso: '' };
   }
-  const display = toDisplayDate(value);
-  if (!display) return { display: PENDING_TEXT, iso: '' };
-  return { display, iso: toISODate(value) };
+  const date = normalizeDateValue(value);
+  if (!date) return { display: PENDING_TEXT, iso: '' };
+  return { display: format(date, 'dd/MM/yyyy'), iso: formatISO(date, { representation: 'date' }) };
 }
 
 function toAsistencia(value: unknown): 1 | 0 | null {
@@ -76,6 +77,20 @@ function toPasa(value: unknown): 1 | 0 | null {
   if (/^(1|SI|SÍ|PASA|APROBADO|OK)$/.test(text)) return 1;
   if (/^(0|NO|NO PASA|DESAPROBADO|CAIDO|CAÍDO|CÁIDO)$/.test(text)) return 0;
   return null;
+}
+
+function toTotalDias(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value === 'number') {
+    if (Number.isFinite(value) && Number.isInteger(value) && value >= 0 && value <= MAX_DAYS) return value;
+    return null;
+  }
+  const text = String(value).trim();
+  if (/^(pendiente|sin registro|n\/a|-)$/i.test(text)) return null;
+  const n = Number(text.replace(/[^\d.]/g, ''));
+  if (!Number.isFinite(n)) return null;
+  const int = Math.trunc(n);
+  return int >= 0 && int <= MAX_DAYS ? int : null;
 }
 
 interface ParsedRecord {
@@ -102,6 +117,7 @@ interface ParsedRecord {
   asistencia: Array<1 | 0 | null>;
   diasAsistidos: number;
   pasaAOperaciones: 1 | 0 | null;
+  totalDias: number | null;
   motivoCaida: string;
   subMotivoCaida: string;
 }
@@ -169,6 +185,7 @@ async function parseRowsChunked(
       );
       const diasAsistidos = asistencia.filter((a) => a === 1).length;
       const pasa = toPasa(getField('pasa'));
+      const totalDias = toTotalDias(getField('totalDias'));
 
       parsed.push({
         jurisdiccion: recordJurisdiccion,
@@ -193,6 +210,7 @@ async function parseRowsChunked(
         entregaISO: entrega.iso,
         asistencia,
         pasaAOperaciones: pasa,
+        totalDias,
         motivoCaida: toText(getField('motivo')),
         subMotivoCaida: toText(getField('subMotivo')),
         diasAsistidos,
@@ -244,6 +262,7 @@ function toPromotor(record: ParsedRecord, index: number): Promotor {
     asistencia: record.asistencia,
     diasAsistidos: record.diasAsistidos,
     diasFaltantes: MAX_DAYS - record.diasAsistidos,
+    totalDias: record.totalDias,
     pasaAOperaciones: record.pasaAOperaciones,
     motivoCaida: record.motivoCaida,
     subMotivoCaida: record.subMotivoCaida,
@@ -264,12 +283,21 @@ export async function parseWorkbookBuffer(
   yieldChunks = false,
 ): Promise<ParseResult> {
   emit({ stage: 'leer', percent: 10, recordsProcessed: 0, totalRecords: 0 });
+  console.time('Carga Total');
+
+  const stages: Array<{ name: string; start: number; end?: number }> = [];
+  const stageStart = (name: string) => stages.push({ name, start: performance.now() });
+  const stageEnd = (name: string) => {
+    const entry = stages.find((s) => s.name === name && s.end === undefined);
+    if (entry) entry.end = performance.now();
+  };
 
   let XLSX: XlsxModule;
   try {
     XLSX = await loadXlsx();
   } catch (error) {
     console.error('[parseWorkbook] fallo al cargar motor xlsx:', error);
+    console.timeEnd('Carga Total');
     return {
       success: false,
       records: [],
@@ -284,7 +312,8 @@ export async function parseWorkbookBuffer(
   }
 
   let workbook: WorkBook;
-  console.time('[AUDITORIA] Lectura Excel');
+  console.time('Lectura Excel');
+  stageStart('Lectura Excel');
   try {
     // 2 pases para evitar convertir TODAS las celdas del archivo: primero enumeramos
     // solo los nombres de hojas (bookSheets) y luego re-leemos únicamente las hojas
@@ -293,9 +322,15 @@ export async function parseWorkbookBuffer(
     // se ignoran por completo y ya no se transforman a celdas.
     const bookIndex: WorkBook = XLSX.read(buffer, { type: 'array', bookSheets: true });
 
+    console.time('Validación Hojas');
+    stageStart('Validación Hojas');
     const sheetErrors = validateSheets(bookIndex.SheetNames);
+    console.timeEnd('Validación Hojas');
+    stageEnd('Validación Hojas');
     if (sheetErrors.length > 0) {
-      console.timeEnd('[AUDITORIA] Lectura Excel');
+      stageEnd('Lectura Excel');
+      console.timeEnd('Lectura Excel');
+      console.timeEnd('Carga Total');
       return { success: false, records: [], errors: sheetErrors };
     }
 
@@ -310,6 +345,12 @@ export async function parseWorkbookBuffer(
     workbook = XLSX.read(buffer, {
       type: 'array',
       cellDates: true,
+      bookVBA: false,
+      bookFiles: false,
+      bookProps: false,
+      cellText: false,
+      cellNF: false,
+      cellStyles: false,
       sheets: Array.from(requiredSheets.values()),
     });
 
@@ -318,7 +359,9 @@ export async function parseWorkbookBuffer(
       `[parseWorkbook] lectura: ${requiredSheets.size} hoja(s) procesada(s), ${skipped.length} ignorada(s) (${skipped.join(', ') || 'ninguna'})`,
     );
   } catch {
-    console.timeEnd('[AUDITORIA] Lectura Excel');
+    stageEnd('Lectura Excel');
+    console.timeEnd('Lectura Excel');
+    console.timeEnd('Carga Total');
     return {
       success: false,
       records: [],
@@ -330,7 +373,8 @@ export async function parseWorkbookBuffer(
       ],
     };
   }
-  console.timeEnd('[AUDITORIA] Lectura Excel');
+  console.timeEnd('Lectura Excel');
+  stageEnd('Lectura Excel');
 
   emit({ stage: 'hojas', percent: 20, recordsProcessed: 0, totalRecords: 0 });
   emit({ stage: 'columnas', percent: 40, recordsProcessed: 0, totalRecords: 0 });
@@ -357,7 +401,8 @@ export async function parseWorkbookBuffer(
   const allIssues: ValidationIssue[] = [];
   let totalDataRows = 0;
 
-  console.time('[AUDITORIA] Validación');
+  console.time('Validación Columnas');
+  stageStart('Validación Columnas');
   for (const desc of sheetDescriptors) {
     const sheetName = workbook.SheetNames.find(
       (name) => normalizeSheetName(name) === normalizeSheetName(desc.canonical),
@@ -380,21 +425,20 @@ export async function parseWorkbookBuffer(
     }
 
     const dataRows = Math.max(0, rows.length - headerRowIndex - 1);
-    const filasVacias = rows.filter(
-      (row) => !row || row.every((cell) => cell === null || cell === undefined || String(cell).trim() === ''),
-    ).length;
     console.info(
-      `[parseWorkbook] hoja "${sheetName}": total filas=${rows.length}, filas vacías=${filasVacias}, filas con datos=${rows.length - filasVacias}`,
+      `[parseWorkbook] hoja "${sheetName}": total filas=${rows.length}, filas con datos=${dataRows}`,
     );
 
     totalDataRows += dataRows;
     sheetTasks.push({ sheetName, rows, headerRowIndex, resolved, jurisdiccion: desc.jurisdiccion, dataRows });
   }
 
-  console.timeEnd('[AUDITORIA] Validación');
+  console.timeEnd('Validación Columnas');
+  stageEnd('Validación Columnas');
 
   if (allIssues.length > 0) {
     console.warn('[parseWorkbook] validación rechazada:', allIssues);
+    console.timeEnd('Carga Total');
     return { success: false, records: [], errors: allIssues };
   }
 
@@ -402,7 +446,8 @@ export async function parseWorkbookBuffer(
   let globalIndex = 0;
   let baseRows = 0;
 
-  console.time('[AUDITORIA] Procesamiento');
+  console.time('Procesamiento');
+  stageStart('Procesamiento');
   for (const task of sheetTasks) {
     const parsed = await parseRowsChunked(
       task.rows,
@@ -436,7 +481,8 @@ export async function parseWorkbookBuffer(
       console.info(`[parseWorkbook] hoja: ${parsed.records.length} registros parseados`);
     }
   }
-  console.timeEnd('[AUDITORIA] Procesamiento');
+  console.timeEnd('Procesamiento');
+  stageEnd('Procesamiento');
 
   console.log('[AUDITORIA] Dataset final:', allRecords.length);
 
@@ -468,15 +514,31 @@ export async function parseWorkbookBuffer(
 
   emit({ stage: 'kpis', percent: 80, recordsProcessed: allRecords.length, totalRecords: allRecords.length });
 
-  console.time('[AUDITORIA] KPIs');
+  console.time('KPIs');
+  stageStart('KPIs');
   const kpis = computeKpis(allRecords);
-  console.timeEnd('[AUDITORIA] KPIs');
+  console.timeEnd('KPIs');
+  stageEnd('KPIs');
 
   emit({ stage: 'fin', percent: 100, recordsProcessed: allRecords.length, totalRecords: allRecords.length });
 
   console.info(
     `[parseWorkbook] éxito: ${allRecords.length} registros (Lima ${totalLima} | Provincia ${totalProvincia})`,
   );
+
+  const sorted = stages
+    .filter((s) => s.end !== undefined && s.end >= s.start)
+    .map((s) => ({ Fase: s.name, Tiempo: `${Math.round(s.end! - s.start)} ms` }))
+    .sort((a, b) => parseFloat(b.Tiempo) - parseFloat(a.Tiempo));
+  console.groupCollapsed('[AUDITORÍA] Cuello de botella (peor → mejor)');
+  console.table(sorted);
+  const dominant = sorted.find((s) => s.Fase !== 'Lectura Excel') ?? sorted[0];
+  if (dominant) {
+    console.log(`>>> Fase dominante: ${dominant.Fase} (${dominant.Tiempo})`);
+  }
+  console.groupEnd();
+
+  console.timeEnd('Carga Total');
 
   return {
     success: true,

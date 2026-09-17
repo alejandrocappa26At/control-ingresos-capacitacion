@@ -1,4 +1,6 @@
 import { normalizeKey } from '@/lib/utils';
+import { MAX_DAYS } from '@/lib/constants';
+import { diasEntre, todayISO } from '@/lib/dates';
 import type { CaidaRanking, Promotor } from '@/types';
 
 export function caidas(records: Promotor[]): Promotor[] {
@@ -85,6 +87,147 @@ export function caidasPorSupervisor(records: Promotor[]): DimensionAnalysis[] {
   return analisisPorDimension(records, (r) => r.supervisor);
 }
 
+export interface MomentoSalida {
+  name: string;
+  value: number;
+  porcentaje: number;
+}
+
+export function caidasPorMomentoSalida(records: Promotor[]): MomentoSalida[] {
+  const caidasList = caidas(records);
+  const total = caidasList.length;
+  const diaCounts = new Map<number, number>();
+  let nunca = 0;
+  for (const r of caidasList) {
+    if (r.totalDias == null || r.totalDias === 0) {
+      nunca += 1;
+      continue;
+    }
+    diaCounts.set(r.totalDias, (diaCounts.get(r.totalDias) ?? 0) + 1);
+  }
+
+  const result: MomentoSalida[] = [];
+  result.push({
+    name: 'Nunca asistió',
+    value: nunca,
+    porcentaje: total > 0 ? (nunca / total) * 100 : 0,
+  });
+  for (let d = 1; d <= MAX_DAYS; d++) {
+    const value = diaCounts.get(d) ?? 0;
+    result.push({
+      name: `Día ${d}`,
+      value,
+      porcentaje: total > 0 ? (value / total) * 100 : 0,
+    });
+  }
+  return result;
+}
+
+export interface CaidaDimensionDia {
+  name: string;
+  dia: number | null;
+  diaPromedio: number | null;
+  cantidad: number;
+  total: number;
+}
+
+export function caidasPorDiaPorDimension(
+  records: Promotor[],
+  getter: (r: Promotor) => string,
+): CaidaDimensionDia[] {
+  const byDim = new Map<string, Map<number, number>>();
+  for (const r of caidas(records)) {
+    const norm = normalizeKey(getter(r));
+    if (!norm || norm === '—' || r.totalDias == null || r.totalDias === 0) continue;
+    if (!byDim.has(norm)) byDim.set(norm, new Map());
+    const byDay = byDim.get(norm)!;
+    byDay.set(r.totalDias, (byDay.get(r.totalDias) ?? 0) + 1);
+  }
+
+  const result: CaidaDimensionDia[] = [];
+  for (const [name, byDay] of byDim) {
+    let dia: number | null = null;
+    let cantidad = 0;
+    let total = 0;
+    let sumaDias = 0;
+    for (const [d, c] of byDay) {
+      total += c;
+      sumaDias += d * c;
+      if (c > cantidad) {
+        cantidad = c;
+        dia = d;
+      }
+    }
+    result.push({ name, dia, diaPromedio: total > 0 ? sumaDias / total : null, cantidad, total });
+  }
+
+  return result.sort((a, b) => b.cantidad - a.cantidad || b.total - a.total);
+}
+
+export function caidasPorDiaPorSede(records: Promotor[]): CaidaDimensionDia[] {
+  return caidasPorDiaPorDimension(records, (r) => r.sede);
+}
+
+export function caidasPorDiaPorSupervisor(records: Promotor[]): CaidaDimensionDia[] {
+  return caidasPorDiaPorDimension(records, (r) => r.supervisor);
+}
+
+export interface EmbudoCapacitacion {
+  totalIngresos: number;
+  inicianCapacitacion: number;
+  inicianPct: number;
+  desercion: number;
+  desercionPct: number;
+  bajas: number;
+  bajasPct: number;
+  pasanOperaciones: number;
+  pasanPct: number;
+  enCapacitacion: number;
+  enCapacitacionPct: number;
+  integridad: boolean;
+  diferencia: number;
+}
+
+export function computeEmbudo(records: Promotor[]): EmbudoCapacitacion {
+  const totalIngresos = records.length;
+  let inicianCapacitacion = 0;
+  let desercion = 0;
+  let bajas = 0;
+  let pasanOperaciones = 0;
+  let enCapacitacion = 0;
+
+  for (const r of records) {
+    if (r.totalDias != null && r.totalDias >= 1) inicianCapacitacion += 1;
+    if (r.pasaAOperaciones === 1) {
+      pasanOperaciones += 1;
+    } else if (r.pasaAOperaciones === 0) {
+      if (r.totalDias != null && r.totalDias >= 1) bajas += 1;
+      else desercion += 1;
+    } else {
+      enCapacitacion += 1;
+    }
+  }
+
+  const suma = desercion + bajas + pasanOperaciones + enCapacitacion;
+  const pct = (n: number) => (totalIngresos > 0 ? (n / totalIngresos) * 100 : 0);
+
+  return {
+    totalIngresos,
+    inicianCapacitacion,
+    inicianPct: pct(inicianCapacitacion),
+    desercion,
+    desercionPct: pct(desercion),
+    bajas,
+    bajasPct: pct(bajas),
+    pasanOperaciones,
+    pasanPct: pct(pasanOperaciones),
+    enCapacitacion,
+    enCapacitacionPct: pct(enCapacitacion),
+    integridad: suma === totalIngresos,
+    diferencia: totalIngresos - suma,
+  };
+}
+
 export interface HeatCell {
   supervisor: string;
   sede: string;
@@ -152,4 +295,51 @@ export function analizarHeatmap(records: Promotor[]): CaidasHeatmap {
   );
 
   return { sedes, supervisores, rows };
+}
+
+export function promotoresRiesgoDesaprobacion(records: Promotor[]): Promotor[] {
+  const hoy = todayISO();
+  return records.filter((r) => {
+    if (r.resultado !== 'PENDIENTE') return false;
+    if (r.estado !== 'EN_CAPACITACION') return false;
+    if (!r.fechasISO.inicio) return false;
+    const diasTranscurridos = diasEntre(r.fechasISO.inicio, hoy);
+    const tieneFin = Boolean(r.fechasISO.fin);
+    const avance = tieneFin ? diasEntre(r.fechasISO.inicio, r.fechasISO.fin) : 10;
+    if (avance <= 0) return false;
+    const progreso = diasTranscurridos / avance;
+    const esperado = Math.round(progreso * 10);
+    return esperado >= 3 && r.diasAsistidos < esperado - 1;
+  });
+}
+
+export type NivelRiesgo = 'bajo' | 'medio' | 'alto';
+
+export interface RiesgoDesaprobacion {
+  enRiesgo: number;
+  enCapacitacion: number;
+  pct: number;
+  promedioAsistencia: number;
+  nivel: NivelRiesgo;
+  ids: string[];
+}
+
+export function analizarRiesgoDesaprobacion(records: Promotor[]): RiesgoDesaprobacion {
+  const enCapacitacion = records.filter((r) => r.estado === 'EN_CAPACITACION');
+  const enRiesgo = promotoresRiesgoDesaprobacion(enCapacitacion);
+  const promedioAsistencia =
+    enRiesgo.length > 0 ? enRiesgo.reduce((acc, r) => acc + r.diasAsistidos, 0) / enRiesgo.length : 0;
+
+  let nivel: NivelRiesgo = 'bajo';
+  if (enRiesgo.length > 5) nivel = 'alto';
+  else if (enRiesgo.length > 0) nivel = 'medio';
+
+  return {
+    enRiesgo: enRiesgo.length,
+    enCapacitacion: enCapacitacion.length,
+    pct: enCapacitacion.length > 0 ? (enRiesgo.length / enCapacitacion.length) * 100 : 0,
+    promedioAsistencia,
+    nivel,
+    ids: enRiesgo.map((r) => r.id),
+  };
 }

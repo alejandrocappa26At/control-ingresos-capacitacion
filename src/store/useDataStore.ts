@@ -31,8 +31,8 @@ interface DataState {
   activeFiltersCount: number;
   uploadMeta: UploadMeta | null;
   isProcessing: boolean;
-  theme: 'light' | 'dark';
   sidebarCollapsed: boolean;
+  filterDrawerOpen: boolean;
 
   setRecords: (records: Promotor[], meta: UploadMeta) => void;
   clearData: () => void;
@@ -40,10 +40,13 @@ interface DataState {
   resetFilters: () => void;
   setSearchTerm: (term: string) => void;
   setIsProcessing: (value: boolean) => void;
-  toggleTheme: () => void;
-  setTheme: (theme: 'light' | 'dark') => void;
   toggleSidebar: () => void;
   setSidebarCollapsed: (value: boolean) => void;
+  openFilterDrawer: () => void;
+  closeFilterDrawer: () => void;
+  toggleFilterDrawer: () => void;
+  loadStartedAt: number;
+  setLoadStartedAt: (at: number) => void;
 }
 
 function hasActiveFilter(value: unknown): boolean {
@@ -71,8 +74,8 @@ export const useDataStore = create<DataState>((set) => ({
   activeFiltersCount: 0,
   uploadMeta: null,
   isProcessing: false,
-  theme: 'dark',
   sidebarCollapsed: false,
+  filterDrawerOpen: false,
 
   setRecords: (records, meta) =>
     set({
@@ -103,13 +106,17 @@ export const useDataStore = create<DataState>((set) => ({
 
   setIsProcessing: (value) => set({ isProcessing: value }),
 
-  toggleTheme: () => set((s) => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
-
-  setTheme: (theme) => set({ theme }),
-
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
 
   setSidebarCollapsed: (value) => set({ sidebarCollapsed: value }),
+
+  openFilterDrawer: () => set({ filterDrawerOpen: true }),
+
+  closeFilterDrawer: () => set({ filterDrawerOpen: false }),
+
+  toggleFilterDrawer: () => set((s) => ({ filterDrawerOpen: !s.filterDrawerOpen })),
+  loadStartedAt: 0,
+  setLoadStartedAt: (at) => set({ loadStartedAt: at }),
 }));
 
 export function selectFilteredRecords(input: {

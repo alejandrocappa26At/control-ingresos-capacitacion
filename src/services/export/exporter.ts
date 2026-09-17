@@ -5,6 +5,7 @@ import { saveAs } from 'file-saver';
 import Papa from 'papaparse';
 import type { Promotor } from '@/types';
 import { ESTADO_LABELS } from '@/lib/constants';
+import { etapaSalida } from '@/lib/etapa';
 
 export const EXPORTABLE_COLUMNS: Array<{ key: keyof Promotor | string; label: string }> = [
   { key: 'jurisdiccion', label: 'Jurisdicción' },
@@ -25,6 +26,8 @@ export const EXPORTABLE_COLUMNS: Array<{ key: keyof Promotor | string; label: st
   { key: 'diasAsistidos', label: 'Días asistidos' },
   { key: 'diasFaltantes', label: 'Días faltantes' },
   { key: 'resultado', label: 'Resultado' },
+  { key: 'etapaSalida', label: 'Etapa de salida' },
+  { key: 'totalDias', label: 'Total de días' },
   { key: 'motivoCaida', label: 'Motivo de caída' },
   { key: 'subMotivoCaida', label: 'Sub motivo de caída' },
   { key: 'estado', label: 'Estado' },
@@ -40,6 +43,10 @@ function buildRow(p: Promotor): Record<string, string | number> {
       row[col.label] = p.diasAsistidos;
     } else if (col.key === 'diasFaltantes') {
       row[col.label] = p.diasFaltantes;
+    } else if (col.key === 'etapaSalida') {
+      row[col.label] = etapaSalida(p).label;
+    } else if (col.key === 'totalDias') {
+      row[col.label] = p.totalDias ?? '—';
     } else if (col.key === 'estado') {
       row[col.label] = ESTADO_LABELS[p.estado] ?? p.estado;
     } else if (typeof value === 'string' || typeof value === 'number') {

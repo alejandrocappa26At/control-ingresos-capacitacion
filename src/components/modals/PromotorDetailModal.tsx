@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import type { Promotor } from '@/types';
 import { cn } from '@/lib/utils';
+import { etapaSalida } from '@/lib/etapa';
 
 function initialsOf(name: string): string {
   const parts = name.split(/\s+/).filter(Boolean);
@@ -204,9 +205,35 @@ export function PromotorDetailModal({ promotor, onClose }: { promotor: Promotor 
               value={promotor.resultado === 'APROBADO' ? 'Pasa a operaciones' : promotor.resultado === 'NO_APROBADO' ? 'No pasa a operaciones' : 'Pendiente'}
               highlight
             />
+            <Field
+              label="Estado de salida"
+              value={etapaSalida(promotor).label}
+            />
             <Field label="Motivo de caída" value={promotor.motivoCaida} />
             <Field label="Submotivo de caída" value={promotor.subMotivoCaida} />
           </Section>
+
+          {promotor.pasaAOperaciones === 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 shadow-[0_0_24px_-8px_rgba(244,63,94,0.5)] backdrop-blur"
+            >
+              <p className="text-xs font-semibold leading-relaxed text-rose-300">
+                {promotor.totalDias != null && promotor.totalDias > 0 ? (
+                  <>
+                    El promotor abandonó o fue retirado en el{' '}
+                    <span className="font-bold text-rose-200">Día {promotor.totalDias}</span> de capacitación.
+                  </>
+                ) : (
+                  <>
+                    El promotor <span className="font-bold text-rose-200">nunca asistió</span> a la capacitación.
+                  </>
+                )}
+              </p>
+            </motion.div>
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: 12 }}

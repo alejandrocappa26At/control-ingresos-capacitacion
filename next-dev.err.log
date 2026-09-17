@@ -1,1 +1,39 @@
 [browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] [ECharts] Can't get DOM width or height. Please check dom.clientWidth and dom.clientHeight. They should not be 0.For example, you may need to call this in the callback of window.onload. (<anonymous>)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] [ECharts] Can't get DOM width or height. Please check dom.clientWidth and dom.clientHeight. They should not be 0.For example, you may need to call this in the callback of window.onload. (<anonymous>)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] [ECharts] Can't get DOM width or height. Please check dom.clientWidth and dom.clientHeight. They should not be 0.For example, you may need to call this in the callback of window.onload. (<anonymous>)
+[browser] [ECharts] Can't get DOM width or height. Please check dom.clientWidth and dom.clientHeight. They should not be 0.For example, you may need to call this in the callback of window.onload. (<anonymous>)
+[browser] [ECharts] Can't get DOM width or height. Please check dom.clientWidth and dom.clientHeight. They should not be 0.For example, you may need to call this in the callback of window.onload. (<anonymous>)
+[browser] [Caídas por sede] Sin datos → Empty State. 0 sedes con caídas (PASA A OPERACIONES = No). (src/app/caidas/page.tsx:51:68)
+[browser] [Caídas por supervisor] Sin datos → Empty State. 0 supervisores con caídas. (src/app/caidas/page.tsx:52:74)
+[browser] [Día de caída por sede] Sin datos → Empty State. 0 sedes con día de caída registrado. (src/app/caidas/page.tsx:53:42)
+[browser] [Día de caída por supervisor] Sin datos → Empty State. 0 supervisores con día de caída registrado. (src/app/caidas/page.tsx:54:48)
+[browser] [Caídas por sede] Sin datos → Empty State. 0 sedes con caídas (PASA A OPERACIONES = No). (src/app/caidas/page.tsx:51:68)
+[browser] [Caídas por supervisor] Sin datos → Empty State. 0 supervisores con caídas. (src/app/caidas/page.tsx:52:74)
+[browser] [Día de caída por sede] Sin datos → Empty State. 0 sedes con día de caída registrado. (src/app/caidas/page.tsx:53:42)
+[browser] [Día de caída por supervisor] Sin datos → Empty State. 0 supervisores con día de caída registrado. (src/app/caidas/page.tsx:54:48)
+[browser] [Estadísticas de deserción] Sin datos → Empty State. 0 meses con deserciones (PASA A OPERACIONES = No y TOTAL DE DÍAS = 0). (src/app/caidas/page.tsx:72:48)
+[browser] [Heatmap de deserción] Sin datos → Empty State. 0 sedes con deserciones. (src/app/caidas/page.tsx:73:55)
+[browser] [Estadísticas de deserción] Sin datos → Empty State. 0 meses con deserciones (PASA A OPERACIONES = No y TOTAL DE DÍAS = 0). (src/app/caidas/page.tsx:72:48)
+[browser] [Heatmap de deserción] Sin datos → Empty State. 0 sedes con deserciones. (src/app/caidas/page.tsx:73:55)
+[browser] [Caídas por sede] Sin datos → Empty State. 0 sedes con caídas (PASA A OPERACIONES = No). (src/app/caidas/page.tsx:51:68)
+[browser] [Caídas por supervisor] Sin datos → Empty State. 0 supervisores con caídas. (src/app/caidas/page.tsx:52:74)
+[browser] [Día de caída por sede] Sin datos → Empty State. 0 sedes con día de caída registrado. (src/app/caidas/page.tsx:53:42)
+[browser] [Día de caída por supervisor] Sin datos → Empty State. 0 supervisores con día de caída registrado. (src/app/caidas/page.tsx:54:48)
+[browser] [Caídas por sede] Sin datos → Empty State. 0 sedes con caídas (PASA A OPERACIONES = No). (src/app/caidas/page.tsx:51:68)
+[browser] [Caídas por supervisor] Sin datos → Empty State. 0 supervisores con caídas. (src/app/caidas/page.tsx:52:74)
+[browser] [Día de caída por sede] Sin datos → Empty State. 0 sedes con día de caída registrado. (src/app/caidas/page.tsx:53:42)
+[browser] [Día de caída por supervisor] Sin datos → Empty State. 0 supervisores con día de caída registrado. (src/app/caidas/page.tsx:54:48)
+[browser] [Estadísticas de deserción] Sin datos → Empty State. 0 meses con deserciones (PASA A OPERACIONES = No y TOTAL DE DÍAS = 0). (src/app/caidas/page.tsx:72:48)
+[browser] [Heatmap de deserción] Sin datos → Empty State. 0 sedes con deserciones. (src/app/caidas/page.tsx:73:55)
+[browser] [Estadísticas de deserción] Sin datos → Empty State. 0 meses con deserciones (PASA A OPERACIONES = No y TOTAL DE DÍAS = 0). (src/app/caidas/page.tsx:72:48)
+[browser] [Heatmap de deserción] Sin datos → Empty State. 0 sedes con deserciones. (src/app/caidas/page.tsx:73:55)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] [ECharts] Can't get DOM width or height. Please check dom.clientWidth and dom.clientHeight. They should not be 0.For example, you may need to call this in the callback of window.onload. (<anonymous>)
+[browser] [ECharts] Can't get DOM width or height. Please check dom.clientWidth and dom.clientHeight. They should not be 0.For example, you may need to call this in the callback of window.onload. (<anonymous>)

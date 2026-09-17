@@ -2,8 +2,6 @@
 
 import { create } from 'zustand';
 import {
-  AUTH_PASSWORD,
-  AUTH_USER,
   clearStoredSession,
   credentialsAreValid,
   readStoredSession,
@@ -33,14 +31,7 @@ export const useSessionStore = create<SessionState>((set) => ({
   user: init.user,
   status: init.status,
   login: (user, password) => {
-    console.log('[AUTH] LOGIN ATTEMPT');
-    console.log('[AUTH] USER INPUT:', JSON.stringify(user));
-    console.log('[AUTH] PASSWORD LENGTH:', password.length);
-    console.log('[AUTH] AUTH_USER:', JSON.stringify(AUTH_USER));
-    console.log('[AUTH] AUTH_PASSWORD EXISTS:', !!AUTH_PASSWORD);
-
     const valid = credentialsAreValid(user, password);
-    console.log('[AUTH] credentialsAreValid ejecutado, resultado:', valid);
     if (!valid) return false;
     const cleanUser = user.trim();
     writeStoredSession(cleanUser);

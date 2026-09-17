@@ -9,20 +9,21 @@ import {
   BarChart3,
   Users,
   GraduationCap,
-  UploadCloud,
   CalendarCheck2,
   TrendingDown,
-  ChevronLeft,
+  PanelLeftOpen,
+  ChevronsLeft,
   PresentationIcon,
-  Clock3,
   LogOut,
+  FileSpreadsheet,
+  SlidersHorizontal,
+  type LucideIcon,
 } from 'lucide-react';
 import { useDataStore } from '@/store/useDataStore';
 import { useSessionStore } from '@/store/useSessionStore';
 import { computeKpis } from '@/services/analytics/kpis';
 import { generarAlertas } from '@/services/alerts/inteligencia';
 import { cn } from '@/lib/utils';
-import { formatISOToDisplay } from '@/lib/dates';
 import { Tooltip } from '@/components/ui/tooltip';
 
 type Tone = 'rose' | 'amber' | 'red';
@@ -34,9 +35,10 @@ const BADGE_TONES: Record<Tone, { chip: string; dot: string }> = {
 };
 
 interface NavItem {
-  href: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: LucideIcon;
+  href?: string;
+  filters?: boolean;
   badge?: Tone;
 }
 
@@ -53,22 +55,21 @@ const NAV_SECTIONS: Array<{ section: string; items: NavItem[] }> = [
     items: [
       { href: '/ingresos', label: 'Ingresos', icon: Users },
       { href: '/capacitacion', label: 'Capacitación', icon: GraduationCap, badge: 'amber' },
+      { href: '/asistencia', label: 'Asistencia', icon: CalendarCheck2 },
     ],
   },
   {
     section: 'Control',
     items: [
-      { href: '/asistencia', label: 'Asistencia', icon: CalendarCheck2 },
       { href: '/caidas', label: 'Caídas', icon: TrendingDown, badge: 'red' },
+      { filters: true, label: 'Filtros', icon: SlidersHorizontal },
+      { href: '/upload', label: 'Importar Excel', icon: FileSpreadsheet },
     ],
-  },
-  {
-    section: 'Configuración',
-    items: [{ href: '/upload', label: 'Cargar Excel', icon: UploadCloud }],
   },
 ];
 
 function formatCount(n: number): string {
+  if (n === 0) return '0';
   return n > 99 ? '99+' : String(n);
 }
 
@@ -76,8 +77,10 @@ export function Sidebar() {
   const pathname = usePathname();
   const collapsed = useDataStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useDataStore((s) => s.toggleSidebar);
-  const uploadMeta = useDataStore((s) => s.uploadMeta);
   const records = useDataStore((s) => s.records);
+  const filterDrawerOpen = useDataStore((s) => s.filterDrawerOpen);
+  const openFilterDrawer = useDataStore((s) => s.openFilterDrawer);
+  const activeFiltersCount = useDataStore((s) => s.activeFiltersCount);
   const sessionUser = useSessionStore((s) => s.user);
   const logout = useSessionStore((s) => s.logout);
 
@@ -103,9 +106,15 @@ export function Sidebar() {
   }, [records]);
 
   const badgeCount = (item: NavItem): number => {
+    if (item.filters) return activeFiltersCount;
     if (!item.badge) return 0;
     return item.badge === 'rose' ? badges.alertas : item.badge === 'amber' ? badges.capacitacion : badges.caidas;
   };
+
+  const itemChip = (isFilters: boolean) =>
+    isFilters
+      ? { chip: 'bg-brand-500/15 text-brand-300 ring-brand-500/30', dot: 'bg-brand-400' }
+      : null;
 
   return (
     <motion.aside
@@ -183,21 +192,16 @@ export function Sidebar() {
 
               <div className="space-y-1">
                 {items.map((item) => {
-                  const active = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+                  const isFilters = item.filters === true;
+                  const active = isFilters
+                    ? filterDrawerOpen
+                    : item.href != null && (pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href)));
                   const count = badgeCount(item);
                   const tone = item.badge ? BADGE_TONES[item.badge] : null;
+                  const chip = itemChip(isFilters);
 
-                  const link = (
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        'group relative flex items-center gap-3 rounded-xl px-2.5 py-2 transition-all duration-300 ease-out',
-                        active
-                          ? 'text-white'
-                          : 'text-ink-soft hover:translate-x-1 hover:bg-white/[0.04] hover:text-ink',
-                        collapsed && 'justify-center px-0 hover:translate-x-0',
-                      )}
-                    >
+                  const inner = (
+                    <>
                       {active && (
                         <>
                           <motion.span
@@ -223,11 +227,11 @@ export function Sidebar() {
                         )}
                       >
                         <item.icon className="size-[17px] transition-transform duration-300 group-hover:scale-110" />
-                        {collapsed && tone && count > 0 && (
+                        {collapsed && count > 0 && (
                           <span
                             className={cn(
                               'absolute -top-1.5 -right-1.5 flex min-w-4 items-center justify-center rounded-full border border-canvas px-1 py-px text-[9px] font-bold ring-1 tabular-nums',
-                              tone.chip,
+                              tone?.chip ?? chip?.chip,
                             )}
                           >
                             {formatCount(count)}
@@ -239,23 +243,47 @@ export function Sidebar() {
                         <span className={cn('truncate text-sm font-semibold', active && 'text-glow')}>{item.label}</span>
                       )}
 
-                      {!collapsed && tone && count > 0 && (
-                        <span className={cn('ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset tabular-nums', tone.chip)}>
-                          <span className={cn('size-1.5 rounded-full animate-pulse-glow', tone.dot)} />
+                      {!collapsed && count > 0 && (
+                        <span className={cn('ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset tabular-nums', tone?.chip ?? chip?.chip)}>
+                          <span className={cn('size-1.5 rounded-full animate-pulse-glow', tone?.dot ?? chip?.dot)} />
                           {formatCount(count)}
                         </span>
                       )}
+                    </>
+                  );
+
+                  const classes = cn(
+                    'group relative flex w-full items-center gap-3 rounded-xl px-2.5 py-2 transition-all duration-300 ease-out',
+                    active
+                      ? 'text-white'
+                      : 'text-ink-soft hover:translate-x-1 hover:bg-white/[0.04] hover:text-ink',
+                    collapsed && 'justify-center px-0 hover:translate-x-0',
+                  );
+
+                  const content = isFilters ? (
+                    <button
+                      key="filtros-action"
+                      type="button"
+                      onClick={openFilterDrawer}
+                      className={classes}
+                      aria-label={`Abrir panel de filtros · ${count} activo${count === 1 ? '' : 's'}`}
+                    >
+                      {inner}
+                    </button>
+                  ) : (
+                    <Link key={item.href} href={item.href!} className={classes}>
+                      {inner}
                     </Link>
                   );
 
                   if (collapsed) {
                     return (
-                      <Tooltip key={item.href} content={item.label} side="right">
-                        {link}
+                      <Tooltip key={isFilters ? 'filtros' : item.href} content={item.label} side="right">
+                        {content}
                       </Tooltip>
                     );
                   }
-                  return <div key={item.href}>{link}</div>;
+                  return <div key={isFilters ? 'filtros' : item.href}>{content}</div>;
                 })}
               </div>
             </div>
@@ -263,94 +291,48 @@ export function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="space-y-2.5 border-t border-line/80 p-3">
-          <motion.button
-            onClick={toggleSidebar}
-            whileTap={{ scale: 0.96 }}
-            className={cn(
-              'flex w-full items-center gap-2.5 rounded-xl border border-line bg-white/[0.03] py-2 text-xs font-semibold text-ink-soft transition-all duration-300 hover:border-brand-400/30 hover:bg-brand-500/10 hover:text-brand-300 hover:shadow-glow-sm',
-              collapsed ? 'justify-center px-0 py-2.5' : 'pl-3 pr-2',
-            )}
-            aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
-          >
-            {collapsed ? (
-              <Tooltip content="Expandir menú" side="right">
-                <span className="flex items-center justify-center">
-                  <ChevronLeft className="size-4 rotate-180 transition-transform duration-300" />
-                </span>
-              </Tooltip>
-            ) : (
-              <>
-                <ChevronLeft className="size-4 transition-transform duration-300" />
-                <span className="flex-1 text-left">Colapsar</span>
-                <kbd className="rounded-md border border-line bg-surface-3 px-1.5 py-0.5 text-[9px] font-bold text-ink-soft">⌘</kbd>
-              </>
-            )}
-          </motion.button>
-
-          {uploadMeta ? (
-            collapsed ? (
-              <Tooltip content={`Última actualización: ${formatISOToDisplay(uploadMeta.uploadedAt)}`} side="right">
-                <div className="flex items-center justify-center rounded-xl border border-line bg-white/[0.03] py-2.5">
-                  <Clock3 className="size-4 text-brand-400" />
-                </div>
-              </Tooltip>
-            ) : (
-              <div className="flex items-center gap-2.5 rounded-xl border border-line bg-white/[0.03] px-3 py-2.5 transition-colors duration-300 hover:bg-white/[0.05]">
-                <Clock3 className="size-4 shrink-0 text-brand-400" />
-                <div className="min-w-0">
-                  <p className="text-[10px] font-semibold tracking-wide text-ink-muted uppercase">Actualizado</p>
-                  <p className="truncate text-[11px] font-bold text-ink tabular-nums">{formatISOToDisplay(uploadMeta.uploadedAt)}</p>
-                </div>
-              </div>
-            )
-          ) : (
-            !collapsed && <p className="px-3 text-center text-[10px] text-ink-soft">Sin datos cargados</p>
-          )}
-
-          <div className={cn('flex items-center gap-2.5 rounded-xl py-1.5', collapsed && 'justify-center px-0')}>
+        <div className="border-t border-line/80 p-3">
+          <div className={cn('flex items-center gap-2', collapsed && 'flex-col gap-2')}>
             <div className="relative shrink-0">
-              <motion.div
-                whileHover={{ scale: 1.06 }}
-                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="flex size-9 items-center justify-center rounded-xl gradient-brand text-xs font-bold text-white shadow-glow-sm"
-              >
-                {sessionUser ? sessionUser.slice(0, 2).toUpperCase() : 'US'}
-              </motion.div>
-              <span className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-canvas bg-emerald-400" style={{ boxShadow: '0 0 8px rgba(16,185,129,0.9)' }} />
+              <div className="flex size-9 items-center justify-center rounded-xl gradient-brand text-xs font-bold text-white shadow-glow-sm">
+                {sessionUser ? sessionUser.slice(0, 2).toUpperCase() : 'CA'}
+              </div>
+              <span
+                className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-canvas bg-emerald-400"
+                style={{ boxShadow: '0 0 8px rgba(16,185,129,0.9)' }}
+              />
             </div>
+
             {!collapsed && (
               <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 truncate text-xs font-bold text-ink">
-                  {sessionUser}
-                  <span className="rounded-full bg-emerald-400/10 px-1.5 py-px text-[8px] font-bold text-emerald-400 ring-1 ring-emerald-400/30">
-                    CONECTADO
-                  </span>
+                <p className="truncate text-xs font-bold text-ink">{sessionUser ?? 'capacitacion'}</p>
+                <p className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-400">
+                  <span className="size-1 animate-pulse-glow rounded-full bg-emerald-400 shadow-[0_0_6px_currentColor]" />
+                  En línea
                 </p>
-                <p className="truncate text-[10px] font-medium text-ink-soft">Control de Ingresos y Capacitación</p>
               </div>
             )}
-            {!collapsed ? (
-              <Tooltip content="Cerrar sesión" side="left">
+
+            <div className={cn('flex shrink-0 items-center gap-1.5', collapsed && 'flex-col')}>
+              <Tooltip content={collapsed ? 'Expandir menú' : 'Colapsar menú'} side={collapsed ? 'right' : 'left'}>
+                <button
+                  onClick={toggleSidebar}
+                  aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+                  className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line bg-white/[0.03] text-ink-soft transition-all duration-300 hover:scale-105 hover:border-brand-400/40 hover:bg-brand-500/10 hover:text-brand-300 hover:shadow-glow-sm active:scale-95"
+                >
+                  {collapsed ? <PanelLeftOpen className="size-4" /> : <ChevronsLeft className="size-4" />}
+                </button>
+              </Tooltip>
+              <Tooltip content="Cerrar sesión" side={collapsed ? 'right' : 'left'}>
                 <button
                   onClick={logout}
                   aria-label="Cerrar sesión"
-                  className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-line bg-white/[0.03] text-ink-soft transition-all duration-300 hover:border-rose-400/30 hover:bg-rose-500/10 hover:text-rose-400 hover:shadow-glow-sm"
+                  className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line bg-white/[0.03] text-ink-soft transition-all duration-300 hover:scale-105 hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-rose-400 hover:shadow-glow-sm active:scale-95"
                 >
-                  <LogOut className="size-3.5" />
+                  <LogOut className="size-4" />
                 </button>
               </Tooltip>
-            ) : (
-              <Tooltip content="Cerrar sesión" side="right">
-                <button
-                  onClick={logout}
-                  aria-label="Cerrar sesión"
-                  className="flex size-8 items-center justify-center rounded-lg border border-line bg-white/[0.03] text-ink-soft transition-all duration-300 hover:border-rose-400/30 hover:bg-rose-500/10 hover:text-rose-400 hover:shadow-glow-sm"
-                >
-                  <LogOut className="size-3.5" />
-                </button>
-              </Tooltip>
-            )}
+            </div>
           </div>
         </div>
       </div>

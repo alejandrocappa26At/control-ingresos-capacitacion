@@ -2,24 +2,11 @@
 
 import * as React from 'react';
 import { motion } from 'framer-motion';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  LabelList,
-  PieChart,
-  Pie,
-  AreaChart,
-  Area,
-} from 'recharts';
+import type { EChartsOption } from 'echarts';
 import { formatNumber } from '@/lib/utils';
 import { CountUp } from '@/components/ui/count-up';
 import { BarChart3 } from 'lucide-react';
+import { QiEChart, qiVTextGradient, tipHeader, tipRow } from '@/components/charts/EChart';
 
 export const CHART_COLORS = ['#e30613', '#ff2735', '#ffffff', '#52525b', '#a1a1aa', '#ff6b6b', '#71717a', '#ffb9bc'];
 
@@ -41,75 +28,9 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-interface TooltipStyleProps {
-  active?: boolean;
-  payload?: Array<{ name?: string; value?: number | string; payload?: Record<string, unknown>; color?: string }>;
-  label?: string;
-  formatter?: (value: number | string, name: string) => string;
-  total?: number;
-  metaKey?: string;
-  metaLabel?: string;
-}
-
-export function ChartTooltip({ active, payload, label, formatter, total, metaKey, metaLabel }: TooltipStyleProps) {
-  if (!active || !payload?.length) return null;
-  const dayTotal = total ?? payload.reduce((acc, p) => acc + (Number(p.value) || 0), 0);
-  const meta = metaKey ? (payload[0]?.payload?.[metaKey] as number | undefined) : undefined;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10, scale: 0.94 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-      className="glass-strong pointer-events-none rounded-2xl border border-white/15 px-4 py-3 shadow-glow backdrop-blur-xl"
-    >
-      {label && (
-        <p className="mb-2 border-b border-white/10 pb-1.5 text-xs font-bold tracking-wide text-ink uppercase">{label}</p>
-      )}
-      <div className="space-y-1.5">
-        {payload.map((entry, i) => {
-          const value = Number(entry.value) || 0;
-          const fill = entry.color ?? RANK_GRADIENTS[i % RANK_GRADIENTS.length][0];
-          const pct = dayTotal > 0 ? ((value / dayTotal) * 100).toFixed(1) : '0.0';
-          const text = formatter
-            ? formatter(entry.value ?? 0, entry.name ?? '')
-            : `${formatNumber(value)}`;
-          return (
-            <div key={entry.name ?? i} className="flex items-center gap-2.5 text-xs">
-              <span className="size-2.5 rounded-full" style={{ background: fill, boxShadow: `0 0 10px ${fill}` }} />
-              <span className="font-medium text-ink-muted">{entry.name}</span>
-              <span className="ml-auto font-bold tabular-nums text-ink">{text}</span>
-              {!formatter && dayTotal > 0 && <span className="w-12 text-right font-semibold tabular-nums text-ink-soft">{pct}%</span>}
-            </div>
-          );
-        })}
-      </div>
-      {meta !== undefined && typeof meta === 'number' && (
-        <p className="mt-2 flex items-center gap-1.5 rounded-lg bg-brand-500/10 px-2 py-1 text-[11px] font-bold text-brand-300">
-          {metaLabel ?? 'Complemento'}
-          <span className="ml-auto tabular-nums">{meta.toFixed(1)}%</span>
-        </p>
-      )}
-    </motion.div>
-  );
-}
-
-type BarLabelProps = { x?: number; y?: number; width?: number; value?: number | string };
-
-function BarLabel({ x = 0, y = 0, width = 0, value = 0 }: BarLabelProps) {
-  return (
-    <text
-      x={x + width / 2}
-      y={y - 6}
-      textAnchor="middle"
-      fill="#ffffff"
-      fontSize={11}
-      fontWeight={700}
-      style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.7))' }}
-    >
-      {formatNumber(Number(value) || 0)}
-    </text>
-  );
+function shortNum(value: number): string {
+  if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+  return String(value);
 }
 
 export function BaseBarChart({
@@ -127,64 +48,71 @@ export function BaseBarChart({
   height?: number;
   radius?: number;
 }) {
-  const [hovered, setHovered] = React.useState<number | null>(null);
   const rows = data as Array<Record<string, number | string> & { [key: string]: number | string }>;
   if (!rows.length) return <NoData />;
   const total = rows.reduce((acc, d) => acc + (Number(d[dataKey]) || 0), 0);
-  const gradientId = `gbars-${color.replace('#', '')}`;
-  const max = Math.max(...rows.map((d) => Number(d[dataKey]) || 0));
+  const max = Math.max(...rows.map((d) => Number(d[dataKey]) || 0), 1);
+
+  const option: EChartsOption = {
+    grid: { containLabel: true, top: 28, left: 8, right: 8, bottom: 0 },
+    xAxis: {
+      type: 'category',
+      data: rows.map((d) => String(d[nameKey])),
+      axisLabel: { color: '#a1a1aa', fontSize: 11, hideOverlap: true },
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)', type: 'dashed' } },
+      axisLabel: { color: '#a1a1aa', fontSize: 11, formatter: (v: number) => shortNum(v) },
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(255,255,255,0.045)' } },
+      formatter: (ps) => {
+        const params = Array.isArray(ps) ? ps : [ps];
+        const first = params[0];
+        const value = Number(first?.value) || 0;
+        const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+        const row = first?.data as Record<string, number | string> | undefined;
+        return (
+          tipHeader(String(row?.[nameKey] ?? first?.name ?? '—')) +
+          tipRow(color, String(nameKey), formatNumber(value), `${pct}%`)
+        );
+      },
+    },
+    series: [
+      {
+        type: 'bar',
+        data: rows.map((d) => ({
+          value: Number(d[dataKey]) || 0,
+          itemStyle: color ? { color: qiVTextGradient(color, 1, 0.35) } : undefined,
+        })),
+        barMaxWidth: 44,
+        itemStyle: {
+          borderRadius: [radius, radius, 0, 0],
+          shadowColor: hexToRgba(color, 0.35),
+          shadowBlur: 12,
+        },
+        label: {
+          show: true,
+          position: 'top',
+          color: '#f4f4f5',
+          fontSize: 11,
+          fontWeight: 700,
+          formatter: (p) => formatNumber(Number(p.value) || 0),
+        },
+        showBackground: true,
+        backgroundStyle: { color: 'rgba(255,255,255,0.045)', borderRadius: [radius, radius, 0, 0] },
+        animationDelay: (idx: number) => idx * 70,
+        animationDuration: 650,
+        animationEasing: 'cubicOut',
+      },
+    ],
+  };
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-      <ResponsiveContainer width="100%" height={height}>
-        <BarChart data={rows} margin={{ top: 18, right: 8, left: 8, bottom: 0 }}>
-          <defs>
-            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={1} />
-              <stop offset="55%" stopColor={color} stopOpacity={0.85} />
-              <stop offset="100%" stopColor={color} stopOpacity={0.38} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="4 8" stroke="rgba(255,255,255,0.07)" vertical={false} />
-          <XAxis
-            dataKey={nameKey}
-            tick={{ fontSize: 11, fill: 'var(--ink-soft)' }}
-            axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
-            tickLine={false}
-            interval="preserveStartEnd"
-            dy={6}
-          />
-          <YAxis
-            tick={{ fontSize: 11, fill: 'var(--ink-soft)' }}
-            axisLine={false}
-            tickLine={false}
-            allowDecimals={false}
-            width={0}
-            domain={[0, (dataMax: number) => Math.max(4, Math.ceil(dataMax * 1.18))]}
-          />
-          <Tooltip
-            content={<ChartTooltip total={total} />}
-            cursor={{ fill: 'rgba(255,255,255,0.045)', stroke: color, strokeOpacity: 0.3, strokeWidth: 1, radius: 8 }}
-          />
-          <Bar dataKey={dataKey} radius={[radius, radius, 0, 0]} maxBarSize={46} animationDuration={650} animationEasing="ease-out">
-            {rows.map((entry, i) => (
-              <Cell
-                key={entry[nameKey] as string}
-                fill={`url(#${gradientId})`}
-                fillOpacity={hovered === null || hovered === i ? 1 : 0.45}
-                onMouseEnter={() => setHovered(i)}
-                onMouseLeave={() => setHovered(null)}
-                style={{
-                  filter: `drop-shadow(0 ${hovered === i ? 12 : 6}px ${hovered === i ? 18 : 10}px ${hexToRgba(color, hovered === i ? 0.45 : 0.25)})`,
-                  transition: 'filter 0.25s ease',
-                  cursor: 'pointer',
-                }}
-              />
-            ))}
-            <LabelList dataKey={dataKey} position="top" content={<BarLabel />} />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <QiEChart option={option} height={height} />
       <div className="mt-1 flex justify-between border-t border-white/5 pt-2 text-[11px] text-ink-soft">
         <span>
           Máximo: <span className="font-bold text-ink">{formatNumber(max)}</span>
@@ -311,46 +239,46 @@ export function DonutChart({
   const total = data.reduce((acc, d) => acc + d.value, 0);
   if (!total) return <NoData />;
 
+  const option: EChartsOption = {
+    tooltip: {
+      trigger: 'item',
+      formatter: (params) => {
+        const p = params as { name?: string; value?: number; color?: string };
+        const value = Number(p.value) || 0;
+        const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+        const text = formatter ? formatter(value, String(p.name ?? '—')) : formatNumber(value);
+        return tipHeader(String(p.name ?? '—')) + tipRow(p.color ?? colors[0], 'Registros', text, `${pct}%`);
+      },
+    },
+    series: [
+      {
+        type: 'pie',
+        radius: ['70%', '92%'],
+        center: ['50%', '44%'],
+        padAngle: 4,
+        itemStyle: { borderColor: 'var(--surface-2)', borderWidth: 2 },
+        label: { show: false },
+        labelLine: { show: false },
+        emphasis: { scaleSize: 8, itemStyle: { shadowColor: 'rgba(227,6,19,0.5)', shadowBlur: 22 } },
+        animationDuration: 900,
+        animationEasing: 'cubicOut',
+        data: data.map((entry, i) => ({
+          name: entry.name,
+          value: entry.value,
+          itemStyle: {
+            color: colors[i % colors.length],
+            shadowColor: hexToRgba(colors[i % colors.length], 0.45),
+            shadowBlur: 14,
+          },
+        })),
+      },
+    ],
+  };
+
   return (
     <motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}>
       <div className="relative" style={{ height }}>
-        <div className="absolute inset-0" style={{ filter: 'drop-shadow(0 0 22px rgba(227,6,19,0.28))' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <defs>
-                {data.map((entry, i) => {
-                  const c = colors[i % colors.length];
-                  return (
-                    <radialGradient key={entry.name} id={`dn-${c.replace('#', '')}-${i}`} cx="50%" cy="42%" r="78%">
-                      <stop offset="0%" stopColor={c} stopOpacity={0.55} />
-                      <stop offset="70%" stopColor={c} stopOpacity={0.92} />
-                      <stop offset="100%" stopColor={c} stopOpacity={1} />
-                    </radialGradient>
-                  );
-                })}
-              </defs>
-              <Pie
-                data={data}
-                dataKey="value"
-                nameKey="name"
-                innerRadius="70%"
-                outerRadius="92%"
-                paddingAngle={3}
-                cornerRadius={12}
-                stroke="var(--surface-2)"
-                strokeWidth={2}
-                animationDuration={900}
-                animationBegin={120}
-                animationEasing="ease-out"
-              >
-                {data.map((entry, i) => (
-                  <Cell key={entry.name} fill={`url(#dn-${colors[i % colors.length].replace('#', '')}-${i})`} />
-                ))}
-              </Pie>
-              <Tooltip content={<ChartTooltip total={total} formatter={formatter} />} cursor={false} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+        <QiEChart option={option} height={height} />
         {(centerLabel || centerValue) && (
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pb-8">
             <span className="text-[10px] font-bold tracking-[0.2em] text-ink-muted uppercase">TOTAL</span>
@@ -405,7 +333,7 @@ export function PremiumAreaChart({
 }) {
   const rows = data as Array<{ name: string } & Record<string, number | string>>;
   if (!rows.length) return <NoData />;
-  const series = Object.keys(rows[0]).filter(
+  const seriesKeys = Object.keys(rows[0]).filter(
     (k) => k !== 'name' && typeof rows[0][k] === 'number' && k !== '__typename',
   );
 
@@ -413,41 +341,60 @@ export function PremiumAreaChart({
     { key: 'Asistieron', color: '#10b981' },
     { key: 'Faltaron', color: '#f43f5e' },
   ];
+  const active = SERIES_COLORS.filter((s) => seriesKeys.includes(s.key));
+  const metaKey = seriesKeys.find((k) => !active.some((s) => s.key === k));
+
+  const option: EChartsOption = {
+    grid: { containLabel: true, top: 32, left: 8, right: 8, bottom: 4 },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'line', lineStyle: { color: 'rgba(255,255,255,0.15)' } },
+      formatter: (ps) => {
+        const params = (Array.isArray(ps) ? ps : [ps]) as Array<{ seriesName?: string; name?: string; value?: number }>;
+        const datum = rows[Math.max(0, params[0]?.name ? rows.findIndex((r) => r.name === params[0]?.name) : 0)] ?? rows[0];
+        if (!params.length) return '';
+        let html = tipHeader(String(params[0]?.name ?? ''));
+        for (const p of params) {
+          const color = active.find((s) => s.key === p.seriesName)?.color ?? '#a1a1aa';
+          const key = p.seriesName ?? '';
+          const metaValue = typeof datum?.[key] === 'number' ? formatNumber(Number(datum[key])) : formatNumber(Number(p.value) || 0);
+          html += tipRow(color, String(p.seriesName), metaValue);
+        }
+        if (metaKey && datum != null) {
+          const metaNum = Number(datum[metaKey]) || 0;
+          html += `<div style="margin-top:6px;padding:6px 10px;border-radius:8px;background:rgba(227,6,19,0.12);display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:#fda4af"><span>${metaKey}</span><span>${metaNum.toFixed(1)}%</span></div>`;
+        }
+        return html;
+      },
+    },
+    legend: {
+      data: active.map((s) => s.key),
+      top: 0,
+      right: 0,
+      icon: 'roundRect',
+      itemWidth: 10,
+      itemHeight: 10,
+      textStyle: { color: '#a1a1aa', fontSize: 12 },
+    },
+    xAxis: { type: 'category', data: rows.map((r) => r.name), axisLabel: { color: '#a1a1aa', fontSize: 11, hideOverlap: true } },
+    yAxis: { type: 'value', splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)', type: 'dashed' } }, axisLabel: { color: '#a1a1aa', fontSize: 11, formatter: (v: number) => shortNum(v) } },
+    series: active.map((s) => ({
+      type: 'line',
+      name: s.key,
+      data: rows.map((r) => Number(r[s.key]) || 0),
+      smooth: true,
+      symbol: 'none',
+      lineStyle: { color: s.color, width: 2.5, shadowColor: hexToRgba(s.color, 0.5), shadowBlur: 10 },
+      areaStyle: { color: qiVTextGradient(s.color, 0.4, 0.02) },
+      emphasis: { focus: 'series', lineStyle: { width: 3.5 } },
+      animationDuration: 700,
+      animationEasing: 'cubicOut',
+    })),
+  };
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-      <ResponsiveContainer width="100%" height={height}>
-        <AreaChart data={rows} margin={{ top: 10, right: 8, left: 8, bottom: 0 }}>
-          <defs>
-            {SERIES_COLORS.map(({ key, color }) => (
-              <linearGradient key={key} id={`area-${key}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={color} stopOpacity={0.45} />
-                <stop offset="55%" stopColor={color} stopOpacity={0.12} />
-                <stop offset="100%" stopColor={color} stopOpacity={0.02} />
-              </linearGradient>
-            ))}
-          </defs>
-          <CartesianGrid strokeDasharray="4 8" stroke="rgba(255,255,255,0.07)" vertical={false} />
-          <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--ink-soft)' }} axisLine={{ stroke: 'rgba(255,255,255,0.08)' }} tickLine={false} dy={6} />
-          <YAxis tick={{ fontSize: 11, fill: 'var(--ink-soft)' }} axisLine={false} tickLine={false} allowDecimals={false} width={0} />
-          <Tooltip content={<ChartTooltip metaKey="% Asistencia" metaLabel="Asistencia del día" />} />
-          {SERIES_COLORS.filter((s) => series.includes(s.key)).map(({ key, color }) => (
-            <Area
-              key={key}
-              type="monotone"
-              dataKey={key}
-              stroke={color}
-              strokeWidth={2.5}
-              fill={`url(#area-${key})`}
-              dot={false}
-              activeDot={{ r: 5, fill: color, stroke: '#0b0f1c', strokeWidth: 2 }}
-              style={{ filter: `drop-shadow(0 0 8px ${hexToRgba(color, 0.55)})` }}
-              animationDuration={700}
-              animationEasing="ease-out"
-            />
-          ))}
-        </AreaChart>
-      </ResponsiveContainer>
+      <QiEChart option={option} height={height} />
     </motion.div>
   );
 }
@@ -455,9 +402,6 @@ export function PremiumAreaChart({
 export function SegmentBar({ data, height = 14 }: { data: Array<{ name: string; value: number }>; height?: number }) {
   const total = data.reduce((acc, d) => acc + d.value, 0);
   if (!total) return <NoData />;
-  const segments = [
-    ...data,
-  ];
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -466,7 +410,7 @@ export function SegmentBar({ data, height = 14 }: { data: Array<{ name: string; 
       className="flex w-full overflow-hidden rounded-full"
       style={{ height, boxShadow: 'inset 0 0 8px rgba(0,0,0,0.35)' }}
     >
-      {segments.map((segment, i) => {
+      {data.map((segment, i) => {
         const [from, to] = RANK_GRADIENTS[i % RANK_GRADIENTS.length];
         return (
           <motion.div

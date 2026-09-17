@@ -32,6 +32,7 @@ export interface Promotor {
   asistencia: Array<1 | 0 | null>;
   diasAsistidos: number;
   diasFaltantes: number;
+  totalDias: number | null;
   pasaAOperaciones: 1 | 0 | null;
   motivoCaida: string;
   subMotivoCaida: string;

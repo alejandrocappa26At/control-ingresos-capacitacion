@@ -4,14 +4,13 @@ import { useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { FilterChips } from '@/components/filters/FilterChips';
+import { FilterDrawer } from '@/components/filters/FilterDrawer';
 import { AuthGate } from '@/components/auth/AuthGate';
-import { useThemeEffect } from '@/hooks/useTheme';
 import { useDataStore } from '@/store/useDataStore';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  useThemeEffect();
   const collapsed = useDataStore((s) => s.sidebarCollapsed);
   const setSidebarCollapsed = useDataStore((s) => s.setSidebarCollapsed);
   const pathname = usePathname();
@@ -45,6 +44,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <FilterChips />
             <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
           </div>
+          <FilterDrawer />
         </div>
       )}
     </AuthGate>

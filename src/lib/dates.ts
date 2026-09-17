@@ -21,11 +21,28 @@ export function excelSerialToDate(serial: number): Date | null {
 function tryParseStringDate(value: string): Date | null {
   const trimmed = value.trim();
 
+  let m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(trimmed);
+  if (m) {
+    const date = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    return isValid(date) ? date : null;
+  }
+  m = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(trimmed);
+  if (m) {
+    const date = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    return isValid(date) ? date : null;
+  }
+  m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(trimmed);
+  if (m) {
+    const date = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return isValid(date) ? date : null;
+  }
+  m = /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/.exec(trimmed);
+  if (m) {
+    const date = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return isValid(date) ? date : null;
+  }
+
   const patterns: Array<[string, string]> = [
-    ['iiii/MM/yyyy', 'dd/MM/yyyy'],
-    ['iiii-MM-yyyy', 'dd-MM-yyyy'],
-    ['yyyy-MM-dd', 'yyyy-MM-dd'],
-    ['yyyy/MM/dd', 'yyyy/MM/dd'],
     ['iiii.MM.yyyy', 'dd.MM.yyyy'],
   ];
 

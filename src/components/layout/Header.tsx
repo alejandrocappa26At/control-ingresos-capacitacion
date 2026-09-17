@@ -1,31 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  PanelLeftClose,
-  PanelLeftOpen,
-  MoonStar,
-  Sun,
-  Search,
-  SlidersHorizontal,
-  FileSpreadsheet,
-  FileDown,
-  ChevronRight,
-  Home,
-  Clock3,
-  X,
-} from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, Search, ChevronRight, Home, X } from 'lucide-react';
 import { useDataStore } from '@/store/useDataStore';
-import { useAppData } from '@/hooks/useAppData';
 import { useSessionStore } from '@/store/useSessionStore';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePathname } from 'next/navigation';
-import { exportExcel, exportCSV } from '@/services/export/exporter';
-import { Tooltip } from '@/components/ui/tooltip';
-import { FilterDrawer } from '@/components/filters/FilterDrawer';
-import { toast } from 'sonner';
-import { formatISOToDisplay } from '@/lib/dates';
-import { cn } from '@/lib/utils';
 
 const TITLES: Record<string, string> = {
   '/': 'Dashboard',
@@ -41,25 +21,17 @@ export function Header() {
   const pathname = usePathname();
   const collapsed = useDataStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useDataStore((s) => s.toggleSidebar);
-  const theme = useDataStore((s) => s.theme);
-  const toggleTheme = useDataStore((s) => s.toggleTheme);
   const setSearchTerm = useDataStore((s) => s.setSearchTerm);
-  const records = useDataStore((s) => s.records);
-  const uploadMeta = useDataStore((s) => s.uploadMeta);
-  const { filtered } = useAppData();
+  const sessionUser = useSessionStore((s) => s.user);
 
   const [value, setValue] = useState('');
   const debounced = useDebounce(value, 250);
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const activeFiltersCount = useDataStore((s) => s.activeFiltersCount);
-  const sessionUser = useSessionStore((s) => s.user);
 
   useEffect(() => {
     setSearchTerm(debounced);
   }, [debounced, setSearchTerm]);
 
   const title = TITLES[pathname] ?? 'Control de Ingresos y Capacitación';
-  const hasData = records.length > 0;
   const isHome = pathname === '/';
 
   return (
@@ -111,78 +83,6 @@ export function Header() {
           )}
         </div>
 
-        <Tooltip content="Filtros globales" side="bottom">
-          <button
-            onClick={() => setFiltersOpen((o) => !o)}
-            aria-label="Abrir filtros"
-            className={cn(
-              'relative inline-flex h-10 items-center gap-2 rounded-xl border px-2.5 transition-all duration-300 sm:px-3',
-              activeFiltersCount > 0
-                ? 'border-brand-400/40 bg-brand-500/10 text-brand-300 shadow-glow-sm hover:border-brand-400/60'
-                : 'border-line bg-surface/40 text-ink-soft hover:border-brand-400/30 hover:bg-brand-500/10 hover:text-brand-300',
-            )}
-          >
-            <SlidersHorizontal className={cn('size-4', activeFiltersCount > 0 && 'text-brand-400')} />
-            <span className="hidden font-semibold text-xs lg:inline">FILTROS</span>
-            {activeFiltersCount > 0 && (
-              <span className="flex min-w-5 items-center justify-center rounded-full gradient-brand px-1.5 py-0.5 text-[10px] font-bold text-white shadow-glow-sm tabular-nums">
-                {activeFiltersCount}
-              </span>
-            )}
-          </button>
-        </Tooltip>
-
-        {hasData && (
-          <div className="hidden items-center gap-1.5 md:flex">
-            <Tooltip content="Exportar a Excel respetando filtros" side="bottom">
-              <button
-                onClick={() => {
-                  exportExcel(filtered);
-                  toast.success(`Se exportaron ${filtered.length} registros a Excel`);
-                }}
-                className="inline-flex size-10 items-center justify-center rounded-xl border border-line bg-surface/40 text-ink-soft transition-all duration-300 hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400 hover:shadow-glow-emerald"
-                aria-label="Exportar Excel"
-              >
-                <FileSpreadsheet className="size-4" />
-              </button>
-            </Tooltip>
-            <Tooltip content="Exportar a CSV respetando filtros" side="bottom">
-              <button
-                onClick={() => {
-                  exportCSV(filtered);
-                  toast.success(`Se exportaron ${filtered.length} registros a CSV`);
-                }}
-                className="inline-flex size-10 items-center justify-center rounded-xl border border-line bg-surface/40 text-ink-soft transition-all duration-300 hover:border-white/30 hover:bg-white/10 hover:text-zinc-200 hover:shadow-glow-sm"
-                aria-label="Exportar CSV"
-              >
-                <FileDown className="size-4" />
-              </button>
-            </Tooltip>
-          </div>
-        )}
-
-        {uploadMeta && (
-          <div className="hidden items-center gap-1.5 rounded-full border border-line bg-surface/50 px-3 py-1.5 text-[11px] font-semibold text-ink-soft lg:flex">
-            <Clock3 className="size-3.5 text-brand-400" />
-            Últ. actualización: {formatISOToDisplay(uploadMeta.uploadedAt)}
-          </div>
-        )}
-
-        <Tooltip content={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'} side="bottom">
-          <button
-            onClick={toggleTheme}
-            className={cn(
-              'relative inline-flex size-10 items-center justify-center overflow-hidden rounded-xl border text-ink-soft transition-all duration-300 hover:text-ink',
-              theme === 'dark'
-                ? 'border-brand-500/30 bg-brand-500/10 text-brand-300 shadow-glow-sm hover:border-brand-400/50'
-                : 'border-line bg-surface/40',
-            )}
-            aria-label="Cambiar tema"
-          >
-            {theme === 'dark' ? <Sun className="size-4" /> : <MoonStar className="size-4" />}
-          </button>
-        </Tooltip>
-
         <div className="relative ml-1 hidden items-center gap-2 rounded-xl border border-line bg-surface/40 py-1 pr-3 pl-1 sm:flex">
           <div className="relative">
             <div className="flex size-8 items-center justify-center rounded-lg gradient-brand text-xs font-bold text-white shadow-glow-sm">
@@ -202,8 +102,6 @@ export function Header() {
           </div>
         </div>
       </div>
-
-      <FilterDrawer open={filtersOpen} onClose={() => setFiltersOpen(false)} />
     </header>
   );
 }

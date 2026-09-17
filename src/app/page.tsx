@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Users, MapPin, GraduationCap, CheckCircle2, TrendingUp, TrendingDown, BellRing, CalendarCheck2, Building2 } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SectionTitle } from '@/components/common/SectionTitle';
 import { KpiCard } from '@/components/dashboard/KpiCard';
 import { useAppData } from '@/hooks/useAppData';
+import { useDataStore } from '@/store/useDataStore';
 import { ChartCard } from '@/components/charts/ChartCard';
 import { BaseBarChart, HorizontalRankingChart, ChartEmpty } from '@/components/charts/charts';
 import { AlertCards } from '@/components/alerts/AlertCards';
@@ -21,6 +22,14 @@ export default function DashboardPage() {
   const { records, filtered, kpis, jurisdiccion, zonas, sedes, capacitadores, capacitadoresReales, registrosExcluidos, resultado, asistencia, alertas, porMes } = useAppData();
   const hasData = records.length > 0;
   const [selected, setSelected] = useState<Promotor | null>(null);
+  const loadStartedAt = useDataStore((s) => s.loadStartedAt);
+
+  useEffect(() => {
+    if (!hasData || !loadStartedAt) return;
+    console.info(
+      `[Dashboard] TIEMPO REAL HASTA QUE EL DASHBOARD SE MUESTRA: ${Date.now() - loadStartedAt} ms desde el inicio de la carga (${records.length} registros)`,
+    );
+  }, [hasData, loadStartedAt, records.length]);
 
   if (!hasData) {
     return (

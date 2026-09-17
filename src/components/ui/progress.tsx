@@ -27,7 +27,7 @@ export function Progress({ value, className, barClassName, tone = 'brand' }: Pro
     <div className={cn('h-2 w-full overflow-hidden rounded-full bg-surface-3', className)}>
       <div
         className={cn(
-          'h-full rounded-full transition-all duration-700 ease-out',
+          'h-full rounded-full transition-all duration-150 ease-out',
           toneColors[tone],
           glowColors[tone],
           barClassName,

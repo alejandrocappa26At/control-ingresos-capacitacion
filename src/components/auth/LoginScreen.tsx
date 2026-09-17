@@ -4,7 +4,6 @@ import { useEffect, useState, type CSSProperties, type FormEvent, type ReactNode
 import { motion, useAnimationControls } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { AUTH_PASSWORD, AUTH_USER } from '@/lib/auth';
 import {
   User,
   KeyRound,
@@ -512,8 +511,7 @@ export function LoginScreen() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    console.log('[AUTH] AUTH_USER en /login:', JSON.stringify(AUTH_USER));
-    console.log('[AUTH] AUTH_PASSWORD en /login (longitud):', AUTH_PASSWORD.length);
+    // Intencionalmente vacío: logs de credenciales eliminados por seguridad.
   }, []);
 
   const shake = () => {
@@ -532,21 +530,18 @@ export function LoginScreen() {
       return;
     }
     setSubmitting(true);
-    console.log('[AUTH] Formulario enviado. Invocando login() con user:', JSON.stringify(user), '| password.length:', password.length);
-    window.setTimeout(() => {
-      const ok = useSessionStore.getState().login(user, password);
-      setSubmitting(false);
-      if (!ok) {
-        setErrors({ user: 'Credenciales incorrectas', password: 'Credenciales incorrectas' });
-        toast.error('No se pudo iniciar sesión', {
-          description: 'El usuario o la contraseña no son válidos. Reintente.',
-        });
-        shake();
-        return;
-      }
-      toast.success('Bienvenido, ' + user.trim(), { description: 'Sesión iniciada correctamente.' });
-      router.push('/');
-    }, 700);
+    const ok = useSessionStore.getState().login(user, password);
+    setSubmitting(false);
+    if (!ok) {
+      setErrors({ user: 'Credenciales incorrectas', password: 'Credenciales incorrectas' });
+      toast.error('No se pudo iniciar sesión', {
+        description: 'El usuario o la contraseña no son válidos. Reintente.',
+      });
+      shake();
+      return;
+    }
+    toast.success('Bienvenido, ' + user.trim(), { description: 'Sesión iniciada correctamente.' });
+    router.push('/');
   };
 
   return (

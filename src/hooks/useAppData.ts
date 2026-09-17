@@ -22,13 +22,13 @@ export function useAppData() {
 
   return useMemo(() => {
     const shouldMeasure = isNewLoad && records.length > 0;
-    if (shouldMeasure) console.time('[AUDITORIA] Filtros');
+    if (shouldMeasure) console.time('Filtros');
 
     const filtered = selectFilteredRecords({ records, filters, searchTerm });
 
     if (shouldMeasure) {
-      console.timeEnd('[AUDITORIA] Filtros');
-      console.time('[AUDITORIA] Gráficos');
+      console.timeEnd('Filtros');
+      console.time('Gráficos');
     }
 
     const kpis = computeKpis(filtered);
@@ -46,7 +46,7 @@ export function useAppData() {
       noPasanAOperaciones: kpis.noPasanAOperaciones,
     });
 
-    if (shouldMeasure) console.timeEnd('[AUDITORIA] Gráficos');
+    if (shouldMeasure) console.timeEnd('Gráficos');
 
     return {
       records,

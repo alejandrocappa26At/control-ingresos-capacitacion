@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -82,7 +82,9 @@ function FilterGroup({
   );
 }
 
-export function FilterDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function FilterDrawer() {
+  const open = useDataStore((s) => s.filterDrawerOpen);
+  const close = useDataStore((s) => s.closeFilterDrawer);
   const filters = useDataStore((s) => s.filters);
   const setFilters = useDataStore((s) => s.setFilters);
   const resetFilters = useDataStore((s) => s.resetFilters);
@@ -90,6 +92,15 @@ export function FilterDrawer({ open, onClose }: { open: boolean; onClose: () => 
   const isProcessing = useDataStore((s) => s.isProcessing);
   const { filtered, records } = useAppData();
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, close]);
 
   const jurisdicciones = useUniqueValues('jurisdiccion');
   const zonas = useUniqueValues('zonaComercial', { normalize: true });
@@ -118,24 +129,16 @@ export function FilterDrawer({ open, onClose }: { open: boolean; onClose: () => 
   return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[80]">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={onClose}
-          />
-
+        <div className="pointer-events-none fixed inset-0 z-[80]">
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-y-0 right-0 z-10 flex w-full max-w-md flex-col border-l border-line/80 bg-surface-2/95 shadow-[-32px_0_80px_-24px_rgba(0,0,0,0.6)] backdrop-blur-xl"
+            className="glass-strong pointer-events-auto absolute inset-y-0 right-0 z-10 flex w-full max-w-md flex-col border-l border-line/80 shadow-[-32px_0_80px_-24px_rgba(0,0,0,0.6)]"
           >
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-0 h-full w-px bg-gradient-to-b from-transparent via-brand-500/35 to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-0 h-full w-px bg-gradient-to-b from-transparent via-brand-500/40 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-px bg-gradient-to-r from-transparent via-brand-500/50 to-transparent" />
 
             <div className="relative z-10 flex items-center gap-3 border-b border-line/80 px-5 py-4">
               <span className="flex size-9 shrink-0 items-center justify-center rounded-xl gradient-brand text-white shadow-glow-sm">
@@ -143,7 +146,7 @@ export function FilterDrawer({ open, onClose }: { open: boolean; onClose: () => 
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold tracking-wide text-ink uppercase">Filtros</p>
-                <p className="truncate text-[11px] font-medium text-ink-soft">Globales · se combinan entre sí</p>
+                <p className="truncate text-[11px] font-medium text-ink-soft">Globales · panel lateral</p>
               </div>
               {active > 0 && (
                 <span className="shrink-0 rounded-full gradient-brand px-2.5 py-1 text-[11px] font-bold text-white shadow-glow-sm tabular-nums">
@@ -151,7 +154,7 @@ export function FilterDrawer({ open, onClose }: { open: boolean; onClose: () => 
                 </span>
               )}
               <button
-                onClick={onClose}
+                onClick={close}
                 aria-label="Cerrar filtros"
                 className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-line text-ink-muted transition-all duration-300 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-400"
               >
@@ -162,7 +165,7 @@ export function FilterDrawer({ open, onClose }: { open: boolean; onClose: () => 
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
               <div className="flex items-center gap-2 rounded-xl border border-brand-500/20 bg-brand-500/8 px-3 py-2 text-[11px] font-semibold text-brand-300">
                 <span className="size-1.5 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_6px_currentColor]" />
-                Cambios en tiempo real · aplican a todas las secciones
+                Cambios en tiempo real · el dashboard sigue visible
               </div>
 
               <FilterGroup
@@ -348,7 +351,7 @@ export function FilterDrawer({ open, onClose }: { open: boolean; onClose: () => 
                 </span>
               </div>
               <div className="flex gap-2">
-                <Button variant="brand" className="flex-1" onClick={onClose} disabled={isProcessing}>
+                <Button variant="brand" className="flex-1" onClick={close} disabled={isProcessing}>
                   VER RESULTADOS
                 </Button>
                 <Button variant="outline" onClick={resetFilters} disabled={active === 0}>

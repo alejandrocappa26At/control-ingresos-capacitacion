@@ -2,13 +2,19 @@ import type { Kpis, Promotor } from '@/types';
 
 export function computeKpis(records: Promotor[]): Kpis {
   const totalIngresos = records.length;
-  const lima = records.filter((r) => r.jurisdiccion === 'LIMA').length;
-  const provincia = records.filter((r) => r.jurisdiccion === 'PROVINCIA').length;
 
-  const pasanAOperaciones = records.filter((r) => r.pasaAOperaciones === 1).length;
-  const noPasanAOperaciones = records.filter((r) => r.pasaAOperaciones === 0).length;
-  const enCapacitacion = records.filter((r) => r.pasaAOperaciones !== 1 && r.pasaAOperaciones !== 0).length;
+  let lima = 0;
+  let pasanAOperaciones = 0;
+  let noPasanAOperaciones = 0;
 
+  for (const r of records) {
+    if (r.jurisdiccion === 'LIMA') lima += 1;
+    if (r.pasaAOperaciones === 1) pasanAOperaciones += 1;
+    else if (r.pasaAOperaciones === 0) noPasanAOperaciones += 1;
+  }
+
+  const provincia = totalIngresos - lima;
+  const enCapacitacion = totalIngresos - pasanAOperaciones - noPasanAOperaciones;
   const procesosFinalizados = pasanAOperaciones + noPasanAOperaciones;
 
   const porcentajeAprobacion = procesosFinalizados > 0
@@ -18,24 +24,6 @@ export function computeKpis(records: Promotor[]): Kpis {
   const porcentajeCaida = procesosFinalizados > 0
     ? (noPasanAOperaciones / procesosFinalizados) * 100
     : 0;
-
-  console.log('[KPI] Total registros:', totalIngresos);
-  console.log('[KPI] Total aprobados:', pasanAOperaciones);
-  console.log('[KPI] Total no aprobados:', noPasanAOperaciones);
-  console.log('[KPI] Total en capacitación:', enCapacitacion);
-  console.log('[KPI] Lima:', lima);
-  console.log('[KPI] Provincia:', provincia);
-
-  const suma = pasanAOperaciones + noPasanAOperaciones + enCapacitacion;
-  if (suma !== totalIngresos) {
-    console.error(
-      `[KPI] ERROR DE INTEGRIDAD DE DATOS: aprobados (${pasanAOperaciones}) + no aprobados (${noPasanAOperaciones}) + en capacitación (${enCapacitacion}) = ${suma} ≠ total registros (${totalIngresos})`,
-    );
-  } else {
-    console.log(
-      `[KPI] Validación OK: aprobados + no aprobados + en capacitación = ${suma} = total (${totalIngresos})`,
-    );
-  }
 
   return {
     totalIngresos,

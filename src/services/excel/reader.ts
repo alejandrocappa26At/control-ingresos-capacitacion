@@ -32,8 +32,13 @@ export async function readExcelFile(
   const target = typeof window !== 'undefined' ? window : null;
 
   if (target && typeof target.Worker === 'function') {
+    console.info('[worker] intentando procesar con Web Worker...');
     const workerResult = await runWithWorker(file, onProgress);
-    if (workerResult.used && workerResult.result) return workerResult.result;
+    if (workerResult.used && workerResult.result) {
+      console.info('[worker] OK: procesamiento realizado en Web Worker (hilo de fondo).');
+      return workerResult.result;
+    }
+    console.warn('[worker] FALLO → procesando en el HILO PRINCIPAL (congela la página, MUCHO más lento).');
   }
 
   const buffer = await file.arrayBuffer();
@@ -48,7 +53,7 @@ async function runWithWorker(
   try {
     worker = new Worker(new URL('./reader.worker.ts', import.meta.url), { type: 'module' });
   } catch (error) {
-    console.warn('[readExcelFile] no se pudo crear Web Worker, uso el hilo principal:', error);
+    console.warn('[worker] no se pudo crear Web Worker, uso el hilo principal:', error);
     return { used: false };
   }
 
@@ -57,7 +62,7 @@ async function runWithWorker(
     const timeout = setTimeout(() => {
       if (responded) return;
       responded = true;
-      console.warn('[readExcelFile] Web Worker tardó demasiado en responder, uso el hilo principal.');
+      console.warn('[worker] tardó más de 5s en responder la primera señal, uso el hilo principal.');
       worker.terminate();
       resolve({ used: false });
     }, 5000);

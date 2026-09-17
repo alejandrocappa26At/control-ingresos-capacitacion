@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './globals.css';
-import { ThemeScript } from '@/hooks/useTheme';
 import { AppShell } from '@/components/layout/AppShell';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
@@ -27,11 +26,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        <ThemeScript />
-      </head>
       <body className="min-h-full bg-canvas font-[family-name:var(--font-geist-sans)] text-ink antialiased">
         <ErrorBoundary fallbackTitle="Ocurrió un problema al cargar la aplicación">
           <AppShell>{children}</AppShell>

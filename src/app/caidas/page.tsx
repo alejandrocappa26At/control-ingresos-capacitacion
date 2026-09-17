@@ -1,36 +1,56 @@
 'use client';
 
-import { useMemo } from 'react';
-import { AlertOctagon, TrendingDown, Percent } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { CalendarRange, Table2, Tags, TrendingDown } from 'lucide-react';
+import { formatNumber } from '@/lib/utils';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SectionTitle } from '@/components/common/SectionTitle';
 import { NoDataYet } from '@/components/common/NoDataYet';
 import { CaidasRanking } from '@/components/dashboard/CaidasRanking';
-import { CaidasExecutiveKpis } from '@/components/dashboard/caidas/CaidasExecutiveKpis';
+import { CaidasFunnelKPIs } from '@/components/dashboard/caidas/CaidasFunnelKPIs';
+import { ResumenDesercion } from '@/components/dashboard/caidas/ResumenDesercion';
+import { CaidasPorMomentoSalidaChart } from '@/components/dashboard/caidas/CaidasPorMomentoSalidaChart';
+import { RankingDiaCaidaSede } from '@/components/dashboard/caidas/RankingDiaCaidaSede';
+import { LeaderboardDiaCaidaSupervisor } from '@/components/dashboard/caidas/LeaderboardDiaCaidaSupervisor';
 import { CaidasPorSede } from '@/components/dashboard/caidas/CaidasPorSede';
 import { CaidasPorSupervisor } from '@/components/dashboard/caidas/CaidasPorSupervisor';
-import { CaidasHeatmap } from '@/components/dashboard/caidas/CaidasHeatmap';
-import { PorcentajeCaida } from '@/components/dashboard/caidas/PorcentajeCaida';
-import { AlertCards } from '@/components/alerts/AlertCards';
+import { DataTable } from '@/components/tables/DataTable';
+import { PromotorDetailModal } from '@/components/modals/PromotorDetailModal';
 import { useAppData } from '@/hooks/useAppData';
+import type { Promotor } from '@/types';
 import {
   caidasPorSede,
   caidasPorSupervisor,
-  analizarHeatmap,
+  computeEmbudo,
+  caidasPorMomentoSalida,
+  caidasPorDiaPorSede,
+  caidasPorDiaPorSupervisor,
 } from '@/services/analytics/falls';
+import { analizarDesercion } from '@/services/analytics/desercion';
 
 export default function CaidasPage() {
-  const { records, filtered, kpis, motivosCaida, subMotivosCaida, alertas } = useAppData();
+  const { records, filtered, kpis, motivosCaida, subMotivosCaida } = useAppData();
+  const [selected, setSelected] = useState<Promotor | null>(null);
 
   const ejecutivo = useMemo(() => {
-    const sedes = caidasPorSede(filtered);
-    const supervisores = caidasPorSupervisor(filtered);
-    const heatmap = analizarHeatmap(filtered);
-    const sedeTop = [...sedes].sort((a, b) => b.caidas - a.caidas).find((d) => d.caidas > 0);
-    const supTop = [...supervisores].sort((a, b) => b.caidas - a.caidas).find((d) => d.caidas > 0);
-    const pctTop = [...supervisores].sort((a, b) => b.pctCaida - a.pctCaida).find((d) => d.caidas > 0);
-    return { sedes, supervisores, heatmap, sedeTop, supTop, pctTop, totalCaidas: kpis.noPasanAOperaciones };
-  }, [filtered, kpis.noPasanAOperaciones]);
+    const sedeData = caidasPorSede(filtered);
+    const supervisorData = caidasPorSupervisor(filtered);
+    const embudo = computeEmbudo(filtered);
+    const porMomento = caidasPorMomentoSalida(filtered);
+    const porDiaSede = caidasPorDiaPorSede(filtered);
+    const porDiaSupervisor = caidasPorDiaPorSupervisor(filtered);
+
+    return {
+      sedes: sedeData,
+      supervisores: supervisorData,
+      embudo,
+      porMomento,
+      porDiaSede,
+      porDiaSupervisor,
+    };
+  }, [filtered]);
+
+  const desercion = useMemo(() => analizarDesercion(filtered), [filtered]);
 
   if (records.length === 0) {
     return (
@@ -41,8 +61,6 @@ export default function CaidasPage() {
     );
   }
 
-  const caidasAlertas = alertas.filter((a) => a.tipo === 'incremento-caidas' || a.tipo === 'riesgo-desaprobacion');
-
   return (
     <>
       <PageHeader
@@ -50,19 +68,38 @@ export default function CaidasPage() {
         description={`Solo registros con PASA A OPERACIONES = No · ${kpis.noPasanAOperaciones} caídas según filtros activos`}
       />
 
-      <CaidasExecutiveKpis
-        sede={ejecutivo.sedeTop}
-        supervisor={ejecutivo.supTop}
-        pctTop={ejecutivo.pctTop}
-        total={ejecutivo.totalCaidas}
-      />
+      <CaidasFunnelKPIs embudo={ejecutivo.embudo} />
 
-      {caidasAlertas.length > 0 && (
-        <section className="mt-6">
-          <SectionTitle icon={<AlertOctagon className="size-4" />} title="Alertas relacionadas" />
-          <AlertCards alertas={caidasAlertas} />
-        </section>
-      )}
+      <ResumenDesercion data={desercion} />
+
+      <section className="mt-6">
+        <SectionTitle
+          icon={<CalendarRange className="size-4" />}
+          title="¿En qué momento se produce la caída?"
+          subtitle={`Momento de salida (Nunca asistió o Día 1 al 10) · ${kpis.noPasanAOperaciones} caídas analizadas`}
+        />
+        <CaidasPorMomentoSalidaChart data={ejecutivo.porMomento} />
+      </section>
+
+      <section className="mt-6">
+        <SectionTitle
+          icon={<CalendarRange className="size-4" />}
+          title="Día de caída por sede y supervisor"
+          subtitle="Día promedio de caída y total de caídas dentro de cada dimensión"
+        />
+        <div className="grid gap-4 lg:grid-cols-2">
+          <RankingDiaCaidaSede
+            data={ejecutivo.porDiaSede}
+            totalCaidas={kpis.noPasanAOperaciones}
+            subtitle={`${formatNumber(ejecutivo.porDiaSede.length)} sedes con caídas`}
+          />
+          <LeaderboardDiaCaidaSupervisor
+            data={ejecutivo.porDiaSupervisor}
+            totalCaidas={kpis.noPasanAOperaciones}
+            subtitle={`${formatNumber(ejecutivo.porDiaSupervisor.length)} supervisores con caídas`}
+          />
+        </div>
+      </section>
 
       <section className="mt-6">
         <SectionTitle
@@ -78,28 +115,25 @@ export default function CaidasPage() {
 
       <section className="mt-6">
         <SectionTitle
-          icon={<AlertOctagon className="size-4" />}
-          title="Intensidad de caídas por sede y supervisor"
-          subtitle="Heatmap: más rojo indica mayor cantidad de caídas"
+          icon={<Tags className="size-4" />}
+          title="Motivos y submotivos de caída"
+          subtitle={`${kpis.noPasanAOperaciones} caídas clasificadas por motivo y submotivo`}
         />
-        <CaidasHeatmap data={ejecutivo.heatmap} />
+        <CaidasRanking motivo={motivosCaida} subMotivo={subMotivosCaida} total={kpis.noPasanAOperaciones} />
       </section>
 
       <section className="mt-6">
         <SectionTitle
-          icon={<Percent className="size-4" />}
-          title="Porcentaje de caída relativo"
-          subtitle="Caídas de cada dimensión ÷ total de ingresos de la dimensión × 100"
+          icon={<Table2 className="size-4" />}
+          title="Tabla detallada"
+          subtitle={`${filtered.length} promotores con caída según filtros activos`}
         />
-        <div className="grid gap-4 lg:grid-cols-2">
-          <PorcentajeCaida data={ejecutivo.sedes} kind="sede" />
-          <PorcentajeCaida data={ejecutivo.supervisores} kind="supervisor" />
+        <div className="mt-3">
+          <DataTable data={filtered} onRowClick={setSelected} pageSize={10} />
         </div>
       </section>
 
-      <section className="mt-6">
-        <CaidasRanking motivo={motivosCaida} subMotivo={subMotivosCaida} total={kpis.noPasanAOperaciones} />
-      </section>
+      <PromotorDetailModal promotor={selected} onClose={() => setSelected(null)} />
     </>
   );
 }

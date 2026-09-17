@@ -56,6 +56,7 @@ export const COLUMN_FIELDS: ColumnField[] = [
   { id: 'subMotivo', label: 'SUB MOTIVO DE CAIDA', required: true, aliases: ['SUB MOTIVO DE CAIDA', 'SUB MOTIVO DE CAÍDA', 'SUBMOTIVO DE CAIDA', 'SUB MOTIVO', 'SUBMOTIVO', 'DETALLE CAIDA'] },
   { id: 'motivo', label: 'MOTIVO DE CAIDA', required: true, aliases: ['MOTIVO DE CAIDA', 'MOTIVO DE CAÍDA', 'MOTIVO CAIDA', 'CAUSA DE CAIDA', 'MOTIVO'] },
   { id: 'pasa', label: 'PASA A OPERACIONES', required: true, aliases: ['PASA A OPERACIONES', 'PASO A OPERACIONES', 'PASA OPERACIONES', 'PASA'] },
+  { id: 'totalDias', label: 'TOTAL DE DÍAS', required: false, aliases: ['TOTAL DE DIAS', 'TOTAL DIAS', 'TOTAL DE DIAS DE CAPACITACION', 'TOTAL DIAS DE CAPACITACION', 'N DE DIAS', 'N DIAS'] },
 ];
 
 export function asistenciaFieldId(day: number): string {

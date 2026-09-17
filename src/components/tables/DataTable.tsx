@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import type { Promotor } from '@/types';
 import { cn } from '@/lib/utils';
+import { etapaSalida, type EtapaSalidaKind } from '@/lib/etapa';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -90,6 +91,25 @@ export function buildColumns(): ColumnDef<Promotor, unknown>[] {
         return <Badge tone="neutral" dot dotColor="bg-slate-400">Pendiente</Badge>;
       },
     }),
+    columnHelper.accessor('totalDias', {
+      header: 'Etapa de salida',
+      cell: (info) => {
+        const promotor = info.row.original;
+        const etapa = etapaSalida(promotor);
+        const tone: Record<EtapaSalidaKind, { text: string; dot: string }> = {
+          NUNCA_ASISTIO: { text: 'text-rose-400', dot: 'bg-rose-500' },
+          DIA: { text: 'text-rose-300', dot: 'bg-rose-400' },
+          PASO_A_OPERACIONES: { text: 'text-emerald-400', dot: 'bg-emerald-500' },
+          EN_CAPACITACION: { text: 'text-amber-400', dot: 'bg-amber-400' },
+        };
+        return (
+          <span className={cn('inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold', tone[etapa.kind].text)}>
+            <span className={cn('size-1.5 shrink-0 rounded-full', tone[etapa.kind].dot)} />
+            {etapa.label}
+          </span>
+        );
+      },
+    }),
     columnHelper.accessor('motivoCaida', { header: 'Motivo caída' }),
     columnHelper.accessor('subMotivoCaida', { header: 'Submotivo caída' }),
     columnHelper.accessor('estado', {
@@ -115,6 +135,15 @@ export function DataTable({ data, onRowClick, pageSize = 10, loading }: DataTabl
 
   const columns = React.useMemo(() => buildColumns(), []);
   const columnRef = React.useRef<HTMLDivElement>(null);
+
+  const tableTimerStarted = React.useRef(false);
+  const tableTimedCount = React.useRef(0);
+
+  if (!tableTimerStarted.current && data.length > 0) {
+    tableTimerStarted.current = true;
+    tableTimedCount.current = data.length;
+    console.time('Tabla');
+  }
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -142,6 +171,13 @@ export function DataTable({ data, onRowClick, pageSize = 10, loading }: DataTabl
       setPagination((p) => ({ ...p, pageIndex: 0 }));
     }
   }, [data.length, pagination.pageSize, pagination.pageIndex]);
+
+  React.useEffect(() => {
+    if (tableTimerStarted.current && data.length === tableTimedCount.current) {
+      tableTimerStarted.current = false;
+      console.timeEnd('Tabla');
+    }
+  });
 
   if (loading) {
     return (

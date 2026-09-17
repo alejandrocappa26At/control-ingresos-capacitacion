@@ -1,18 +1,105 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Trophy, UserRound } from 'lucide-react';
-import { cn, formatNumber } from '@/lib/utils';
+import type { EChartsOption } from 'echarts';
+import { Trophy } from 'lucide-react';
 import type { DimensionAnalysis } from '@/services/analytics/falls';
+import { cn, formatNumber } from '@/lib/utils';
 import { CaidasCard } from './CaidasCard';
+import { QiEChart, tipHeader, tipRow } from '@/components/charts/EChart';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
+
+interface SupervisorDatum extends DimensionAnalysis {
+  rank: number;
+}
 
 export function CaidasPorSupervisor({ data }: { data: DimensionAnalysis[] }) {
   const rows = [...data]
     .filter((d) => d.caidas > 0)
     .sort((a, b) => b.caidas - a.caidas)
     .slice(0, 12);
+  const max = Math.max(...rows.map((d) => d.caidas), 1);
+
+  if (rows.length === 0) {
+    console.warn(`[Caídas por supervisor] Empty State. 0 supervisores con caídas registradas.`);
+    return (
+      <CaidasCard icon={Trophy} title="Caídas por supervisor" subtitle="Leaderboard de supervisores con mayores caídas">
+        <div className="flex h-52 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-line-2 bg-surface/40 text-ink-soft">
+          <Trophy className="size-5 text-ink-muted" />
+          <p className="text-sm font-medium">No hay caídas por supervisor.</p>
+        </div>
+      </CaidasCard>
+    );
+  }
+
+  const gradientTop = (i: number) => {
+    if (i === 0) return { type: 'linear' as const, x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#ff2735' }, { offset: 1, color: '#e30613' }] };
+    if (i === 1) return { type: 'linear' as const, x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#e30613' }, { offset: 1, color: '#b01220' }] };
+    if (i === 2) return { type: 'linear' as const, x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#a5111f' }, { offset: 1, color: '#7a030a' }] };
+    return { type: 'linear' as const, x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#7a030a' }, { offset: 1, color: '#e30613' }] };
+  };
+
+  const option: EChartsOption = {
+    grid: { containLabel: true, top: 4, left: 8, right: 72, bottom: 2 },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(255,255,255,0.04)' } },
+      formatter: (ps) => {
+        const params = (Array.isArray(ps) ? ps : [ps]) as Array<{ data?: SupervisorDatum }>;
+        const d = params[0]?.data;
+        if (!d) return '';
+        const medal = d.rank < 3 ? `${MEDALS[d.rank]} ` : `#${d.rank + 1} `;
+        let html = tipHeader(`${medal}${d.name}`);
+        html += tipRow('#e30613', 'Caídas', formatNumber(d.caidas));
+        html += tipRow('#10b981', 'Aprobados', formatNumber(d.aprobados));
+        html += tipRow('#f59e0b', 'Pendientes', formatNumber(d.pendientes));
+        html += tipRow('#a1a1aa', 'Total de ingresos', formatNumber(d.total));
+        html += tipRow('#f43f5e', 'Tasa de caída', `${d.pctCaida.toFixed(1)}%`);
+        html += tipRow('#ff8b8f', '% del total de caídas', `${d.pctDelTotal.toFixed(1)}%`);
+        return html;
+      },
+    },
+    xAxis: { type: 'value', show: false, max: max * 1.1 },
+    yAxis: {
+      type: 'category',
+      inverse: true,
+      data: rows.map((d) => d.name),
+      axisLabel: {
+        color: '#e4e4e7',
+        fontSize: 12,
+        fontWeight: 700,
+        margin: 10,
+        formatter: (name: string, idx: number) => (idx < 3 ? `${MEDALS[idx]} ${name}` : name),
+      },
+    },
+    series: [
+      {
+        type: 'bar',
+        barWidth: 16,
+        data: rows.map((d, i) => ({ ...d, value: d.caidas, rank: i, itemStyle: { color: gradientTop(i) } })),
+        itemStyle: {
+          borderRadius: [0, 8, 8, 0],
+          shadowColor: 'rgba(227,6,19,0.4)',
+          shadowBlur: 12,
+        },
+        emphasis: { itemStyle: { shadowColor: 'rgba(227,6,19,0.8)', shadowBlur: 20 } },
+        label: {
+          show: true,
+          position: 'right',
+          color: '#f4f4f5',
+          fontSize: 11,
+          fontWeight: 700,
+          formatter: (p) => {
+            const d = p.data as { caidas: number; pctCaida: number; rank: number };
+            return `${formatNumber(d.caidas)} · ${d.pctCaida.toFixed(1)}% ${d.rank === 0 ? '· MAYOR CAÍDA' : ''}`;
+          },
+        },
+        animationDelay: (idx: number) => 60 + idx * 70,
+        animationDuration: 700,
+        animationEasing: 'cubicOut',
+      },
+    ],
+  };
 
   return (
     <CaidasCard
@@ -20,70 +107,11 @@ export function CaidasPorSupervisor({ data }: { data: DimensionAnalysis[] }) {
       title="Caídas por supervisor"
       subtitle="Leaderboard de supervisores con mayores caídas"
     >
-      {rows.length === 0 ? (
-        <div className="flex h-52 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-line-2 bg-surface/40 text-ink-soft">
-          <UserRound className="size-5 text-ink-muted" />
-          <p className="text-sm font-medium">No hay caídas por supervisor.</p>
-        </div>
-      ) : (
-        <motion.ol
-          initial="hidden"
-          animate="show"
-          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }}
-          className="space-y-2"
-        >
-          {rows.map((row, i) => {
-            const isTop = i < 3;
-            const isWorst = i === 0;
-            return (
-              <motion.li
-                key={row.name}
-                variants={{ hidden: { opacity: 0, x: -14 }, show: { opacity: 1, x: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } } }}
-                className={cn(
-                  'flex items-center gap-3 rounded-2xl border px-3 py-2.5 transition-all duration-300',
-                  isWorst
-                    ? 'border-rose-500/30 bg-gradient-to-r from-rose-500/12 to-transparent shadow-[0_0_24px_-6px_rgba(244,63,94,0.4)]'
-                    : 'border-line bg-surface/40 hover:bg-surface-3',
-                )}
-              >
-                <span className="flex w-8 shrink-0 justify-center">
-                  {isTop ? <span className={cn('text-base leading-none', isWorst && 'animate-pulse-glow')}>{MEDALS[i]}</span> : (
-                    <span className="rounded-lg bg-white/5 px-1.5 py-0.5 text-xs font-bold text-ink-soft tabular-nums">
-                      {i + 1}
-                    </span>
-                  )}
-                </span>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="truncate text-sm font-bold text-ink" title={row.name}>{row.name}</span>
-                    {isWorst && (
-                      <span className="rounded-full bg-rose-500/15 px-2 py-px text-[9px] font-bold tracking-wide text-rose-300 uppercase">
-                        Mayor caída
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-1 flex flex-wrap gap-1.5">
-                    <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-px text-[10px] font-semibold text-emerald-400">
-                      Aprobados: {formatNumber(row.aprobados)}
-                    </span>
-                    <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-px text-[10px] font-semibold text-amber-400">
-                      Pendientes: {formatNumber(row.pendientes)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="w-20 shrink-0 text-right">
-                  <p className="text-lg font-bold text-rose-400 tabular-nums" style={{ textShadow: '0 0 14px rgba(244,63,94,0.5)' }}>
-                    {formatNumber(row.caidas)}
-                  </p>
-                  <p className="text-[10px] font-semibold text-ink-soft tabular-nums">{row.pctCaida.toFixed(1)}% de caída</p>
-                </div>
-              </motion.li>
-            );
-          })}
-        </motion.ol>
-      )}
+      <QiEChart option={option} height={Math.max(220, rows.length * 40 + 12)} />
+      <p className={cn('mt-2 text-[11px] font-medium text-ink-soft')}>
+        <span className="mr-1 text-sm leading-none">{MEDALS.join(' ')}</span>
+        top 3 · pasá el cursor sobre las barras para ver aprobados y pendientes.
+      </p>
     </CaidasCard>
   );
 }

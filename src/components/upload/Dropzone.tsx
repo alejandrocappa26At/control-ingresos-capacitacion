@@ -21,6 +21,7 @@ export function Dropzone() {
   const isProcessing = useDataStore((s) => s.isProcessing);
   const setIsProcessing = useDataStore((s) => s.setIsProcessing);
   const setRecords = useDataStore((s) => s.setRecords);
+  const setLoadStartedAt = useDataStore((s) => s.setLoadStartedAt);
   const uploadMeta = useDataStore((s) => s.uploadMeta);
   const { filtered } = useAppData();
 
@@ -28,18 +29,24 @@ export function Dropzone() {
     async (file: File) => {
       if (isProcessing) return;
       setIsProcessing(true);
-      startedAtRef.current = Date.now();
+      const inicio = Date.now();
+      startedAtRef.current = inicio;
+      setLoadStartedAt(inicio);
       console.time('[AUDITORIA] Carga Total');
       setProgress(null);
-      console.info('[Dropzone] inicio de carga:', file.name);
+      console.info('[Dropzone] INICIO REAL:', new Date(inicio).toISOString());
 
       try {
         const result = await readExcelFile(file, (payload) => {
           setProgress({
             ...payload,
-            elapsedMs: Date.now() - startedAtRef.current,
+            elapsedMs: Date.now() - inicio,
           });
         });
+        console.timeEnd('[AUDITORIA] Carga Total');
+        console.info(
+          `[Dropzone] FIN XLSX: ${Date.now() - inicio} ms desde el inicio (lectura + procesamiento del archivo completados)`,
+        );
 
         if (!result.success) {
           console.warn('[Dropzone] archivo rechazado:', result.errors);
@@ -64,6 +71,9 @@ export function Dropzone() {
         });
 
         const limaCount = result.records.filter((r) => r.jurisdiccion === 'LIMA').length;
+        console.info(
+          `[Dropzone] FIN PROCESAMIENTO: ${Date.now() - inicio} ms (registros en el store, renderizado disparado)`,
+        );
         console.info(`[Dropzone] éxito: ${result.records.length} registros (Lima ${limaCount} | Provincia ${result.records.length - limaCount})`);
         toast.success(
           `Procesamiento exitoso: ${result.records.length} registros cargados (Lima: ${limaCount} | Provincia: ${result.records.length - limaCount})`,
@@ -82,12 +92,12 @@ export function Dropzone() {
           toast.error('Ocurrió un error inesperado al procesar el archivo.');
         }
       } finally {
-        console.timeEnd('[AUDITORIA] Carga Total');
+        console.info(`[Dropzone] FIN REAL: ${Date.now() - inicio} ms (isProcessing=false)`);
         setIsProcessing(false);
         setProgress(null);
       }
     },
-    [isProcessing, setIsProcessing, setRecords],
+    [isProcessing, setIsProcessing, setRecords, setLoadStartedAt],
   );
 
   useEffect(() => {

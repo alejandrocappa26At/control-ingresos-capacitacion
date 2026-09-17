@@ -1,5 +1,6 @@
 import type { Alerta, Promotor } from '@/types';
 import { addDaysISO, diasEntre, todayISO } from '@/lib/dates';
+import { promotoresRiesgoDesaprobacion } from '@/services/analytics/falls';
 
 export function generarAlertas(records: Promotor[], kpis: { procesosFinalizados: number; noPasanAOperaciones: number }): Alerta[] {
   const alertas: Alerta[] = [];
@@ -69,18 +70,7 @@ export function generarAlertas(records: Promotor[], kpis: { procesosFinalizados:
     });
   }
 
-  const riesgoDesaprobar = records.filter((r) => {
-    if (r.resultado !== 'PENDIENTE') return false;
-    if (r.estado !== 'EN_CAPACITACION') return false;
-    if (!r.fechasISO.inicio) return false;
-    const diasTranscurridos = diasEntre(r.fechasISO.inicio, hoy);
-    const tieneFin = Boolean(r.fechasISO.fin);
-    const avance = tieneFin ? diasEntre(r.fechasISO.inicio, r.fechasISO.fin) : 10;
-    if (avance <= 0) return false;
-    const progreso = diasTranscurridos / avance;
-    const esperado = Math.round(progreso * 10);
-    return esperado >= 3 && r.diasAsistidos < esperado - 1;
-  });
+  const riesgoDesaprobar = promotoresRiesgoDesaprobacion(records);
   if (riesgoDesaprobar.length > 0) {
     alertas.push({
       id: 'riesgo-desaprobacion',
