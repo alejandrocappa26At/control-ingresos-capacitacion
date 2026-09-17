@@ -144,16 +144,6 @@ export interface CaidaRanking {
   porcentaje: number;
 }
 
-export interface Alerta {
-  id: string;
-  tipo: 'baja-asistencia' | 'proxima-finalizacion' | 'pendiente-entrega' | 'incremento-caidas' | 'riesgo-desaprobacion';
-  nivel: 'alta' | 'media' | 'baja';
-  titulo: string;
-  mensaje: string;
-  cantidad: number;
-  recordsIds: string[];
-}
-
 export type ChartMode = 'cantidad' | 'porcentaje';
 
 export interface DetallePromotor {

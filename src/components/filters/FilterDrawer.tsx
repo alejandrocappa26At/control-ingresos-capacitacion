@@ -18,6 +18,7 @@ import { useAppData } from '@/hooks/useAppData';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/input';
 import { CapacitadorMultiSelect } from '@/components/filters/CapacitadorMultiSelect';
+import { PeriodoAnalisis } from '@/components/filters/PeriodoAnalisis';
 import {
   DateFilterInput,
   DATE_LABELS,
@@ -120,7 +121,7 @@ export function FilterDrawer() {
   const update = (patch: Partial<FilterState>) => setFilters({ ...filters, ...patch });
 
   const ubicacionActive = activeFiltersOf(filters, ['jurisdiccion', 'zonaComercial', 'sede', 'distrito', 'tienda']);
-  const gestionActive = activeFiltersOf(filters, ['fechaIngreso', 'supervisor', 'responsableAS']);
+  const gestionActive = activeFiltersOf(filters, ['supervisor', 'responsableAS']);
   const capacitacionActive = activeFiltersOf(filters, ['modalidad', 'capacitador', 'inicioCapacitacion', 'finCapacitacion', 'entregaOperaciones']);
   const resultadosActive = activeFiltersOf(filters, ['pasaAOperaciones', 'motivoCaida', 'subMotivoCaida']);
 
@@ -163,6 +164,8 @@ export function FilterDrawer() {
             </div>
 
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
+              <PeriodoAnalisis />
+
               <div className="flex items-center gap-2 rounded-xl border border-brand-500/20 bg-brand-500/8 px-3 py-2 text-[11px] font-semibold text-brand-300">
                 <span className="size-1.5 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_6px_currentColor]" />
                 Cambios en tiempo real · el dashboard sigue visible
@@ -229,13 +232,6 @@ export function FilterDrawer() {
                 collapsed={isCollapsed('gestion')}
                 onToggle={() => toggleGroup('gestion')}
               >
-                <div className="sm:col-span-2">
-                  <DateFilterInput
-                    label={DATE_LABELS.fechaIngreso}
-                    value={filters.fechaIngreso}
-                    onChange={(v) => update({ fechaIngreso: v })}
-                  />
-                </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold tracking-wide text-ink-muted">Supervisor</label>
                   <Select value={filters.supervisor} onChange={(e) => update({ supervisor: e.target.value })}>

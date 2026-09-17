@@ -1,9 +1,10 @@
 import type { DateFilterValue, FilterState } from '@/types';
-import { ddmmyyyy, fullMonthYear } from '@/lib/dates';
+import { ddmmyyyy, monthChipLabel } from '@/lib/dates';
 
 export interface FilterChip {
   id: string;
   label: string;
+  kind?: 'date';
   remove: (filters: FilterState) => FilterState;
 }
 
@@ -28,7 +29,7 @@ function dateChipLabel(value: DateFilterValue): string | null {
     case 'day':
       return value.day ? ddmmyyyy(value.day) : null;
     case 'month':
-      return value.month ? fullMonthYear(value.month) : null;
+      return value.month ? monthChipLabel(value.month) : null;
     case 'year':
       return value.year ?? null;
     case 'range':
@@ -67,11 +68,14 @@ export function describeActiveFilters(filters: FilterState): FilterChip[] {
   pushText('modalidad', 'Modalidad');
 
   for (const key of DATE_FIELD_KEYS) {
-    const label = dateChipLabel(filters[key]);
+    const value = filters[key];
+    const label = dateChipLabel(value);
     if (!label) continue;
+    const prefix = key === 'fechaIngreso' ? '' : `${DATE_FIELD_LABELS[key]}: `;
     chips.push({
-      id: `${key}:${filters[key].type}`,
-      label: `${DATE_FIELD_LABELS[key]}: ${label}`,
+      id: `${key}:${value.type}`,
+      label: `${prefix}${label}`,
+      kind: 'date',
       remove: (f) => ({ ...f, [key]: { type: 'all' } } as FilterState),
     });
   }

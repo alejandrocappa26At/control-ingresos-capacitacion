@@ -1,15 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, MapPin, GraduationCap, CheckCircle2, TrendingUp, TrendingDown, BellRing, CalendarCheck2, Building2 } from 'lucide-react';
+import { Users, MapPin, GraduationCap, CheckCircle2, TrendingUp, TrendingDown, CalendarCheck2, Building2, FileSpreadsheet, FileDown } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SectionTitle } from '@/components/common/SectionTitle';
 import { KpiCard } from '@/components/dashboard/KpiCard';
 import { useAppData } from '@/hooks/useAppData';
 import { useDataStore } from '@/store/useDataStore';
+import { Button } from '@/components/ui/button';
+import { exportExcel, exportCSV } from '@/services/export/exporter';
+import { toast } from 'sonner';
 import { ChartCard } from '@/components/charts/ChartCard';
 import { BaseBarChart, HorizontalRankingChart, ChartEmpty } from '@/components/charts/charts';
-import { AlertCards } from '@/components/alerts/AlertCards';
 import { NoDataYet } from '@/components/common/NoDataYet';
 import { DataTable } from '@/components/tables/DataTable';
 import { PromotorDetailModal } from '@/components/modals/PromotorDetailModal';
@@ -19,7 +21,7 @@ import { cn } from '@/lib/utils';
 import type { Promotor } from '@/types';
 
 export default function DashboardPage() {
-  const { records, filtered, kpis, jurisdiccion, zonas, sedes, capacitadores, capacitadoresReales, registrosExcluidos, resultado, asistencia, alertas, porMes } = useAppData();
+  const { records, filtered, kpis, jurisdiccion, zonas, sedes, capacitadores, capacitadoresReales, registrosExcluidos, resultado, asistencia, porMes } = useAppData();
   const hasData = records.length > 0;
   const [selected, setSelected] = useState<Promotor | null>(null);
   const loadStartedAt = useDataStore((s) => s.loadStartedAt);
@@ -48,6 +50,18 @@ export default function DashboardPage() {
       <PageHeader
         title="Dashboard"
         description="Visión general de los indicadores de ingresos y capacitación"
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="brand" size="sm" onClick={() => { exportExcel(filtered); toast.success(`Reporte Excel generado (${filtered.length} registros)`); }}>
+              <FileSpreadsheet className="size-4" />
+              EXPORTAR EXCEL
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => { exportCSV(filtered); toast.success(`Reporte CSV generado (${filtered.length} registros)`); }}>
+              <FileDown className="size-4" />
+              EXPORTAR CSV
+            </Button>
+          </div>
+        }
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -65,30 +79,23 @@ export default function DashboardPage() {
         <KpiCard index={8} title="PORCENTAJE CAÍDA" value={kpis.porcentajeCaida} format="percent" icon={TrendingDown} tone="rose" subtitle="Sin considerar pendientes" />
       </div>
 
-      {alertas.length > 0 && (
-        <section className="mt-8">
-          <SectionTitle icon={<BellRing className="size-4" />} title="Alertas inteligentes" />
-          <AlertCards alertas={alertas} />
-        </section>
-      )}
-
       <section className="mt-8 grid gap-4 lg:grid-cols-2">
         <ChartCard
           title="1. INGRESOS POR JURISDICCIÓN"
           description="Cantidad y porcentaje por jurisdicción"
           icon={<MapPin className="size-4" />}
         >
-          <BaseBarChart data={jurisdiccion} color="#e30613" height={240} />
+          <BaseBarChart data={jurisdiccion} color="#e30613" height={300} />
         </ChartCard>
 
         <ChartCard title="2. INGRESOS POR ZONA COMERCIAL" description="Distribución por zona comercial" icon={<MapPin className="size-4" />}>
-          <HorizontalRankingChart data={zonas.slice(0, 8)} height={280} icon={MapPin} />
+          <HorizontalRankingChart data={zonas.slice(0, 8)} height={320} icon={MapPin} />
         </ChartCard>
       </section>
 
       <section className="mt-4 grid gap-4 lg:grid-cols-2">
         <ChartCard title="3. INGRESOS POR SEDE (RANKING)" description="Mayor a menor" icon={<MapPin className="size-4" />}>
-          <HorizontalRankingChart data={sedes} icon={Building2} />
+          <HorizontalRankingChart data={sedes} height={320} icon={Building2} />
         </ChartCard>
 
         <ResultadoDonut data={resultado} total={kpis.totalIngresos} records={filtered} />
@@ -96,7 +103,7 @@ export default function DashboardPage() {
 
       <section className="mt-4 grid gap-4 lg:grid-cols-2">
         <ChartCard title="INGRESOS POR MES" description="Evolución de ingresos mensuales" icon={<TrendingUp className="size-4" />}>
-          {porMes.length ? <BaseBarChart data={porMes} color="#ff2735" height={240} /> : <ChartEmpty />}
+          {porMes.length ? <BaseBarChart data={porMes} color="#ff2735" height={300} /> : <ChartEmpty />}
         </ChartCard>
 
         <ChartCard title="4. CARGA DE CAPACITACIÓN POR CAPACITADOR" description="Resumen de carga por capacitador" icon={<GraduationCap className="size-4" />}>
@@ -108,8 +115,8 @@ export default function DashboardPage() {
               {registrosExcluidos} registros excluidos por valor inválido
             </span>
           </div>
-          <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
-            {capacitadores.slice(0, 8).map((c) => (
+          <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
+            {capacitadores.slice(0, 10).map((c) => (
               <div key={c.capacitador} className="rounded-xl border border-line bg-surface/50 p-3 transition-all duration-300 hover:-translate-y-0.5 hover:bg-surface-2 hover:shadow-glow-sm">
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate text-sm font-bold text-ink">{c.capacitador}</span>

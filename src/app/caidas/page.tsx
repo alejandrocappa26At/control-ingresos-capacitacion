@@ -9,6 +9,8 @@ import { NoDataYet } from '@/components/common/NoDataYet';
 import { CaidasRanking } from '@/components/dashboard/CaidasRanking';
 import { CaidasFunnelKPIs } from '@/components/dashboard/caidas/CaidasFunnelKPIs';
 import { ResumenDesercion } from '@/components/dashboard/caidas/ResumenDesercion';
+import { AnalisisReclutadoresSection } from '@/components/dashboard/reclutadores/AnalisisReclutadoresSection';
+import { AnalisisZonaSection } from '@/components/dashboard/zonas/AnalisisZonaSection';
 import { CaidasPorMomentoSalidaChart } from '@/components/dashboard/caidas/CaidasPorMomentoSalidaChart';
 import { RankingDiaCaidaSede } from '@/components/dashboard/caidas/RankingDiaCaidaSede';
 import { LeaderboardDiaCaidaSupervisor } from '@/components/dashboard/caidas/LeaderboardDiaCaidaSupervisor';
@@ -27,6 +29,8 @@ import {
   caidasPorDiaPorSupervisor,
 } from '@/services/analytics/falls';
 import { analizarDesercion } from '@/services/analytics/desercion';
+import { analizarReclutadores } from '@/services/analytics/reclutadores';
+import { analizarZonas } from '@/services/analytics/zonas';
 
 export default function CaidasPage() {
   const { records, filtered, kpis, motivosCaida, subMotivosCaida } = useAppData();
@@ -52,6 +56,10 @@ export default function CaidasPage() {
 
   const desercion = useMemo(() => analizarDesercion(filtered), [filtered]);
 
+  const reclutadores = useMemo(() => analizarReclutadores(filtered), [filtered]);
+
+  const zonas = useMemo(() => analizarZonas(filtered), [filtered]);
+
   if (records.length === 0) {
     return (
       <>
@@ -72,6 +80,8 @@ export default function CaidasPage() {
 
       <ResumenDesercion data={desercion} />
 
+      <AnalisisReclutadoresSection data={reclutadores} />
+
       <section className="mt-6">
         <SectionTitle
           icon={<CalendarRange className="size-4" />}
@@ -80,6 +90,8 @@ export default function CaidasPage() {
         />
         <CaidasPorMomentoSalidaChart data={ejecutivo.porMomento} />
       </section>
+
+      <AnalisisZonaSection data={zonas} />
 
       <section className="mt-6">
         <SectionTitle

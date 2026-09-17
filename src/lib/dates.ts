@@ -1,4 +1,5 @@
-import { format, isValid, parse, formatISO } from 'date-fns';
+import { format, isValid, parse, formatISO, addMonths, subMonths, startOfQuarter } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 export const EMPTY_ISO = '';
 
@@ -192,6 +193,38 @@ export function formatISOToDisplay(iso: string): string {
   if (!iso) return '—';
   const date = new Date(iso);
   return isValid(date) ? format(date, 'dd/MM/yyyy HH:mm') : iso;
+}
+
+export function shiftMonth(month: string, delta: number): string {
+  if (!month) return month;
+  const date = parse(month, 'yyyy-MM', new Date());
+  return format(addMonths(date, delta), 'yyyy-MM');
+}
+
+export function monthBounds(month: string): { from: string; to: string } {
+  const date = parse(month, 'yyyy-MM', new Date());
+  return {
+    from: formatISO(new Date(date.getFullYear(), date.getMonth(), 1), { representation: 'date' }),
+    to: formatISO(new Date(date.getFullYear(), date.getMonth() + 1, 0), { representation: 'date' }),
+  };
+}
+
+export function previousMonthISO(): string {
+  return format(subMonths(new Date(), 1), 'yyyy-MM');
+}
+
+export function currentQuarterRange(): { from: string; to: string } {
+  const now = new Date();
+  return {
+    from: formatISO(startOfQuarter(now), { representation: 'date' }),
+    to: formatISO(now, { representation: 'date' }),
+  };
+}
+
+export function monthChipLabel(month: string): string {
+  if (!month) return '';
+  const date = parse(month, 'yyyy-MM', new Date());
+  return isValid(date) ? format(date, 'MMMM yyyy', { locale: es }).toUpperCase() : month;
 }
 
 export function pad2(n: number) {

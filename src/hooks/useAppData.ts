@@ -4,8 +4,6 @@ import { computeKpis } from '@/services/analytics/kpis';
 import { ingresosPorJurisdiccion, ingresosPorZonaComercial, ingresosPorSede, analizarCapacitadores, resultadoCapacitacion, ingresosPorMes } from '@/services/analytics/charts';
 import { computeAsistencia } from '@/services/analytics/attendance';
 import { rankingPorMotivo, rankingPorSubMotivo } from '@/services/analytics/falls';
-import { generarAlertas } from '@/services/alerts/inteligencia';
-import type { Alerta } from '@/types';
 
 export function useAppData() {
   const records = useDataStore((s) => s.records);
@@ -41,10 +39,6 @@ export function useAppData() {
     const motivosCaida = rankingPorMotivo(filtered);
     const subMotivosCaida = rankingPorSubMotivo(filtered);
     const porMes = ingresosPorMes(filtered);
-    const alertas: Alerta[] = generarAlertas(filtered, {
-      procesosFinalizados: kpis.procesosFinalizados,
-      noPasanAOperaciones: kpis.noPasanAOperaciones,
-    });
 
     if (shouldMeasure) console.timeEnd('Gráficos');
 
@@ -63,7 +57,6 @@ export function useAppData() {
       motivosCaida,
       subMotivosCaida,
       porMes,
-      alertas,
       filters,
       searchTerm,
     };

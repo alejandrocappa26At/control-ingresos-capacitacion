@@ -9,11 +9,8 @@ import { usePathname } from 'next/navigation';
 
 const TITLES: Record<string, string> = {
   '/': 'Dashboard',
-  '/ingresos': 'Ingresos',
   '/capacitacion': 'Capacitación',
-  '/asistencia': 'Asistencia',
   '/caidas': 'Análisis de Caídas',
-  '/reportes': 'Reportes',
   '/upload': 'Cargar Excel',
 };
 

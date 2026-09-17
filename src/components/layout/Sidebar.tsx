@@ -6,10 +6,7 @@ import { useMemo, useRef } from 'react';
 import { motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion';
 import {
   LayoutDashboard,
-  BarChart3,
-  Users,
   GraduationCap,
-  CalendarCheck2,
   TrendingDown,
   PanelLeftOpen,
   ChevronsLeft,
@@ -22,14 +19,12 @@ import {
 import { useDataStore } from '@/store/useDataStore';
 import { useSessionStore } from '@/store/useSessionStore';
 import { computeKpis } from '@/services/analytics/kpis';
-import { generarAlertas } from '@/services/alerts/inteligencia';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
 
-type Tone = 'rose' | 'amber' | 'red';
+type Tone = 'amber' | 'red';
 
 const BADGE_TONES: Record<Tone, { chip: string; dot: string }> = {
-  rose: { chip: 'bg-rose-500/15 text-rose-400 ring-rose-500/30', dot: 'bg-rose-400' },
   amber: { chip: 'bg-amber-500/15 text-amber-400 ring-amber-500/30', dot: 'bg-amber-400' },
   red: { chip: 'bg-red-500/15 text-red-400 ring-red-500/30', dot: 'bg-red-400' },
 };
@@ -46,16 +41,13 @@ const NAV_SECTIONS: Array<{ section: string; items: NavItem[] }> = [
   {
     section: 'Análisis',
     items: [
-      { href: '/', label: 'Dashboard', icon: LayoutDashboard, badge: 'rose' },
-      { href: '/reportes', label: 'Reportes', icon: BarChart3 },
+      { href: '/', label: 'Dashboard', icon: LayoutDashboard },
     ],
   },
   {
     section: 'Operaciones',
     items: [
-      { href: '/ingresos', label: 'Ingresos', icon: Users },
       { href: '/capacitacion', label: 'Capacitación', icon: GraduationCap, badge: 'amber' },
-      { href: '/asistencia', label: 'Asistencia', icon: CalendarCheck2 },
     ],
   },
   {
@@ -92,14 +84,9 @@ export function Sidebar() {
   const cursorGlow = useMotionTemplate`radial-gradient(340px circle at ${sx}px ${sy}px, rgba(255,39,53,0.14), transparent 62%)`;
 
   const badges = useMemo(() => {
-    if (!records.length) return { alertas: 0, capacitacion: 0, caidas: 0 };
+    if (!records.length) return { capacitacion: 0, caidas: 0 };
     const kpi = computeKpis(records);
-    const alertas = generarAlertas(records, {
-      procesosFinalizados: kpi.procesosFinalizados,
-      noPasanAOperaciones: kpi.noPasanAOperaciones,
-    });
     return {
-      alertas: kpi.totalIngresos > 0 ? alertas.length : 0,
       capacitacion: kpi.enCapacitacion,
       caidas: kpi.noPasanAOperaciones,
     };
@@ -108,7 +95,7 @@ export function Sidebar() {
   const badgeCount = (item: NavItem): number => {
     if (item.filters) return activeFiltersCount;
     if (!item.badge) return 0;
-    return item.badge === 'rose' ? badges.alertas : item.badge === 'amber' ? badges.capacitacion : badges.caidas;
+    return item.badge === 'amber' ? badges.capacitacion : badges.caidas;
   };
 
   const itemChip = (isFilters: boolean) =>
