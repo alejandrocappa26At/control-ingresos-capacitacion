@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { useDataStore, selectFilteredRecords } from '@/store/useDataStore';
 import { computeKpis } from '@/services/analytics/kpis';
 import { ingresosPorJurisdiccion, ingresosPorZonaComercial, ingresosPorSede, analizarCapacitadores, resultadoCapacitacion, ingresosPorMes } from '@/services/analytics/charts';
 import { computeAsistencia } from '@/services/analytics/attendance';
-import { rankingPorMotivo, rankingPorSubMotivo } from '@/services/analytics/falls';
+import { computeEmbudo, rankingPorMotivo, rankingPorSubMotivo } from '@/services/analytics/falls';
 
 export function useAppData() {
   const records = useDataStore((s) => s.records);
@@ -30,6 +30,7 @@ export function useAppData() {
     }
 
     const kpis = computeKpis(filtered);
+    const embudo = computeEmbudo(filtered);
     const jurisdiccion = ingresosPorJurisdiccion(filtered);
     const zonas = ingresosPorZonaComercial(filtered);
     const sedes = ingresosPorSede(filtered, 12);
@@ -53,6 +54,7 @@ export function useAppData() {
       capacitadoresReales,
       registrosExcluidos,
       resultado,
+      embudo,
       asistencia,
       motivosCaida,
       subMotivosCaida,
