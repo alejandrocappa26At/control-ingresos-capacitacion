@@ -60,10 +60,10 @@ export function DateFilterInput({ label, value, onChange }: DateFilterInputProps
             key={t}
             onClick={() => onChange({ ...value, type: t })}
             className={
-              'rounded-lg px-2.5 py-1 text-xs font-semibold transition-all duration-300 ' +
+              'rounded-lg border px-2.5 py-1 text-xs font-semibold transition-all duration-300 ' +
               (mode === t
-                ? 'gradient-brand text-white shadow-glow-sm'
-                : 'bg-surface/60 text-ink-soft hover:bg-surface-3 hover:text-ink')
+                ? 'border-rose-500/30 bg-rose-50 text-rose-600'
+                : 'border-transparent text-ink-muted hover:bg-slate-100')
             }
           >
             {t === 'all' ? 'Todo' : t === 'day' ? 'Día' : t === 'month' ? 'Mes' : t === 'year' ? 'Año' : 'Rango'}
@@ -73,7 +73,7 @@ export function DateFilterInput({ label, value, onChange }: DateFilterInputProps
       {mode === 'day' && (
         <input
           type="date"
-          className="mt-2 h-10 w-full rounded-xl border border-line bg-surface/60 px-3 text-sm text-ink backdrop-blur transition-all duration-300 focus:border-brand-400/70 focus:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+          className="mt-2 h-10 w-full rounded-xl border border-line bg-surface-2 px-3 text-sm text-ink transition-all duration-300 focus:border-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-500/25"
           value={value.day ?? ''}
           onChange={(e) => onChange({ type: 'day', day: e.target.value })}
         />
@@ -81,14 +81,14 @@ export function DateFilterInput({ label, value, onChange }: DateFilterInputProps
       {mode === 'month' && (
         <input
           type="month"
-          className="mt-2 h-10 w-full rounded-xl border border-line bg-surface/60 px-3 text-sm text-ink backdrop-blur transition-all duration-300 focus:border-brand-400/70 focus:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+          className="mt-2 h-10 w-full rounded-xl border border-line bg-surface-2 px-3 text-sm text-ink transition-all duration-300 focus:border-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-500/25"
           value={value.month ?? ''}
           onChange={(e) => onChange({ type: 'month', month: e.target.value })}
         />
       )}
       {mode === 'year' && (
         <select
-          className="mt-2 h-10 w-full rounded-xl border border-line bg-surface/60 px-3 text-sm text-ink backdrop-blur transition-all duration-300 focus:border-brand-400/70 focus:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+          className="mt-2 h-10 w-full rounded-xl border border-line bg-surface-2 px-3 text-sm text-ink transition-all duration-300 focus:border-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-500/25"
           value={value.year ?? ''}
           onChange={(e) => onChange({ type: 'year', year: e.target.value })}
         >
@@ -102,14 +102,14 @@ export function DateFilterInput({ label, value, onChange }: DateFilterInputProps
         <div className="mt-2 flex items-center gap-2">
           <input
             type="date"
-            className="h-10 w-full rounded-xl border border-line bg-surface/60 px-3 text-sm text-ink backdrop-blur transition-all duration-300 focus:border-brand-400/70 focus:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+            className="h-10 w-full rounded-xl border border-line bg-surface/60 px-3 text-sm text-ink backdrop-blur transition-all duration-300 focus:border-rose-400/70 focus:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-rose-500/25"
             value={value.from ?? ''}
             onChange={(e) => onChange({ type: 'range', from: e.target.value, to: value.to })}
           />
           <span className="text-xs text-ink-soft">a</span>
           <input
             type="date"
-            className="h-10 w-full rounded-xl border border-line bg-surface/60 px-3 text-sm text-ink backdrop-blur transition-all duration-300 focus:border-brand-400/70 focus:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+            className="h-10 w-full rounded-xl border border-line bg-surface/60 px-3 text-sm text-ink backdrop-blur transition-all duration-300 focus:border-rose-400/70 focus:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-rose-500/25"
             value={value.to ?? ''}
             onChange={(e) => onChange({ type: 'range', from: value.from, to: e.target.value })}
           />

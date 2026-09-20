@@ -48,6 +48,10 @@ export interface DesercionAnalisis {
   totalIngresos: number;
   totalDeserciones: number;
   tasaDesercion: number;
+  bajas: number;
+  bajasPct: number;
+  pasanOperaciones: number;
+  pasanPct: number;
   mesMayor: ResumenMes | null;
   mesMenor: ResumenMes | null;
   promedioMensual: number;
@@ -60,7 +64,7 @@ export interface DesercionAnalisis {
 }
 
 export function deserciones(records: Promotor[]): Promotor[] {
-  return records.filter((r) => r.pasaAOperaciones === 0 && r.totalDias === 0);
+  return records.filter((r) => r.totalDias === 0);
 }
 
 function mesDeIngreso(r: Promotor): number {
@@ -75,6 +79,18 @@ export function analizarDesercion(records: Promotor[]): DesercionAnalisis {
   const totalIngresos = records.length;
   const deser = deserciones(records);
   const totalDeserciones = deser.length;
+
+  let bajas = 0;
+  let pasanOperaciones = 0;
+  for (const r of records) {
+    if (r.pasaAOperaciones === 1) {
+      pasanOperaciones += 1;
+    } else if (r.pasaAOperaciones === 0 && r.totalDias != null && r.totalDias >= 1) {
+      bajas += 1;
+    }
+  }
+
+  const pctTotal = (n: number) => (totalIngresos > 0 ? (n / totalIngresos) * 100 : 0);
 
   const ingresosPorMes = new Array<number>(12).fill(0);
   const desercionesPorMes = new Array<number>(12).fill(0);
@@ -145,6 +161,10 @@ export function analizarDesercion(records: Promotor[]): DesercionAnalisis {
     totalIngresos,
     totalDeserciones,
     tasaDesercion: totalIngresos > 0 ? (totalDeserciones / totalIngresos) * 100 : 0,
+    bajas,
+    bajasPct: pctTotal(bajas),
+    pasanOperaciones,
+    pasanPct: pctTotal(pasanOperaciones),
     mesMayor,
     mesMenor,
     promedioMensual,

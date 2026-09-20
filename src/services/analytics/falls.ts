@@ -1,5 +1,5 @@
 import { normalizeKey } from '@/lib/utils';
-import { MAX_DAYS } from '@/lib/constants';
+import { MAX_TOTAL_DIAS } from '@/lib/constants';
 import { diasEntre, todayISO } from '@/lib/dates';
 import type { CaidaRanking, Promotor } from '@/types';
 
@@ -112,7 +112,7 @@ export function caidasPorMomentoSalida(records: Promotor[]): MomentoSalida[] {
     value: nunca,
     porcentaje: total > 0 ? (nunca / total) * 100 : 0,
   });
-  for (let d = 1; d <= MAX_DAYS; d++) {
+  for (let d = 1; d <= MAX_TOTAL_DIAS; d++) {
     const value = diaCounts.get(d) ?? 0;
     result.push({
       name: `Día ${d}`,
@@ -186,27 +186,94 @@ export interface EmbudoCapacitacion {
   enCapacitacionPct: number;
   integridad: boolean;
   diferencia: number;
+  /** true cuando PASA A OPERACIONES > INICIAN CAPACITACION: inconsistencia de datos detectada. */
+  errorPasanMayorInician: boolean;
+}
+
+/**
+ * Auditoría temporal de TOTAL DE DÍAS (se imprime en consola del navegador).
+ * Revisa cómo el sistema interpreta cada valor: > 0, = 0, vacío/null/undefined, NaN, texto,
+ * y lista los registros que quedan SIN categoría por tener TOTAL DE DÍAS no numérico.
+ */
+export function auditarTotalDias(records: Promotor[]): void {
+  const totalIngresos = records.length;
+  const td = (r: Promotor) => r.totalDias as number | null | undefined | string;
+  console.log('TOTAL INGRESOS', totalIngresos);
+
+  console.log('TOTAL_DIAS > 0', records.filter((r) => Number(r.totalDias) > 0).length);
+  console.log('TOTAL_DIAS = 0', records.filter((r) => Number(r.totalDias) === 0).length);
+  console.log('TOTAL_DIAS VACIO', records.filter((r) => td(r) === '' || td(r) === null || td(r) === undefined).length);
+  console.log(
+    'TOTAL_DIAS NaN',
+    records.filter((r) => typeof r.totalDias === 'number' && Number.isNaN(r.totalDias)).length,
+  );
+  console.log(
+    'TOTAL_DIAS TEXTO',
+    records.filter((r) => typeof r.totalDias === 'string').length,
+  );
+
+  const sinCategoria = records.filter(
+    (r) => !(typeof r.totalDias === 'number' && r.totalDias >= 0),
+  );
+
+  if (sinCategoria.length > 0) {
+    console.warn(
+      `REGISTROS SIN CATEGORÍA EN TOTAL DE DÍAS (${sinCategoria.length}) — Lista (Nombre | Supervisor | Zona | TotalDias | Pasa):`,
+    );
+    for (const r of sinCategoria) {
+      console.warn(
+        `${r.apellidosNombres} | ${r.supervisor} | ${r.zonaComercial} | totalDias=${String(r.totalDias)} | pasa=${String(r.pasaAOperaciones)} | hoja=${r.origenHoja}`,
+      );
+    }
+  } else {
+    console.warn('REGISTROS SIN CATEGORÍA EN TOTAL DE DÍAS: 0');
+  }
 }
 
 export function computeEmbudo(records: Promotor[]): EmbudoCapacitacion {
   const totalIngresos = records.length;
-  let inicianCapacitacion = 0;
-  let desercion = 0;
+
+  // ══════════════════════════════════════════════════════════════════
+  //  REGLAS OFICIALES DEL NEGOCIO (fuente de verdad única)
+  // ══════════════════════════════════════════════════════════════════
+  //  INICIAN CAPACITACIÓN:        TOTAL_DE_DIAS >= 1                (sin importar PASA/estado/motivo)
+  //  DESERCIÓN:                   TOTAL_DE_DIAS = 0                 (sin importar PASA)
+  //  BAJAS DURANTE CAPACITACIÓN:  TOTAL_DE_DIAS >= 1 AND PASA = 0
+  //  PASAN A OPERACIONES:         PASA = 1
+  //  EN CAPACITACIÓN:             PASA pendiente AND TOTAL_DE_DIAS >= 1
+  const inicianCapacitacion = records.filter((r) => r.totalDias != null && r.totalDias >= 1).length;
+  const desercion = records.filter((r) => r.totalDias != null && r.totalDias === 0).length;
+
   let bajas = 0;
   let pasanOperaciones = 0;
   let enCapacitacion = 0;
 
   for (const r of records) {
-    if (r.totalDias != null && r.totalDias >= 1) inicianCapacitacion += 1;
     if (r.pasaAOperaciones === 1) {
       pasanOperaciones += 1;
     } else if (r.pasaAOperaciones === 0) {
       if (r.totalDias != null && r.totalDias >= 1) bajas += 1;
-      else desercion += 1;
-    } else {
+    } else if (r.totalDias != null && r.totalDias >= 1) {
       enCapacitacion += 1;
     }
   }
+
+  // ════ AUDITORIA - logs temporales de consistencia (solicitados) ════
+  auditarTotalDias(records);
+  console.log('INGRESOS', totalIngresos);
+  console.log('INICIAN_CAPACITACION', inicianCapacitacion);
+  console.log('DESERCION', desercion);
+  console.log('BAJAS_CAPACITACION', bajas);
+  console.log('PASAN_OPERACIONES', pasanOperaciones);
+
+  const errorPasanMayorInician = pasanOperaciones > inicianCapacitacion;
+  console.log(
+    'PASAN A OPERACIONES',
+    pasanOperaciones,
+    '> INICIAN CAPACITACION',
+    inicianCapacitacion,
+    errorPasanMayorInician ? '-> ERROR DE LOGICA' : '-> OK',
+  );
 
   const suma = desercion + bajas + pasanOperaciones + enCapacitacion;
   const pct = (n: number) => (totalIngresos > 0 ? (n / totalIngresos) * 100 : 0);
@@ -223,8 +290,9 @@ export function computeEmbudo(records: Promotor[]): EmbudoCapacitacion {
     pasanPct: pct(pasanOperaciones),
     enCapacitacion,
     enCapacitacionPct: pct(enCapacitacion),
-    integridad: suma === totalIngresos,
+    integridad: suma === totalIngresos && !errorPasanMayorInician,
     diferencia: totalIngresos - suma,
+    errorPasanMayorInician,
   };
 }
 

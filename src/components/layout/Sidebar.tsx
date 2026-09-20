@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useMemo, useRef } from 'react';
-import { motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion';
+import { useMemo } from 'react';
+import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
   GraduationCap,
@@ -25,8 +25,8 @@ import { Tooltip } from '@/components/ui/tooltip';
 type Tone = 'amber' | 'red';
 
 const BADGE_TONES: Record<Tone, { chip: string; dot: string }> = {
-  amber: { chip: 'bg-amber-500/15 text-amber-400 ring-amber-500/30', dot: 'bg-amber-400' },
-  red: { chip: 'bg-red-500/15 text-red-400 ring-red-500/30', dot: 'bg-red-400' },
+  amber: { chip: 'bg-amber-50 text-amber-700 ring-amber-600/25', dot: 'bg-amber-500' },
+  red: { chip: 'bg-red-50 text-red-700 ring-red-600/25', dot: 'bg-red-500' },
 };
 
 interface NavItem {
@@ -76,13 +76,6 @@ export function Sidebar() {
   const sessionUser = useSessionStore((s) => s.user);
   const logout = useSessionStore((s) => s.logout);
 
-  const asideRef = useRef<HTMLElement | null>(null);
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const sx = useSpring(mx, { stiffness: 180, damping: 24, mass: 0.6 });
-  const sy = useSpring(my, { stiffness: 180, damping: 24, mass: 0.6 });
-  const cursorGlow = useMotionTemplate`radial-gradient(340px circle at ${sx}px ${sy}px, rgba(255,39,53,0.14), transparent 62%)`;
-
   const badges = useMemo(() => {
     if (!records.length) return { capacitacion: 0, caidas: 0 };
     const kpi = computeKpis(records);
@@ -100,64 +93,35 @@ export function Sidebar() {
 
   const itemChip = (isFilters: boolean) =>
     isFilters
-      ? { chip: 'bg-brand-500/15 text-brand-300 ring-brand-500/30', dot: 'bg-brand-400' }
+      ? { chip: 'bg-brand-50 text-brand-700 ring-brand-600/25', dot: 'bg-brand-500' }
       : null;
 
   return (
     <motion.aside
-      ref={asideRef}
       initial={{ x: -24, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      onMouseMove={(e) => {
-        const rect = asideRef.current?.getBoundingClientRect();
-        if (!rect) return;
-        mx.set(e.clientX - rect.left);
-        my.set(e.clientY - rect.top);
-      }}
       className={cn(
-        'glass-strong fixed top-0 left-0 z-40 flex h-dvh flex-col overflow-hidden border-r border-line/70 shadow-[8px_0_40px_-18px_rgba(0,0,0,0.55)] transition-[width] duration-300 ease-out',
+        'fixed top-0 left-0 z-40 flex h-dvh flex-col overflow-hidden border-r border-line bg-surface-2 shadow-[8px_0_40px_-20px_rgba(17,24,39,0.12)] transition-[width] duration-300 ease-out',
         collapsed ? 'w-[76px]' : 'w-[248px]',
       )}
     >
-      {/* Aurora sutil interna */}
-      <div className="pointer-events-none absolute inset-0 z-0">
-        <div
-          className="absolute -top-16 -right-10 size-52 rounded-full opacity-40"
-          style={{ background: 'radial-gradient(circle at 40% 40%, rgba(227,6,19,0.24), transparent 68%)', filter: 'blur(46px)', animation: 'aurora-drift 26s ease-in-out infinite alternate' }}
-        />
-        <div
-          className="absolute -bottom-20 -left-14 size-56 rounded-full opacity-30"
-          style={{ background: 'radial-gradient(circle at 60% 40%, rgba(255,39,53,0.15), transparent 66%)', filter: 'blur(52px)', animation: 'aurora-drift 32s ease-in-out infinite alternate-reverse' }}
-        />
-      </div>
-
-      {/* Cursor glow */}
-      <motion.div className="pointer-events-none absolute inset-0 z-0" style={{ background: cursorGlow }} />
-
-      {/* Sheen superior */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-1/2 bg-gradient-to-b from-white/[0.05] to-transparent" />
-      {/* Hairline borde superior */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-      {/* Borde luminoso derecho */}
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-px bg-gradient-to-b from-transparent via-brand-500/40 to-transparent" />
-
       <div className="relative z-10 flex min-h-0 flex-1 flex-col">
         {/* Logo */}
         <div className={cn('flex items-center gap-3 px-4 pt-6 pb-5', collapsed && 'justify-center px-2')}>
           <motion.div
             whileHover={{ scale: 1.06 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="relative flex size-10 shrink-0 items-center justify-center rounded-xl gradient-brand text-white shadow-glow"
+            className="relative flex size-10 shrink-0 items-center justify-center rounded-xl gradient-brand text-white"
           >
             <PresentationIcon className="size-5" />
-            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-emerald-400 ring-2 ring-canvas" style={{ boxShadow: '0 0 10px rgba(16,185,129,0.9)' }} />
+            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-emerald-400 ring-2 ring-surface-2" />
           </motion.div>
           {!collapsed && (
             <div className="min-w-0">
               <p className="truncate text-sm font-bold tracking-tight text-ink">Control de Ingresos</p>
               <p className="truncate text-[11px] font-medium text-ink-soft">y Capacitación</p>
-              <div className="mt-1 h-px w-16 bg-gradient-to-r from-brand-500/80 to-transparent" />
+              <div className="mt-1 h-px w-16 bg-gradient-to-r from-brand-500/60 to-transparent" />
             </div>
           )}
         </div>
@@ -169,11 +133,10 @@ export function Sidebar() {
               <div className={cn('flex items-center gap-2 px-3 pt-4 pb-2', collapsed && 'items-center justify-center px-0 pt-3 pb-1')}>
                 {!collapsed ? (
                   <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.18em] text-ink-muted uppercase">
-                    <span className="h-px w-4 bg-gradient-to-r from-brand-500/70 to-transparent" />
                     {section}
                   </div>
                 ) : (
-                  <span className="h-px w-8 rounded bg-gradient-to-r from-white/20 to-transparent" />
+                  <span className="h-px w-8 rounded bg-line-2" />
                 )}
               </div>
 
@@ -190,34 +153,26 @@ export function Sidebar() {
                   const inner = (
                     <>
                       {active && (
-                        <>
-                          <motion.span
-                            layoutId="sidebar-active-pill"
-                            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                            className="absolute inset-0 rounded-xl border border-brand-400/20 bg-gradient-to-r from-brand-500/18 to-brand-500/5 shadow-glow-sm"
-                          />
-                          <motion.span
-                            layoutId="sidebar-active-line"
-                            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                            className="absolute inset-y-2.5 left-0 w-[3px] rounded-r-full gradient-brand"
-                            style={{ boxShadow: '0 0 14px rgba(227,6,19,0.95), 0 0 4px rgba(255,39,53,0.7)' }}
-                          />
-                        </>
+                        <motion.span
+                          layoutId="sidebar-active-pill"
+                          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                          className="absolute inset-0 rounded-xl border border-red-500/20 bg-red-50/70 shadow-[0_0_24px_-8px_rgba(220,38,38,0.5)]"
+                        />
                       )}
 
                       <span
                         className={cn(
                           'relative flex size-8 shrink-0 items-center justify-center rounded-[10px] border transition-all duration-300',
                           active
-                            ? 'border-brand-400/40 bg-brand-500/15 text-brand-200 shadow-[0_0_16px_rgba(227,6,19,0.45)]'
-                            : 'border-white/10 bg-white/[0.05] text-ink-muted group-hover:border-brand-400/25 group-hover:text-brand-300',
+                          ? 'border-red-500/25 bg-red-50 text-red-600 shadow-[0_0_18px_-6px_rgba(220,38,38,0.5)]'
+                          : 'border-transparent text-ink-muted group-hover:bg-red-50/60 group-hover:text-red-600',
                         )}
                       >
                         <item.icon className="size-[17px] transition-transform duration-300 group-hover:scale-110" />
                         {collapsed && count > 0 && (
                           <span
                             className={cn(
-                              'absolute -top-1.5 -right-1.5 flex min-w-4 items-center justify-center rounded-full border border-canvas px-1 py-px text-[9px] font-bold ring-1 tabular-nums',
+                              'absolute -top-1.5 -right-1.5 flex min-w-4 items-center justify-center rounded-full border border-surface-2 px-1 py-px text-[9px] font-bold ring-1 tabular-nums',
                               tone?.chip ?? chip?.chip,
                             )}
                           >
@@ -227,12 +182,12 @@ export function Sidebar() {
                       </span>
 
                       {!collapsed && (
-                        <span className={cn('truncate text-sm font-semibold', active && 'text-glow')}>{item.label}</span>
+                        <span className={cn('truncate text-sm font-semibold', active && 'text-red-700')}>{item.label}</span>
                       )}
 
                       {!collapsed && count > 0 && (
                         <span className={cn('ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset tabular-nums', tone?.chip ?? chip?.chip)}>
-                          <span className={cn('size-1.5 rounded-full animate-pulse-glow', tone?.dot ?? chip?.dot)} />
+                          <span className={cn('size-1.5 rounded-full', tone?.dot ?? chip?.dot)} />
                           {formatCount(count)}
                         </span>
                       )}
@@ -240,11 +195,11 @@ export function Sidebar() {
                   );
 
                   const classes = cn(
-                    'group relative flex w-full items-center gap-3 rounded-xl px-2.5 py-2 transition-all duration-300 ease-out',
+                    'group relative flex w-full items-center gap-3 rounded-xl px-2.5 py-2 transition-all duration-200 ease-out',
                     active
-                      ? 'text-white'
-                      : 'text-ink-soft hover:translate-x-1 hover:bg-white/[0.04] hover:text-ink',
-                    collapsed && 'justify-center px-0 hover:translate-x-0',
+                      ? 'text-brand-700'
+                      : 'text-ink-soft hover:bg-slate-100 hover:text-ink',
+                    collapsed && 'justify-center px-0 hover:bg-transparent',
                   );
 
                   const content = isFilters ? (
@@ -278,23 +233,20 @@ export function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-line/80 p-3">
+        <div className="border-t border-line p-3">
           <div className={cn('flex items-center gap-2', collapsed && 'flex-col gap-2')}>
             <div className="relative shrink-0">
-              <div className="flex size-9 items-center justify-center rounded-xl gradient-brand text-xs font-bold text-white shadow-glow-sm">
+              <div className="flex size-9 items-center justify-center rounded-xl gradient-brand text-xs font-bold text-white">
                 {sessionUser ? sessionUser.slice(0, 2).toUpperCase() : 'CA'}
               </div>
-              <span
-                className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-canvas bg-emerald-400"
-                style={{ boxShadow: '0 0 8px rgba(16,185,129,0.9)' }}
-              />
+              <span className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-2 bg-emerald-400" />
             </div>
 
             {!collapsed && (
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-bold text-ink">{sessionUser ?? 'capacitacion'}</p>
-                <p className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-400">
-                  <span className="size-1 animate-pulse-glow rounded-full bg-emerald-400 shadow-[0_0_6px_currentColor]" />
+                <p className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-600">
+                  <span className="size-1 rounded-full bg-emerald-500" />
                   En línea
                 </p>
               </div>
@@ -305,7 +257,7 @@ export function Sidebar() {
                 <button
                   onClick={toggleSidebar}
                   aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
-                  className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line bg-white/[0.03] text-ink-soft transition-all duration-300 hover:scale-105 hover:border-brand-400/40 hover:bg-brand-500/10 hover:text-brand-300 hover:shadow-glow-sm active:scale-95"
+                  className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line text-ink-soft transition-all duration-200 hover:bg-slate-100 hover:text-brand-600 active:scale-95"
                 >
                   {collapsed ? <PanelLeftOpen className="size-4" /> : <ChevronsLeft className="size-4" />}
                 </button>
@@ -314,7 +266,7 @@ export function Sidebar() {
                 <button
                   onClick={logout}
                   aria-label="Cerrar sesión"
-                  className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line bg-white/[0.03] text-ink-soft transition-all duration-300 hover:scale-105 hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-rose-400 hover:shadow-glow-sm active:scale-95"
+                  className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line text-ink-soft transition-all duration-200 hover:bg-red-50 hover:text-red-600 active:scale-95"
                 >
                   <LogOut className="size-4" />
                 </button>

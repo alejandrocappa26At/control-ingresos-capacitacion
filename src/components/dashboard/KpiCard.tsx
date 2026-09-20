@@ -5,61 +5,22 @@ import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CountUp } from '@/components/ui/count-up';
 
-type Tone = 'brand' | 'emerald' | 'amber' | 'rose' | 'sky' | 'violet' | 'slate';
+type Tone = 'brand' | 'emerald' | 'amber' | 'rose' | 'slate';
 
-const toneStyles: Record<
-  Tone,
-  { icon: string; glow: string; bar: string; orb: string; ring: string }
-> = {
-  brand: {
-    icon: 'text-brand-200',
-    glow: 'group-hover:shadow-[0_16px_70px_-12px_rgba(227,6,19,0.55)]',
-    bar: 'from-brand-500 via-brand-400 to-brand-700',
-    orb: 'bg-[radial-gradient(circle_at_30%_20%,rgba(227,6,19,0.42),transparent_65%)]',
-    ring: 'group-hover:ring-brand-500/30',
-  },
-  emerald: {
-    icon: 'text-emerald-400',
-    glow: 'group-hover:shadow-[0_16px_60px_-12px_rgba(34,197,94,0.45)]',
-    bar: 'from-emerald-500 via-emerald-400 to-teal-500',
-    orb: 'bg-[radial-gradient(circle_at_30%_20%,rgba(34,197,94,0.4),transparent_65%)]',
-    ring: 'group-hover:ring-emerald-500/25',
-  },
-  amber: {
-    icon: 'text-amber-400',
-    glow: 'group-hover:shadow-[0_16px_60px_-12px_rgba(245,158,11,0.4)]',
-    bar: 'from-amber-500 via-orange-400 to-rose-500',
-    orb: 'bg-[radial-gradient(circle_at_30%_20%,rgba(245,158,11,0.36),transparent_65%)]',
-    ring: 'group-hover:ring-amber-500/25',
-  },
-  rose: {
-    icon: 'text-rose-400',
-    glow: 'group-hover:shadow-[0_16px_60px_-12px_rgba(227,6,19,0.5)]',
-    bar: 'from-rose-500 via-[#ff2735] to-brand-600',
-    orb: 'bg-[radial-gradient(circle_at_30%_20%,rgba(227,6,19,0.45),transparent_65%)]',
-    ring: 'group-hover:ring-rose-500/25',
-  },
-  sky: {
-    icon: 'text-zinc-200',
-    glow: 'group-hover:shadow-[0_16px_60px_-12px_rgba(255,255,255,0.22)]',
-    bar: 'from-white/80 via-zinc-300 to-zinc-500',
-    orb: 'bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.16),transparent_65%)]',
-    ring: 'group-hover:ring-white/20',
-  },
-  violet: {
-    icon: 'text-[#ff8b8f]',
-    glow: 'group-hover:shadow-[0_16px_60px_-12px_rgba(160,4,13,0.5)]',
-    bar: 'from-[#ff2735] via-[#e30613] to-[#6b030a]',
-    orb: 'bg-[radial-gradient(circle_at_30%_20%,rgba(160,4,13,0.42),transparent_65%)]',
-    ring: 'group-hover:ring-[#ff2735]/25',
-  },
-  slate: {
-    icon: 'text-zinc-400',
-    glow: 'group-hover:shadow-[0_16px_60px_-12px_rgba(161,161,170,0.4)]',
-    bar: 'from-zinc-400 via-zinc-300 to-zinc-600',
-    orb: 'bg-[radial-gradient(circle_at_30%_20%,rgba(161,161,170,0.3),transparent_65%)]',
-    ring: 'group-hover:ring-zinc-400/25',
-  },
+const toneIcon: Record<Tone, string> = {
+  brand: 'text-brand-600',
+  emerald: 'text-emerald-600',
+  amber: 'text-amber-600',
+  rose: 'text-rose-600',
+  slate: 'text-slate-600',
+};
+
+const toneSpark: Record<Tone, string> = {
+  brand: '#2563eb',
+  emerald: '#059669',
+  amber: '#d97706',
+  rose: '#e11d48',
+  slate: '#64748b',
 };
 
 interface KpiCardProps {
@@ -71,6 +32,53 @@ interface KpiCardProps {
   index?: number;
   format?: 'number' | 'percent';
   suffix?: string;
+  spark?: number[];
+}
+
+function Sparkline({ data, color }: { data: number[]; color: string }) {
+  const w = 240;
+  const h = 64;
+  const pad = 4;
+  if (data.length < 2) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const step = (w - pad * 2) / (data.length - 1);
+  const pts = data.map((v, i) => [
+    pad + i * step,
+    h - pad - ((v - min) / range) * (h - pad * 2),
+  ]);
+  const line = pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
+  const area = `${line} L${(w - pad).toFixed(1)} ${h} L${pad} ${h} Z`;
+  const last = pts[pts.length - 1];
+
+  return (
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      preserveAspectRatio="none"
+      className="h-16 w-full"
+      aria-hidden
+    >
+      <defs>
+        <linearGradient id={`spark-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.22" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#spark-${color.replace('#', '')})`} />
+      <path
+        d={line}
+        fill="none"
+        stroke={color}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
+      <circle cx={last[0]} cy={last[1]} r="3" fill={color} />
+      <circle cx={last[0]} cy={last[1]} r="6" fill={color} opacity="0.18" />
+    </svg>
+  );
 }
 
 export function KpiCard({
@@ -82,44 +90,31 @@ export function KpiCard({
   index = 0,
   format = 'number',
   suffix,
+  spark,
 }: KpiCardProps) {
-  const styles = toneStyles[tone];
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
       className="group relative h-full"
     >
-      <div className={cn(
-        'relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface-2 p-5 shadow-card ring-1 ring-transparent transition-all duration-300 ease-out group-hover:-translate-y-1.5 group-hover:scale-[1.02] group-hover:border-white/15',
-        styles.ring,
-      )}>
-        <div className={cn('pointer-events-none absolute inset-0 opacity-70 transition-opacity duration-500 group-hover:opacity-100', styles.orb)} />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#ff2735]/60 to-transparent" />
-
-        <div className="relative flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-ink-soft uppercase">
-              <span className="h-1 w-3 rounded-full gradient-brand" />
-              {title}
-            </p>
-            <p className="mt-2 text-3xl font-bold tracking-tight text-white drop-shadow-[0_0_20px_rgba(227,6,19,0.35)]">
-              <CountUp value={value} format={format} suffix={suffix} />
-            </p>
-            {subtitle && <p className="mt-1.5 text-[11px] font-medium text-ink-muted">{subtitle}</p>}
-          </div>
-          <div className={cn(
-            'relative flex size-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-b from-white/12 to-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]',
-            tone === 'brand' && 'shadow-[0_0_20px_-4px_rgba(227,6,19,0.6)]',
-          )}>
-            <Icon className={cn('size-5 drop-shadow-[0_0_8px_currentColor] transition-transform duration-300 group-hover:scale-110', styles.icon)} />
-          </div>
+      <div className="flex h-full flex-col rounded-2xl border border-line bg-surface-2 p-6 shadow-[0_1px_3px_rgba(17,24,39,0.05),0_12px_30px_-18px_rgba(17,24,39,0.14)] transition-colors duration-300 group-hover:border-line-2">
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-[10px] font-bold leading-snug tracking-[0.14em] text-ink-muted uppercase">{title}</p>
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-surface-3">
+            <Icon className={cn('size-[18px]', toneIcon[tone])} />
+          </span>
         </div>
-
-        <div className={cn('absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r opacity-70 transition-opacity duration-300 group-hover:opacity-100', styles.bar)} />
-        <div className={cn('absolute inset-0 rounded-2xl transition-all duration-300 ease-out pointer-events-none', styles.glow)} />
+        <p className="mt-4 text-4xl font-extrabold leading-none tracking-tight text-ink tabular-nums">
+          <CountUp value={value} format={format} suffix={suffix} />
+        </p>
+        {subtitle && <p className="mt-3 text-xs font-medium text-ink-muted">{subtitle}</p>}
+        {spark && spark.length >= 2 && (
+          <div className="mt-4">
+            <Sparkline data={spark} color={toneSpark[tone]} />
+          </div>
+        )}
       </div>
     </motion.div>
   );

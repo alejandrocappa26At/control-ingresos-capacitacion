@@ -97,10 +97,10 @@ export function buildColumns(): ColumnDef<Promotor, unknown>[] {
         const promotor = info.row.original;
         const etapa = etapaSalida(promotor);
         const tone: Record<EtapaSalidaKind, { text: string; dot: string }> = {
-          NUNCA_ASISTIO: { text: 'text-rose-400', dot: 'bg-rose-500' },
-          DIA: { text: 'text-rose-300', dot: 'bg-rose-400' },
-          PASO_A_OPERACIONES: { text: 'text-emerald-400', dot: 'bg-emerald-500' },
-          EN_CAPACITACION: { text: 'text-amber-400', dot: 'bg-amber-400' },
+          NUNCA_ASISTIO: { text: 'text-rose-600', dot: 'bg-rose-500' },
+          DIA: { text: 'text-rose-500', dot: 'bg-rose-400' },
+          PASO_A_OPERACIONES: { text: 'text-emerald-600', dot: 'bg-emerald-500' },
+          EN_CAPACITACION: { text: 'text-amber-600', dot: 'bg-amber-400' },
         };
         return (
           <span className={cn('inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold', tone[etapa.kind].text)}>
@@ -222,7 +222,7 @@ export function DataTable({ data, onRowClick, pageSize = 10, loading }: DataTabl
               <div className="fixed inset-0 z-10" onClick={() => setShowColumns(false)} />
               <div
                 ref={columnRef}
-                className="glass-strong absolute right-0 z-20 mt-2 max-h-80 w-64 overflow-y-auto rounded-xl border border-line p-3 shadow-glow"
+                className="absolute right-0 z-20 mt-2 max-h-80 w-64 overflow-y-auto rounded-xl border border-line bg-surface-2 p-3 shadow-card"
               >
                 <div className="mb-2 flex items-center justify-between border-b border-line pb-2">
                   <span className="text-xs font-bold text-ink">Seleccionar columnas</span>
@@ -251,7 +251,7 @@ export function DataTable({ data, onRowClick, pageSize = 10, loading }: DataTabl
                           type="checkbox"
                           checked={checked}
                           onChange={() => setColumnVisibility((prev) => ({ ...prev, [key]: !checked }))}
-                          className="size-3.5 accent-[#e30613]"
+                          className="size-3.5 accent-brand-500"
                         />
                         {label}
                       </label>
@@ -274,7 +274,7 @@ export function DataTable({ data, onRowClick, pageSize = 10, loading }: DataTabl
                   return (
                     <th
                       key={header.id}
-                      className="sticky top-0 z-10 border-b border-line bg-[#0d0d0d]/95 px-3 py-2.5 text-[11px] font-bold tracking-wide whitespace-nowrap text-ink-muted uppercase backdrop-blur shadow-[inset_0_-1px_0_rgba(227,6,19,0.18)] first:rounded-tl-xl"
+                      className="sticky top-0 z-10 border-b border-line bg-slate-50 px-3 py-2.5 text-[11px] font-bold tracking-wide whitespace-nowrap text-ink-muted uppercase first:rounded-tl-xl"
                       style={{ width: header.getSize() }}
                     >
                       {header.column.getCanSort() ? (
@@ -308,7 +308,7 @@ export function DataTable({ data, onRowClick, pageSize = 10, loading }: DataTabl
                 className={cn(
                   'group border-b border-line transition-all duration-200 last:border-0',
                   rowIndex % 2 === 1 && 'bg-surface/40',
-                  onRowClick && 'cursor-pointer hover:bg-brand-500/[0.07] hover:shadow-[inset_3px_0_0_rgba(227,6,19,0.85)]',
+                  onRowClick && 'cursor-pointer hover:bg-brand-50/70 hover:shadow-[inset_3px_0_0_rgba(37,99,235,0.55)]',
                 )}
               >
                 {row.getVisibleCells().map((cell) => (

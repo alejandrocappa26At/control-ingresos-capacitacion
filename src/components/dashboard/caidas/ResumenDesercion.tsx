@@ -6,7 +6,6 @@ import { SectionTitle } from '@/components/common/SectionTitle';
 import type { DesercionAnalisis } from '@/services/analytics/desercion';
 import { DesercionKpis } from './DesercionKpis';
 import { TendenciaIngresosDeserciones } from './TendenciaIngresosDeserciones';
-import { DesercionesPorMesChart } from './DesercionesPorMesChart';
 
 export function ResumenDesercion({ data }: { data: DesercionAnalisis }) {
   return (
@@ -19,10 +18,7 @@ export function ResumenDesercion({ data }: { data: DesercionAnalisis }) {
 
       <DesercionKpis data={data} />
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <TendenciaIngresosDeserciones data={data.tendencia} />
-        <DesercionesPorMesChart data={data.porMes} />
-      </div>
+      <TendenciaIngresosDeserciones data={data.tendencia} />
     </section>
   );
 }

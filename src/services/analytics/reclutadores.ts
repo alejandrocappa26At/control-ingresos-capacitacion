@@ -14,7 +14,7 @@ export const SEMAFORO_STYLES: Record<NivelDesercion, { emoji: string; label: str
   excelente: { emoji: '🟢', label: 'Excelente', color: '#22c55e', dim: 'rgba(34,197,94,0.9)' },
   bueno: { emoji: '🟡', label: 'Bueno', color: '#eab308', dim: 'rgba(234,179,8,0.9)' },
   riesgo: { emoji: '🟠', label: 'Riesgo', color: '#f97316', dim: 'rgba(249,115,22,0.9)' },
-  critico: { emoji: '🔴', label: 'Crítico', color: '#e30613', dim: 'rgba(227,6,19,0.9)' },
+  critico: { emoji: '🔴', label: 'Crítico', color: '#dc2626', dim: 'rgba(220,38,38,0.9)' },
 };
 
 export function nivelDesercion(tasa: number): NivelDesercion {

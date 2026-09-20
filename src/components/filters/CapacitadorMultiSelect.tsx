@@ -88,7 +88,7 @@ export function CapacitadorMultiSelect({ value, onChange, options }: Capacitador
       ref={listRef}
       role="listbox"
       style={{ position: 'fixed', top: pos.top, left: pos.left, width: pos.width, zIndex: 9999 }}
-      className="animate-fade-in overflow-hidden rounded-2xl border border-line/80 bg-surface-2/95 shadow-[0_24px_64px_-16px_rgba(0,0,0,0.6)] backdrop-blur-xl"
+      className="animate-fade-in overflow-hidden rounded-2xl border border-line bg-surface-2 shadow-card"
     >
       <div className="relative p-2">
         <Search className="pointer-events-none absolute top-1/2 left-4 size-3.5 -translate-y-1/2 text-ink-soft" />
@@ -98,7 +98,7 @@ export function CapacitadorMultiSelect({ value, onChange, options }: Capacitador
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Buscar capacitador..."
-          className="h-9 w-full rounded-lg border border-line bg-surface/60 pr-3 pl-8 text-sm text-ink placeholder:text-ink-soft transition-all duration-300 focus:border-brand-400/70 focus:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+          className="h-9 w-full rounded-lg border border-line bg-surface-2 pr-3 pl-8 text-sm text-ink placeholder:text-ink-soft transition-all duration-300 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
         />
       </div>
 
@@ -106,7 +106,7 @@ export function CapacitadorMultiSelect({ value, onChange, options }: Capacitador
         <button
           type="button"
           onClick={() => onChange(Array.from(new Set([...value, ...options])))}
-          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-brand-400 transition-colors hover:bg-surface-3 hover:text-brand-300"
+          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-brand-600 transition-colors hover:bg-surface-3 hover:text-brand-700"
         >
           <ListChecks className="size-3.5" />
           Seleccionar todos
@@ -147,8 +147,8 @@ export function CapacitadorMultiSelect({ value, onChange, options }: Capacitador
                 className={cn(
                   'flex size-4 shrink-0 items-center justify-center rounded-md border transition-all duration-200',
                   checked
-                    ? 'gradient-brand border-transparent text-white shadow-glow-sm'
-                    : 'border-line-2 bg-surface/60 text-transparent',
+                    ? 'border-brand-500/30 bg-brand-50 text-brand-600'
+                    : 'border-line-2 bg-surface-2 text-transparent',
                 )}
               >
                 <Check className="size-3" />
@@ -180,7 +180,7 @@ export function CapacitadorMultiSelect({ value, onChange, options }: Capacitador
         aria-haspopup="listbox"
         aria-expanded={open}
         className={cn(
-          'relative flex h-10 w-full cursor-pointer items-center gap-2 rounded-xl border border-line bg-surface/60 px-3.5 text-left transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-500/25',
+          'relative flex h-10 w-full cursor-pointer items-center gap-2 rounded-xl border border-line bg-surface-2 px-3.5 text-left transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-500/25',
           open ? 'border-brand-400/70 bg-surface-2' : 'hover:bg-surface-2',
         )}
       >
@@ -202,14 +202,14 @@ export function CapacitadorMultiSelect({ value, onChange, options }: Capacitador
           {value.slice(0, 3).map((name) => (
             <span
               key={name}
-              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand-500/25 bg-brand-500/10 px-2.5 py-1 text-xs font-semibold text-brand-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand-500/25 bg-brand-500/10 px-2.5 py-1 text-xs font-semibold text-brand-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
             >
               <span className="truncate">{name}</span>
               <button
                 type="button"
                 onClick={() => onChange(value.filter((v) => v !== name))}
                 aria-label={`Quitar ${name}`}
-                className="flex size-3.5 shrink-0 items-center justify-center rounded-full text-brand-300/70 transition-colors hover:bg-brand-500/25 hover:text-brand-100"
+                className="flex size-3.5 shrink-0 items-center justify-center rounded-full text-brand-700/70 transition-colors hover:bg-brand-500/25 hover:text-brand-800"
               >
                 <X className="size-3" />
               </button>

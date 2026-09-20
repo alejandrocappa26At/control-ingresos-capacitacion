@@ -76,15 +76,12 @@ export function AttendanceControl({ asistencia }: { asistencia: AsistenciaSummar
           icon={<Percent className="size-4" />}
           label="Promedio general de asistencia"
           value={`${asistencia.promedioGeneral.toFixed(1)}%`}
-          tone="text-brand-300"
-          iconTone="from-brand-500/25 to-brand-500/5 text-brand-300"
-          progress={asistencia.promedioGeneral}
+          iconTone="from-brand-500/25 to-brand-500/5 text-brand-600"
         />
         <StatCard
           icon={<CalendarCheck2 className="size-4" />}
           label="Asistencias totales"
           value={formatNumber(totalAsistidos)}
-          tone="text-emerald-400"
           iconTone="from-emerald-500/25 to-emerald-500/5 text-emerald-400"
           helper={`de ${formatNumber(totalDias)} registros de asistencia`}
         />
@@ -92,7 +89,6 @@ export function AttendanceControl({ asistencia }: { asistencia: AsistenciaSummar
           icon={<BarChartIcon className="size-4" />}
           label="Faltas totales"
           value={formatNumber(totalDias - totalAsistidos)}
-          tone="text-rose-400"
           iconTone="from-rose-500/25 to-rose-500/5 text-rose-400"
           helper="días con inasistencia registrada"
         />
@@ -126,33 +122,23 @@ function StatCard({
   icon,
   label,
   value,
-  tone,
   iconTone,
   helper,
-  progress,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
-  tone: string;
   iconTone: string;
   helper?: string;
-  progress?: number;
 }) {
   return (
-    <div className="group rounded-2xl border border-line bg-surface-2 p-4 shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-glow">
+    <div className="group rounded-2xl border border-line bg-surface-2 p-5 shadow-card transition-colors duration-300 hover:border-ink/15">
       <div className="flex items-center gap-2 text-xs font-semibold text-ink-muted uppercase">
-        <span className={cn('flex size-7 items-center justify-center rounded-lg border border-white/10 bg-gradient-to-b shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]', iconTone)}>
-          {icon}
-        </span>
+        <span className={cn('flex size-7 items-center justify-center rounded-lg bg-surface-3', iconTone)}>{icon}</span>
         {label}
       </div>
-      <p className={cn('mt-2 text-3xl font-bold tabular-nums', tone)}>{value}</p>
-      {progress !== undefined ? (
-        <Progress value={progress} tone={progress >= 85 ? 'success' : progress >= 60 ? 'warning' : 'danger'} className="mt-3" />
-      ) : helper ? (
-        <p className="mt-1 text-xs text-ink-soft">{helper}</p>
-      ) : null}
+      <p className="mt-3 text-3xl font-extrabold tracking-tight text-ink tabular-nums">{value}</p>
+      {helper ? <p className="mt-1 text-xs font-medium text-ink-muted">{helper}</p> : null}
     </div>
   );
 }

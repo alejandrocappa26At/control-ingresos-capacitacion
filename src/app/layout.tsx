@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="es"
       suppressHydrationWarning
-      className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-canvas font-[family-name:var(--font-geist-sans)] text-ink antialiased">
         <ErrorBoundary fallbackTitle="Ocurrió un problema al cargar la aplicación">
@@ -36,12 +36,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           position="bottom-right"
           expand
           richColors
-          theme="dark"
+          theme="light"
           toastOptions={{
             style: {
               fontFamily: 'var(--font-geist-sans)',
-              background: 'rgba(19, 19, 19, 0.92)',
-              border: '1px solid rgba(255, 39, 53, 0.25)',
+              background: '#ffffff',
+              border: '1px solid rgba(17, 24, 39, 0.1)',
               backdropFilter: 'blur(16px)',
             },
           }}

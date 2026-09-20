@@ -57,3 +57,4 @@ export const PENDING_TEXT = 'Pendiente';
 export const NO_REGISTRO_TEXT = 'Sin registro';
 
 export const MAX_DAYS = 10;
+export const MAX_TOTAL_DIAS = 12;

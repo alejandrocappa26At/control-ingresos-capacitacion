@@ -82,7 +82,7 @@ function toPasa(value: unknown): 1 | 0 | null {
 function toTotalDias(value: unknown): number | null {
   if (value === null || value === undefined || value === '') return null;
   if (typeof value === 'number') {
-    if (Number.isFinite(value) && Number.isInteger(value) && value >= 0 && value <= MAX_DAYS) return value;
+    if (Number.isFinite(value) && Number.isInteger(value) && value >= 0) return value;
     return null;
   }
   const text = String(value).trim();
@@ -90,7 +90,7 @@ function toTotalDias(value: unknown): number | null {
   const n = Number(text.replace(/[^\d.]/g, ''));
   if (!Number.isFinite(n)) return null;
   const int = Math.trunc(n);
-  return int >= 0 && int <= MAX_DAYS ? int : null;
+  return int >= 0 ? int : null;
 }
 
 interface ParsedRecord {

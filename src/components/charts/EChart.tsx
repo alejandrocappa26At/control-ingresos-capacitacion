@@ -7,53 +7,56 @@ import type { EChartsOption } from 'echarts';
 import { cn } from '@/lib/utils';
 
 export const QI_COLOR = {
-  red: '#e30613',
-  redLight: '#ff2735',
-  redDark: '#7a030a',
+  blue: '#2563eb',
+  blueLight: '#60a5fa',
+  violet: '#8b5cf6',
+  red: '#dc2626',
+  redLight: '#ef4444',
+  redDark: '#b91c1c',
   rose: '#f43f5e',
   white: '#ffffff',
-  gray: '#a1a1aa',
-  zinc: '#52525b',
+  gray: '#9ca3af',
+  zinc: '#6b7280',
   amber: '#f59e0b',
   emerald: '#10b981',
 } as const;
 
 export const QI_PALETTE = [
+  QI_COLOR.blue,
   QI_COLOR.red,
-  QI_COLOR.white,
-  QI_COLOR.gray,
-  QI_COLOR.redLight,
-  QI_COLOR.redDark,
-  QI_COLOR.rose,
+  QI_COLOR.emerald,
   QI_COLOR.amber,
+  QI_COLOR.violet,
+  QI_COLOR.rose,
   QI_COLOR.zinc,
+  QI_COLOR.gray,
 ];
 
-echarts.registerTheme('qi-dark', {
+echarts.registerTheme('qi-light', {
   color: QI_PALETTE,
   backgroundColor: 'transparent',
-  textStyle: { color: '#a1a1aa', fontFamily: 'inherit' },
+  textStyle: { color: '#6b7280', fontFamily: 'inherit' },
   categoryAxis: {
-    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.10)' } },
+    axisLine: { lineStyle: { color: 'rgba(17,24,39,0.12)' } },
     axisTick: { show: false },
-    axisLabel: { color: '#a1a1aa', fontSize: 11 },
+    axisLabel: { color: '#6b7280', fontSize: 11 },
     splitLine: { show: false },
   },
   valueAxis: {
     axisLine: { show: false },
     axisTick: { show: false },
-    axisLabel: { color: '#a1a1aa', fontSize: 11 },
-    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)', type: 'dashed' } },
+    axisLabel: { color: '#9ca3af', fontSize: 11 },
+    splitLine: { lineStyle: { color: 'rgba(17,24,39,0.07)', type: 'dashed' } },
   },
-  legend: { textStyle: { color: '#a1a1aa' }, icon: 'roundRect' },
+  legend: { textStyle: { color: '#6b7280' }, icon: 'roundRect' },
   tooltip: {
-    backgroundColor: 'rgba(11,15,28,0.92)',
-    borderColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: '#ffffff',
+    borderColor: 'rgba(17,24,39,0.1)',
     borderWidth: 1,
     padding: [10, 14],
-    textStyle: { color: '#f4f4f5', fontSize: 12, lineHeight: 20 },
+    textStyle: { color: '#111827', fontSize: 12, lineHeight: 20 },
     extraCssText:
-      'border-radius:14px;backdrop-filter:blur(16px);box-shadow:0 18px 50px -12px rgba(0,0,0,0.7),0 0 24px rgba(227,6,19,0.12);',
+      'border-radius:12px;box-shadow:0 16px 40px -12px rgba(17,24,39,0.18),0 2px 8px rgba(17,24,39,0.06);',
   },
   grid: { containLabel: true, top: 28, left: 8, right: 8, bottom: 4 },
 });
@@ -77,7 +80,7 @@ export function QiEChart({ option, height = 280, delay = 0, className, onEvents 
     >
       <ReactECharts
         option={option}
-        theme="qi-dark"
+        theme="qi-light"
         notMerge
         lazyUpdate
         opts={{ renderer: 'canvas' }}
@@ -89,18 +92,18 @@ export function QiEChart({ option, height = 280, delay = 0, className, onEvents 
 }
 
 export function tipDot(color: string): string {
-  return `<span style="display:inline-block;width:9px;height:9px;border-radius:9999px;margin-right:8px;background:${color};box-shadow:0 0 8px ${color}"></span>`;
+  return `<span style="display:inline-block;width:9px;height:9px;border-radius:9999px;margin-right:8px;background:${color};box-shadow:0 0 6px ${color}55"></span>`;
 }
 
 export function tipHeader(label: string): string {
-  return `<div style="border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:5px;margin-bottom:6px;font-size:11px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#f4f4f5">${label}</div>`;
+  return `<div style="border-bottom:1px solid rgba(17,24,39,0.1);padding-bottom:5px;margin-bottom:6px;font-size:11px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#111827">${label}</div>`;
 }
 
 export function tipRow(color: string, label: string, value: string, trailing?: string): string {
   const trail = trailing
-    ? `<span style="width:56px;text-align:right;font-size:11px;color:#71717a">${trailing}</span>`
+    ? `<span style="width:56px;text-align:right;font-size:11px;color:#9ca3af">${trailing}</span>`
     : '';
-  return `<div style="display:flex;align-items:center;gap:6px;padding:2px 0"><span style="display:inline-block;width:9px;height:9px;border-radius:9999px;background:${color};box-shadow:0 0 8px ${color}"></span><span style="color:#a1a1aa">${label}</span><span style="margin-left:auto;font-weight:700;color:#f4f4f5">${value}</span>${trail}</div>`;
+  return `<div style="display:flex;align-items:center;gap:6px;padding:2px 0"><span style="display:inline-block;width:9px;height:9px;border-radius:9999px;background:${color};box-shadow:0 0 6px ${color}55"></span><span style="color:#6b7280">${label}</span><span style="margin-left:auto;font-weight:700;color:#111827">${value}</span>${trail}</div>`;
 }
 
 export function qiVTextGradient(color: string, topOpacity: number, bottomOpacity: number) {

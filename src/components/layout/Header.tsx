@@ -35,7 +35,7 @@ export function Header() {
     <header className="glass-strong sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-line px-4 sm:px-6">
       <button
         onClick={toggleSidebar}
-        className="inline-flex size-10 items-center justify-center rounded-xl text-ink-soft transition-all duration-300 hover:bg-surface-3 hover:text-ink hover:shadow-glow-sm"
+        className="inline-flex size-10 items-center justify-center rounded-xl text-ink-soft transition-all duration-300 hover:bg-surface-3 hover:text-ink"
         aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
       >
         {collapsed ? <PanelLeftOpen className="size-5" /> : <PanelLeftClose className="size-5" />}
@@ -80,20 +80,17 @@ export function Header() {
           )}
         </div>
 
-        <div className="relative ml-1 hidden items-center gap-2 rounded-xl border border-line bg-surface/40 py-1 pr-3 pl-1 sm:flex">
+        <div className="relative ml-1 hidden items-center gap-2 rounded-xl border border-line bg-surface-2 py-1 pr-3 pl-1 shadow-card sm:flex">
           <div className="relative">
-            <div className="flex size-8 items-center justify-center rounded-lg gradient-brand text-xs font-bold text-white shadow-glow-sm">
+            <div className="flex size-8 items-center justify-center rounded-lg gradient-brand text-xs font-bold text-white">
               {sessionUser ? sessionUser.slice(0, 2).toUpperCase() : 'IN'}
             </div>
-            <span
-              className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-2 bg-emerald-400"
-              style={{ boxShadow: '0 0 8px rgba(34,197,94,0.9)' }}
-            />
+            <span className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-2 bg-emerald-400" />
           </div>
           <div className="leading-tight">
             <p className="max-w-[9rem] truncate text-xs font-bold text-ink">{sessionUser ?? 'Operador'}</p>
-            <p className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-400">
-              <span className="size-1 animate-pulse-glow rounded-full bg-emerald-400 shadow-[0_0_6px_currentColor]" />
+            <p className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-600">
+              <span className="size-1 rounded-full bg-emerald-500" />
               En línea
             </p>
           </div>

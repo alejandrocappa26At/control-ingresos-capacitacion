@@ -16,15 +16,15 @@ interface MotivoChartProps {
 function MotivoChart({ data, tone, height }: MotivoChartProps) {
   const rows = [...data].sort((a, b) => b.cantidad - a.cantidad).slice(0, 14);
   const max = Math.max(...rows.map((r) => r.cantidad), 1);
-  const accent = tone === 'danger' ? '#e30613' : '#f59e0b';
+  const accent = tone === 'danger' ? '#dc2626' : '#f59e0b';
   const [from, mid, to] =
-    tone === 'danger' ? ['#7a030a', '#e30613', '#ff2735'] : ['#78350f', '#f59e0b', '#fbbf24'];
+    tone === 'danger' ? ['#dc2626', '#ef4444', '#f87171'] : ['#78350f', '#f59e0b', '#fbbf24'];
 
   const option: EChartsOption = {
     grid: { containLabel: true, top: 4, left: 8, right: 84, bottom: 2 },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(255,255,255,0.04)' } },
+      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(148,163,184,0.14)' } },
       formatter: (ps) => {
         const params = (Array.isArray(ps) ? ps : [ps]) as Array<{ data?: CaidaRanking }>;
         const d = params[0]?.data;
@@ -40,7 +40,7 @@ function MotivoChart({ data, tone, height }: MotivoChartProps) {
       type: 'category',
       inverse: true,
       data: rows.map((r) => r.motivo),
-      axisLabel: { color: '#e4e4e7', fontSize: 12, fontWeight: 700, margin: 10 },
+      axisLabel: { color: '#6b7280', fontSize: 12, fontWeight: 700, margin: 10 },
     },
     series: [
       {
@@ -103,7 +103,7 @@ function RankingCard({ title, subtitle, children }: { title: string; subtitle: s
   return (
     <div className="rounded-2xl border border-line bg-surface-2 p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-glow">
       <div className="mb-3 flex items-center gap-2">
-        <span className={cn('flex size-8 items-center justify-center rounded-lg border border-white/10 bg-gradient-to-b shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]', 'from-rose-500/25 to-rose-500/5 text-rose-400')}>
+        <span className={cn('flex size-8 items-center justify-center rounded-lg border border-rose-200/60 bg-gradient-to-b shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]', 'from-rose-500/25 to-rose-500/5 text-rose-600')}>
           <TrendingDown className="size-4" />
         </span>
         <div>

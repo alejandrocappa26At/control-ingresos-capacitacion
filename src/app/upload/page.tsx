@@ -94,7 +94,7 @@ function RequirementCard({ icon: Icon, title, items }: { icon: React.ComponentTy
   return (
     <div className="rounded-2xl border border-line bg-surface-2 p-4 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-glow-sm">
       <div className="mb-2 flex items-center gap-2 text-xs font-bold text-ink uppercase">
-        <span className="flex size-6 items-center justify-center rounded-md border border-white/10 bg-gradient-to-b from-brand-500/25 to-brand-500/5 text-brand-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+        <span className="flex size-6 items-center justify-center rounded-md border border-white/10 bg-gradient-to-b from-brand-500/25 to-brand-500/5 text-brand-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
           <Icon className="size-3.5" />
         </span>
         {title}

@@ -7,8 +7,8 @@ import { cn, formatNumber } from '@/lib/utils';
 import { ChartCard } from '@/components/charts/ChartCard';
 import type { TendenciaMensual } from '@/services/analytics/desercion';
 
-const ING_GRADIENT = 'linear-gradient(to top, #d4d4d8 0%, #efeff1 45%, #ffffff 100%)';
-const DESC_GRADIENT = 'linear-gradient(to top, #991b1b 0%, #e30613 45%, #ff1e1e 78%, #ff8f8f 100%)';
+const ING_GRADIENT = 'linear-gradient(to top, #1d4ed8 0%, #2563eb 55%, #3b82f6 100%)';
+const DESC_GRADIENT = 'linear-gradient(to top, #b91c1c 0%, #dc2626 55%, #ef4444 100%)';
 
 function Bar({
   pct,
@@ -33,11 +33,11 @@ function Bar({
         background: isIng ? ING_GRADIENT : DESC_GRADIENT,
         boxShadow: active
           ? isIng
-            ? '0 0 14px rgba(244,244,245,0.5)'
-            : '0 0 14px rgba(255,30,30,0.55)'
+            ? '0 4px 12px -4px rgba(37,99,235,0.45)'
+             : '0 4px 12px -4px rgba(220,38,38,0.45)'
           : isIng
-            ? '0 0 8px rgba(244,244,245,0.25)'
-            : '0 0 8px rgba(255,30,30,0.3)',
+            ? '0 2px 8px -3px rgba(37,99,235,0.3)'
+            : '0 2px 8px -3px rgba(220,38,38,0.3)',
         filter: active ? 'brightness(1.15)' : 'brightness(1)',
       }}
       className={cn(
@@ -60,7 +60,7 @@ function StatCard({
   accent: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5">
+    <div className="flex items-center gap-3 rounded-xl border border-line bg-surface-3/50 px-3.5 py-2.5">
       <span className={cn('size-2.5 shrink-0 rounded-[3px]', chip)} />
       <div className="flex flex-col">
         <span className="text-[10px] font-semibold tracking-wider text-ink-soft uppercase">
@@ -108,32 +108,32 @@ export function TendenciaIngresosDeserciones({ data }: { data: TendenciaMensual[
         <StatCard
           label="Ingresos totales"
           value={formatNumber(totalIngresos)}
-          chip="bg-gradient-to-b from-white to-zinc-400 shadow-[0_0_8px_rgba(244,244,245,0.5)]"
-          accent="text-white"
+          chip="bg-gradient-to-b from-[#3b82f6] to-[#1d4ed8] shadow-[0_2px_8px_-2px_rgba(37,99,235,0.4)]"
+          accent="text-blue-600"
         />
         <StatCard
           label="Deserciones totales"
           value={formatNumber(totalDeserciones)}
-          chip="bg-gradient-to-b from-[#ff1e1e] to-[#e30613] shadow-[0_0_8px_rgba(255,30,30,0.6)]"
-          accent="text-red-300"
+          chip="bg-gradient-to-b from-[#ef4444] to-[#b91c1c] shadow-[0_2px_8px_-2px_rgba(220,38,38,0.4)]"
+          accent="text-red-600"
         />
         <StatCard
           label="Tasa global"
           value={`${tasaGlobal.toFixed(1)}%`}
-          chip="bg-gradient-to-b from-rose-400 to-rose-600 shadow-[0_0_8px_rgba(255,30,30,0.45)]"
+          chip="bg-gradient-to-b from-rose-400 to-rose-600 shadow-[0_2px_8px_-2px_rgba(244,63,94,0.35)]"
           accent="text-ink"
         />
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-xs transition-colors">
+      <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-line bg-surface-3/40 px-3.5 py-2.5 text-xs transition-colors">
         <span className="flex items-center gap-1.5 font-black tracking-wide text-ink uppercase">
           📅 {shown.mes}
         </span>
         <span className="flex items-center gap-1.5 text-ink-soft">
-          👥 Ingresos: <b className="tabular-nums text-white">{formatNumber(shown.ingresos)}</b>
+          👥 Ingresos: <b className="tabular-nums text-blue-700">{formatNumber(shown.ingresos)}</b>
         </span>
         <span className="flex items-center gap-1.5 text-ink-soft">
-          🚶 Deserciones: <b className="tabular-nums text-red-300">{formatNumber(shown.deserciones)}</b>
+          🚶 Deserciones: <b className="tabular-nums text-red-600">{formatNumber(shown.deserciones)}</b>
         </span>
         <span className="flex items-center gap-1.5 text-ink-soft">
           📉 Tasa de deserción: <b className="tabular-nums text-ink">{shown.tasa.toFixed(1)}%</b>
@@ -157,7 +157,7 @@ export function TendenciaIngresosDeserciones({ data }: { data: TendenciaMensual[
               <span className="w-6 shrink-0 text-right text-[9px] font-semibold tabular-nums text-ink-muted/80">
                 {p}
               </span>
-              <div className="h-px flex-1 border-t border-dashed border-white/[0.08]" />
+              <div className="h-px flex-1 border-t border-dashed border-line-2" />
             </div>
           ))}
         </div>
@@ -179,7 +179,7 @@ export function TendenciaIngresosDeserciones({ data }: { data: TendenciaMensual[
                   className={cn(
                     'pointer-events-none absolute inset-0 rounded-lg border transition-all duration-200',
                     isActive
-                      ? 'border-white/15 bg-gradient-to-t from-white/[0.07] to-transparent'
+                      ? 'border-brand-500/30 bg-gradient-to-t from-brand-500/[0.06] to-transparent'
                       : 'border-transparent',
                   )}
                 />
@@ -192,7 +192,7 @@ export function TendenciaIngresosDeserciones({ data }: { data: TendenciaMensual[
                 <div
                   className={cn(
                     'mt-1 text-[9px] font-bold tracking-[0.08em] uppercase transition-colors',
-                    isActive ? 'text-white' : 'text-ink-muted',
+                    isActive ? 'text-brand-600' : 'text-ink-muted',
                   )}
                 >
                   {m.mes.slice(0, 3)}
@@ -209,20 +209,20 @@ export function TendenciaIngresosDeserciones({ data }: { data: TendenciaMensual[
 function EstadoBadge({ tasa }: { tasa: number }) {
   if (tasa >= 25) {
     return (
-      <span className="rounded-full border border-red-400/40 bg-red-500/10 px-2 py-0.5 text-[11px] font-bold whitespace-nowrap text-red-300">
+      <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[11px] font-bold whitespace-nowrap text-red-600">
         🔴 Crítico
       </span>
     );
   }
   if (tasa >= 10) {
     return (
-      <span className="rounded-full border border-amber-400/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold whitespace-nowrap text-amber-300">
+      <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold whitespace-nowrap text-amber-600">
         🟡 Medio
       </span>
     );
   }
   return (
-    <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold whitespace-nowrap text-emerald-300">
+    <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold whitespace-nowrap text-emerald-600">
       🟢 Bajo
     </span>
   );

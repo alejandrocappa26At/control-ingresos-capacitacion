@@ -13,15 +13,15 @@ const BLOCKS_WIDE = 5;
 type Tier = 'high' | 'mid' | 'low';
 
 const TIER_TOP: Record<Tier, [number, number, number]> = {
-  high: [255, 30, 30],
-  mid: [249, 96, 20],
-  low: [150, 155, 163],
+  high: [220, 38, 38],
+  mid: [249, 115, 22],
+  low: [107, 114, 128],
 };
 
 const TIER_GLOW: Record<Tier, string> = {
-  high: '255,30,30',
-  mid: '249,96,20',
-  low: '150,155,163',
+  high: '220,38,38',
+  mid: '249,115,22',
+  low: '107,114,128',
 };
 
 function mix(c1: [number, number, number], c2: [number, number, number], t: number): string {
@@ -40,19 +40,19 @@ function tierFor(value: number, max: number): Tier {
 
 function estadoFor(name: string): { label: string; emoji: string; cls: string } {
   if (name === 'Nunca asistió') {
-    return { label: 'CRÍTICO', emoji: '🔴', cls: 'border-red-400/40 bg-red-500/10 text-red-300' };
+    return { label: 'CRÍTICO', emoji: '🔴', cls: 'border-red-400/40 bg-red-500/10 text-red-600' };
   }
   const day = parseInt(name.replace(/\D/g, ''), 10);
   if (day >= 1 && day <= 3) {
-    return { label: 'TEMPRANO', emoji: '🟠', cls: 'border-orange-400/40 bg-orange-500/10 text-orange-300' };
+    return { label: 'TEMPRANO', emoji: '🟠', cls: 'border-orange-400/40 bg-orange-500/10 text-orange-600' };
   }
   if (day >= 4 && day <= 6) {
-    return { label: 'INTERMEDIO', emoji: '🟡', cls: 'border-amber-400/40 bg-amber-500/10 text-amber-300' };
+    return { label: 'INTERMEDIO', emoji: '🟡', cls: 'border-amber-400/40 bg-amber-500/10 text-amber-600' };
   }
   if (day >= 7 && day <= 10) {
-    return { label: 'TARDÍO', emoji: '🟢', cls: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300' };
+    return { label: 'TARDÍO', emoji: '🟢', cls: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-600' };
   }
-  return { label: '—', emoji: '⚪', cls: 'border-zinc-400/30 bg-zinc-500/10 text-zinc-300' };
+  return { label: '—', emoji: '⚪', cls: 'border-zinc-400/30 bg-zinc-500/10 text-zinc-500' };
 }
 
 function CountUp({
@@ -88,13 +88,13 @@ function PanelCard({
   children: ReactNode;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 backdrop-blur">
+    <div className="relative overflow-hidden rounded-xl border border-line bg-surface-3/50 px-3 py-2.5">
       <motion.span
         key={glowKey}
-        initial={{ opacity: 0.55 }}
+        initial={{ opacity: 0.18 }}
         animate={{ opacity: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="pointer-events-none absolute inset-0 rounded-xl shadow-[0_0_26px_rgba(255,30,30,0.55)]"
+        className="pointer-events-none absolute inset-0 rounded-xl shadow-[0_0_18px_rgba(220,38,38,0.18)]"
       />
       <div className="relative flex items-center gap-1.5 text-[10px] font-semibold tracking-wider text-ink-soft uppercase">
         <span>{icon}</span>
@@ -120,10 +120,10 @@ function Level({
   const base = top.map((v) => Math.round(v * 0.3)) as [number, number, number];
   const color = mix(base, top, tone);
   const glowRGB = TIER_GLOW[tier];
-  const glowAlpha = tier === 'low' ? 0.22 : 0.5;
+  const glowAlpha = tier === 'low' ? 0.12 : 0.28;
   const shadow = active
-    ? `0 0 13px 3px rgba(${glowRGB},0.8)`
-    : `0 0 7px 1px rgba(${glowRGB},${glowAlpha})`;
+    ? `0 0 9px 2px rgba(${glowRGB},0.4)`
+    : `0 0 6px 1px rgba(${glowRGB},${glowAlpha})`;
   const brightness = (active ? 1.5 : 1) * (0.72 + tone * 0.48);
 
   return (
@@ -219,16 +219,16 @@ export function CaidasPorMomentoSalidaChart({ data }: { data: MomentoSalida[] })
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
         {pico && pico.value > 0 && (
-          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/[0.08] px-2.5 py-1.5">
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/[0.06] px-2.5 py-1.5">
             <span className="text-sm leading-none">🔥</span>
-            <span className="text-[10px] font-black tracking-wider text-red-300 uppercase">
+            <span className="text-[10px] font-black tracking-wider text-red-600 uppercase">
               Punto crítico
             </span>
             <span className="text-sm font-black text-ink">{pico.name}</span>
-            <span className="text-sm font-black tabular-nums text-red-300">
+            <span className="text-sm font-black tabular-nums text-red-600">
               {formatNumber(pico.value)}
             </span>
-            <span className="rounded-full border border-red-400/30 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-200">
+            <span className="rounded-full border border-red-400/30 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-600">
               {pico.porcentaje.toFixed(1)}%
             </span>
           </div>
@@ -236,15 +236,15 @@ export function CaidasPorMomentoSalidaChart({ data }: { data: MomentoSalida[] })
 
         <div className="flex items-center gap-3 text-[10px] font-semibold text-ink-muted">
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-sm bg-[#ff1e1e] shadow-[0_0_8px_#ff1e1e]" />
+            <span className="size-2 rounded-sm bg-[#dc2626]" />
             Alto
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-sm bg-[#f96014] shadow-[0_0_8px_#f96014]" />
+            <span className="size-2 rounded-sm bg-[#f97316]" />
             Medio
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-sm bg-[#969ba3]" />
+            <span className="size-2 rounded-sm bg-[#6b7280]" />
             Bajo
           </span>
         </div>
@@ -261,7 +261,7 @@ export function CaidasPorMomentoSalidaChart({ data }: { data: MomentoSalida[] })
               <span className="w-6 shrink-0 text-right text-[9px] font-semibold tabular-nums text-ink-muted/80">
                 {p}
               </span>
-              <div className="h-px flex-1 border-t border-dashed border-white/[0.08]" />
+              <div className="h-px flex-1 border-t border-dashed border-line-2" />
             </div>
           ))}
         </div>
@@ -307,7 +307,7 @@ export function CaidasPorMomentoSalidaChart({ data }: { data: MomentoSalida[] })
                 <div
                   className={cn(
                     'mt-1 text-[8px] font-bold tracking-wide whitespace-nowrap transition-colors sm:text-[9px]',
-                    isActive ? 'text-red-300' : 'text-ink-muted',
+                    isActive ? 'text-red-600' : 'text-ink-muted',
                   )}
                 >
                   {shortName}

@@ -46,17 +46,17 @@ function FilterGroup({
   children: ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-surface-2/80 shadow-card">
+    <div className="overflow-hidden rounded-2xl border border-line bg-surface-2 shadow-card">
       <button
         onClick={onToggle}
         className="flex w-full items-center gap-2.5 px-4 py-3 text-left transition-colors hover:bg-surface/40"
       >
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-brand-300">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-line bg-brand-50 text-brand-600">
           <Icon className="size-3.5" />
         </span>
         <span className="text-xs font-bold tracking-wider text-ink uppercase">{title}</span>
         {active > 0 && (
-          <span className="rounded-full gradient-brand px-2 py-0.5 text-[10px] font-bold text-white shadow-glow-sm tabular-nums">
+          <span className="rounded-full bg-brand-500/10 px-2 py-0.5 text-[10px] font-bold text-brand-600 tabular-nums">
             {active}
           </span>
         )}
@@ -136,13 +136,13 @@ export function FilterDrawer() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="glass-strong pointer-events-auto absolute inset-y-0 right-0 z-10 flex w-full max-w-md flex-col border-l border-line/80 shadow-[-32px_0_80px_-24px_rgba(0,0,0,0.6)]"
+            className="bg-surface-2 pointer-events-auto absolute inset-y-0 right-0 z-10 flex w-full max-w-md flex-col border-l border-line shadow-[0_0_60px_-20px_rgba(17,24,39,0.25)]"
           >
             <div className="pointer-events-none absolute inset-y-0 left-0 z-0 h-full w-px bg-gradient-to-b from-transparent via-brand-500/40 to-transparent" />
             <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-px bg-gradient-to-r from-transparent via-brand-500/50 to-transparent" />
 
             <div className="relative z-10 flex items-center gap-3 border-b border-line/80 px-5 py-4">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl gradient-brand text-white shadow-glow-sm">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl gradient-brand text-white">
                 <SlidersHorizontal className="size-4" />
               </span>
               <div className="min-w-0 flex-1">
@@ -150,14 +150,14 @@ export function FilterDrawer() {
                 <p className="truncate text-[11px] font-medium text-ink-soft">Globales · panel lateral</p>
               </div>
               {active > 0 && (
-                <span className="shrink-0 rounded-full gradient-brand px-2.5 py-1 text-[11px] font-bold text-white shadow-glow-sm tabular-nums">
+                <span className="shrink-0 rounded-full bg-brand-500/10 px-2.5 py-1 text-[11px] font-bold text-brand-600 tabular-nums">
                   {active}
                 </span>
               )}
               <button
                 onClick={close}
                 aria-label="Cerrar filtros"
-                className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-line text-ink-muted transition-all duration-300 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-400"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-line text-ink-muted transition-all duration-300 hover:border-brand-500/30 hover:bg-brand-50 hover:text-brand-600"
               >
                 <X className="size-4" />
               </button>
@@ -166,7 +166,7 @@ export function FilterDrawer() {
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
               <PeriodoAnalisis />
 
-              <div className="flex items-center gap-2 rounded-xl border border-brand-500/20 bg-brand-500/8 px-3 py-2 text-[11px] font-semibold text-brand-300">
+              <div className="flex items-center gap-2 rounded-xl border border-brand-500/20 bg-brand-500/8 px-3 py-2 text-[11px] font-semibold text-brand-600">
                 <span className="size-1.5 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_6px_currentColor]" />
                 Cambios en tiempo real · el dashboard sigue visible
               </div>
@@ -339,7 +339,7 @@ export function FilterDrawer() {
             <div className="relative z-10 border-t border-line/80 px-4 py-3">
               <div className="mb-2.5 flex items-center justify-between gap-2 text-[11px] font-semibold text-ink-soft">
                 <span>
-                  <span className="font-bold text-brand-300 tabular-nums">{formatNumber(filtered.length)}</span> de{' '}
+                  <span className="font-bold text-brand-600 tabular-nums">{formatNumber(filtered.length)}</span> de{' '}
                   <span className="font-bold text-ink tabular-nums">{formatNumber(records.length)}</span> registros
                 </span>
                 <span className="tabular-nums">

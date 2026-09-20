@@ -36,7 +36,7 @@ function mulberry32(seed: number) {
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-const RED_GRADIENT = 'linear-gradient(135deg, #ff2735 0%, #e30613 55%, #9a040d 100%)';
+const BRAND_GRADIENT = 'linear-gradient(135deg, #2563eb 0%, #3b82f6 55%, #1d4ed8 100%)';
 
 /* ------------------------------------------------------------------ */
 /* Logo corporativo                                                    */
@@ -51,12 +51,12 @@ function BrandMark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
       whileHover={{ scale: 1.05, rotate: -2 }}
       transition={{ duration: 0.3, ease: EASE }}
       className={cn(
-        'relative flex shrink-0 items-center justify-center rounded-2xl overflow-hidden shadow-[0_12px_44px_-10px_rgba(227,6,19,0.65)]',
+        'relative flex shrink-0 items-center justify-center rounded-2xl overflow-hidden shadow-[0_12px_32px_-10px_rgba(220,38,38,0.4)]',
         dims,
       )}
     >
-      <div className="absolute inset-0" style={{ background: RED_GRADIENT }} />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.22] via-transparent to-black/25" />
+      <div className="absolute inset-0" style={{ background: BRAND_GRADIENT }} />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.22] via-transparent to-black/15" />
       <svg viewBox="0 0 48 48" className="relative size-[62%]">
         <defs>
           <radialGradient id="login-logo-glow" cx="38%" cy="30%" r="80%">
@@ -67,15 +67,15 @@ function BrandMark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
         </defs>
         <circle cx="24" cy="24" r="15" fill="none" stroke="url(#login-logo-glow)" strokeWidth="2.4" />
         <circle cx="24" cy="24" r="8.5" fill="url(#login-logo-glow)" />
-        <circle cx="24" cy="24" r="3.2" fill="#e30613" />
+        <circle cx="24" cy="24" r="3.2" fill="#2563eb" />
       </svg>
-      <span className="absolute -top-0.5 -right-0.5 size-3 rounded-full bg-white ring-2 ring-[#0a0a0a]" style={{ boxShadow: '0 0 12px rgba(255,255,255,0.9)' }} />
+      <span className="absolute -top-0.5 -right-0.5 size-3 rounded-full bg-white ring-2 ring-[#f8fafc]" style={{ boxShadow: '0 0 10px rgba(220,38,38,0.5)' }} />
     </motion.div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Fondo dinámico: aurora roja + grilla + partículas                   */
+/* Fondo dinámico: aurora azul + grilla + partículas                   */
 /* ------------------------------------------------------------------ */
 
 interface Particle {
@@ -94,7 +94,7 @@ function buildParticles(): Particle[] {
     left: rand() * 100,
     top: rand() * 100,
     size: 1.4 + rand() * 2.4,
-    opacity: 0.16 + rand() * 0.5,
+    opacity: 0.12 + rand() * 0.4,
     duration: 10 + rand() * 12,
     delay: rand() * 12,
     drift: (rand() * 2 - 1) * 60,
@@ -107,13 +107,13 @@ function LoginBackground() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
       {/* Base */}
-      <div className="absolute inset-0 bg-[#0a0a0a]" />
+      <div className="absolute inset-0 bg-[#f8fafc]" />
 
-      {/* Aurora roja blobs */}
+      {/* Aurora azul blobs */}
       <div
         className="absolute -top-[22%] -left-[14%] size-[62vw] rounded-full opacity-80"
         style={{
-          background: 'radial-gradient(circle at 30% 30%, rgba(227,6,19,0.34), transparent 62%)',
+          background: 'radial-gradient(circle at 30% 30%, rgba(220,38,38,0.14), transparent 62%)',
           filter: 'blur(90px)',
           animation: 'aurora-drift 26s ease-in-out infinite alternate',
         }}
@@ -121,7 +121,7 @@ function LoginBackground() {
       <div
         className="absolute top-[6%] -right-[16%] size-[54vw] rounded-full opacity-70"
         style={{
-          background: 'radial-gradient(circle at 60% 40%, rgba(255,39,53,0.26), transparent 60%)',
+          background: 'radial-gradient(circle at 60% 40%, rgba(220,38,38,0.1), transparent 60%)',
           filter: 'blur(100px)',
           animation: 'aurora-drift 32s ease-in-out infinite alternate-reverse',
         }}
@@ -129,17 +129,17 @@ function LoginBackground() {
       <div
         className="absolute -bottom-[24%] left-[16%] size-[60vw] rounded-full opacity-60"
         style={{
-          background: 'radial-gradient(circle at 40% 60%, rgba(160,4,13,0.3), transparent 62%)',
+          background: 'radial-gradient(circle at 40% 60%, rgba(30,64,175,0.12), transparent 62%)',
           filter: 'blur(110px)',
           animation: 'aurora-drift 38s ease-in-out infinite alternate',
         }}
       />
 
-      {/* Riel de luz superior rojo */}
+      {/* Riel de luz superior azul */}
       <div
         className="absolute top-0 left-1/2 h-[440px] w-[960px] -translate-x-1/2"
         style={{
-          background: 'radial-gradient(ellipse at center, rgba(227,6,19,0.3), rgba(255,39,53,0.1) 45%, transparent 70%)',
+          background: 'radial-gradient(ellipse at center, rgba(220,38,38,0.12), rgba(220,38,38,0.05) 45%, transparent 70%)',
           filter: 'blur(40px)',
           animation: 'glow-pulse 6s ease-in-out infinite',
         }}
@@ -147,10 +147,10 @@ function LoginBackground() {
 
       {/* Grilla tecnológica con máscara */}
       <div
-        className="absolute inset-0 opacity-[0.14]"
+        className="absolute inset-0 opacity-[0.5]"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.28) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.28) 1px, transparent 1px)',
+            'linear-gradient(rgba(100,116,139,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(100,116,139,0.14) 1px, transparent 1px)',
           backgroundSize: '56px 56px',
           maskImage: 'radial-gradient(ellipse 80% 70% at 30% 40%, black 20%, transparent 75%)',
           WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 30% 40%, black 20%, transparent 75%)',
@@ -172,15 +172,15 @@ function LoginBackground() {
               '--p-x': `${p.drift}px`,
               '--p-opacity': p.opacity,
               animation: `float-up ${p.duration}s linear ${p.delay}s infinite`,
-              background: i % 7 === 0 ? '#ff2735' : 'rgba(255,255,255,0.85)',
-              boxShadow: i % 7 === 0 ? '0 0 8px rgba(255,39,53,0.8)' : '0 0 8px rgba(255,255,255,0.55)',
+              background: i % 7 === 0 ? 'rgba(220,38,38,0.7)' : 'rgba(100,116,139,0.5)',
+              boxShadow: i % 7 === 0 ? '0 0 8px rgba(220,38,38,0.35)' : '0 0 8px rgba(100,116,139,0.25)',
             } as CSSProperties
           }
         />
       ))}
 
-      {/* Viñeta para legibilidad */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(10,10,10,0.65)_100%)]" />
+      {/* Viñeta suave para dar profundidad */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(148,163,184,0.12)_100%)]" />
     </div>
   );
 }
@@ -190,10 +190,10 @@ function LoginBackground() {
 /* ------------------------------------------------------------------ */
 
 const MOCK_STATS: Array<{ label: string; value: string; dot: string; tone: string }> = [
-  { label: 'Ingresos', value: '3572', dot: 'bg-[#ff2735]', tone: 'text-white' },
-  { label: 'Aprobados', value: '2795', dot: 'bg-emerald-400', tone: 'text-emerald-300' },
-  { label: 'No pasan', value: '739', dot: 'bg-rose-400', tone: 'text-rose-300' },
-  { label: 'En cap.', value: '38', dot: 'bg-amber-400', tone: 'text-amber-300' },
+  { label: 'Ingresos', value: '3572', dot: 'bg-brand-500', tone: 'text-blue-600' },
+  { label: 'Aprobados', value: '2795', dot: 'bg-emerald-500', tone: 'text-emerald-600' },
+  { label: 'No pasan', value: '739', dot: 'bg-rose-500', tone: 'text-rose-600' },
+  { label: 'En cap.', value: '38', dot: 'bg-amber-500', tone: 'text-amber-600' },
 ];
 
 function SparklineArea() {
@@ -208,13 +208,13 @@ function SparklineArea() {
     <svg viewBox={`0 0 ${w} ${h}`} className="h-24 w-full" preserveAspectRatio="none">
       <defs>
         <linearGradient id="login-spark-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(227,6,19,0.4)" />
-          <stop offset="100%" stopColor="rgba(227,6,19,0)" />
+          <stop offset="0%" stopColor="rgba(220,38,38,0.35)" />
+          <stop offset="100%" stopColor="rgba(220,38,38,0)" />
         </linearGradient>
         <linearGradient id="login-spark-stroke" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#e30613" />
-          <stop offset="55%" stopColor="#ff2735" />
-          <stop offset="100%" stopColor="#ff8b8f" />
+          <stop offset="0%" stopColor="#3b82f6" />
+          <stop offset="55%" stopColor="#2563eb" />
+          <stop offset="100%" stopColor="#60a5fa" />
         </linearGradient>
       </defs>
       <polygon points={area} fill="url(#login-spark-fill)" />
@@ -225,14 +225,14 @@ function SparklineArea() {
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        style={{ filter: 'drop-shadow(0 0 8px rgba(227,6,19,0.7))' }}
+        style={{ filter: 'drop-shadow(0 2px 6px rgba(220,38,38,0.35))' }}
       />
       <circle
         cx={step * (points.length - 1)}
         cy={h - points[points.length - 1] * (h - 12) - 6}
         r="3.5"
-        fill="#ff2735"
-        style={{ filter: 'drop-shadow(0 0 6px rgba(255,39,53,0.9))' }}
+        fill="#2563eb"
+        style={{ filter: 'drop-shadow(0 2px 5px rgba(220,38,38,0.5))' }}
       />
     </svg>
   );
@@ -243,7 +243,7 @@ function Donut({ pct }: { pct: number }) {
   const c = 2 * Math.PI * r;
   return (
     <svg viewBox="0 0 64 64" className="size-14">
-      <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
+      <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(148,163,184,0.2)" strokeWidth="6" />
       <circle
         cx="32"
         cy="32"
@@ -254,15 +254,15 @@ function Donut({ pct }: { pct: number }) {
         strokeLinecap="round"
         strokeDasharray={`${(c * pct) / 100} ${c}`}
         transform="rotate(-90 32 32)"
-        style={{ filter: 'drop-shadow(0 0 8px rgba(227,6,19,0.6))' }}
+        style={{ filter: 'drop-shadow(0 2px 6px rgba(220,38,38,0.35))' }}
       />
       <defs>
         <linearGradient id="login-donut-stroke" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#22c55e" />
-          <stop offset="100%" stopColor="#ff2735" />
+          <stop offset="0%" stopColor="#10b981" />
+          <stop offset="100%" stopColor="#2563eb" />
         </linearGradient>
       </defs>
-      <text x="32" y="34" textAnchor="middle" className="fill-white text-[11px] font-bold" style={{ fontFamily: 'inherit' }}>
+      <text x="32" y="34" textAnchor="middle" className="fill-[#111827] text-[11px] font-bold" style={{ fontFamily: 'inherit' }}>
         {pct}%
       </text>
     </svg>
@@ -271,19 +271,19 @@ function Donut({ pct }: { pct: number }) {
 
 function DashboardMock() {
   return (
-    <div className="glass relative w-full rounded-2xl border border-white/10 p-5 shadow-[0_24px_60px_-18px_rgba(0,0,0,0.75)] backdrop-blur-xl">
+    <div className="relative w-full rounded-2xl border border-line bg-white/95 p-5 shadow-card backdrop-blur-xl">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="flex size-7 items-center justify-center rounded-lg text-white" style={{ background: RED_GRADIENT, boxShadow: '0 0 16px rgba(227,6,19,0.6)' }}>
+          <span className="flex size-7 items-center justify-center rounded-lg text-white" style={{ background: BRAND_GRADIENT, boxShadow: '0 4px 14px -4px rgba(220,38,38,0.5)' }}>
             <Activity className="size-3.5" />
           </span>
           <div>
-            <p className="text-xs font-bold text-white">Resumen general</p>
-            <p className="text-[10px] text-zinc-500">Panel ejecutivo</p>
+            <p className="text-xs font-bold text-ink">Resumen general</p>
+            <p className="text-[10px] text-ink-soft">Panel ejecutivo</p>
           </div>
         </div>
-        <span className="flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
-          <span className="size-1.5 animate-pulse-glow rounded-full bg-emerald-400" /> Hoy
+        <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+          <span className="size-1.5 animate-pulse-glow rounded-full bg-emerald-500" /> Hoy
         </span>
       </div>
 
@@ -293,9 +293,9 @@ function DashboardMock() {
 
       <div className="mt-4 grid grid-cols-4 gap-2">
         {MOCK_STATS.map((s) => (
-          <div key={s.label} className="rounded-xl border border-white/[0.07] bg-white/[0.03] p-2.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#ff2735]/30 hover:shadow-[0_8px_24px_-8px_rgba(227,6,19,0.5)]">
+          <div key={s.label} className="rounded-xl border border-line bg-slate-50 p-2.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-400/40 hover:shadow-glow-sm">
             <p className={cn('text-base font-bold tabular-nums', s.tone)}>{s.value}</p>
-            <p className="mt-0.5 flex items-center gap-1 text-[9px] font-medium text-zinc-500">
+            <p className="mt-0.5 flex items-center gap-1 text-[9px] font-medium text-ink-soft">
               <span className={cn('size-1 rounded-full', s.dot)} />
               {s.label}
             </p>
@@ -331,7 +331,7 @@ function FloatCard({
       <motion.div
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 5.5, delay: Number(floatDelay), repeat: Infinity, ease: 'easeInOut' }}
-        className="glass rounded-2xl border border-white/10 p-3.5 shadow-[0_16px_44px_-14px_rgba(0,0,0,0.75)] backdrop-blur-xl"
+        className="rounded-2xl border border-line bg-white/95 p-3.5 shadow-card backdrop-blur-xl"
       >
         {children}
       </motion.div>
@@ -354,8 +354,8 @@ function BrandPanel() {
       >
         <BrandMark size="md" />
         <div>
-          <p className="text-sm font-bold tracking-tight text-white">Total Capacitación</p>
-          <p className="text-[11px] font-medium text-zinc-500">Plataforma analítica</p>
+          <p className="text-sm font-bold tracking-tight text-ink">Total Capacitación</p>
+          <p className="text-[11px] font-medium text-ink-soft">Plataforma analítica</p>
         </div>
       </motion.div>
 
@@ -365,12 +365,12 @@ function BrandPanel() {
         transition={{ duration: 0.7, delay: 0.12, ease: EASE }}
         className="mt-10 max-w-xl"
       >
-        <h1 className="text-4xl leading-[1.08] font-extrabold tracking-tight text-white xl:text-5xl">
+        <h1 className="text-4xl leading-[1.08] font-extrabold tracking-tight text-ink xl:text-5xl">
           CONTROL DE
           <span className="block gradient-text text-glow">INGRESOS Y CAPACITACIÓN</span>
         </h1>
-        <p className="mt-4 flex items-center gap-2 text-base font-medium text-zinc-300 xl:text-lg">
-          <Sparkles className="size-4 text-[#ff2735]" style={{ filter: 'drop-shadow(0 0 8px rgba(255,39,53,0.8))' }} />
+        <p className="mt-4 flex items-center gap-2 text-base font-medium text-ink-muted xl:text-lg">
+          <Sparkles className="size-4 text-brand-500" />
           Plataforma Inteligente de Seguimiento y Análisis
         </p>
       </motion.div>
@@ -382,7 +382,7 @@ function BrandPanel() {
         transition={{ duration: 0.8, delay: 0.25, ease: EASE }}
         className="relative mt-14 h-[340px] max-w-xl"
       >
-        <div className="absolute -top-10 -left-8 size-40 rounded-full bg-[#e30613]/20 blur-3xl" />
+        <div className="absolute -top-10 -left-8 size-40 rounded-full bg-brand-500/15 blur-3xl" />
 
         <DashboardMock />
 
@@ -390,20 +390,20 @@ function BrandPanel() {
           <div className="flex items-center gap-3">
             <Donut pct={78} />
             <div>
-              <p className="text-xs font-bold text-white">Aprobación</p>
-              <p className="text-[10px] text-zinc-500">Índice de pase a operaciones</p>
+              <p className="text-xs font-bold text-ink">Aprobación</p>
+              <p className="text-[10px] text-ink-soft">Índice de pase a operaciones</p>
             </div>
           </div>
         </FloatCard>
 
         <FloatCard delay={0.7} floatDelay="1.8" className="bottom-2 -left-8">
           <div className="flex items-center gap-2.5">
-            <span className="flex size-8 items-center justify-center rounded-xl border border-[#ff2735]/30 bg-[#ff2735]/10 text-[#ff8b8f]">
+            <span className="flex size-8 items-center justify-center rounded-xl border border-brand-500/30 bg-brand-500/10 text-brand-600">
               <CheckCircle2 className="size-4" />
             </span>
             <div>
-              <p className="text-xs font-bold text-white">Sincronizado</p>
-              <p className="text-[10px] text-zinc-500">Última carga · hace 4 min</p>
+              <p className="text-xs font-bold text-ink">Sincronizado</p>
+              <p className="text-[10px] text-ink-soft">Última carga · hace 4 min</p>
             </div>
           </div>
         </FloatCard>
@@ -413,9 +413,9 @@ function BrandPanel() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.9 }}
-        className="mt-10 flex items-center gap-2 text-[11px] font-medium text-zinc-600"
+        className="mt-10 flex items-center gap-2 text-[11px] font-medium text-ink-muted"
       >
-        <ShieldCheck className="size-3.5 text-emerald-400" />
+        <ShieldCheck className="size-3.5 text-emerald-500" />
         Acceso restringido · Sistema corporativo interno
       </motion.p>
     </div>
@@ -453,14 +453,14 @@ function Field({
 
   return (
     <div>
-      <label htmlFor={id} className="text-[11px] font-bold tracking-wider text-zinc-400 uppercase">
+      <label htmlFor={id} className="text-[11px] font-bold tracking-wider text-ink-soft uppercase">
         {label}
       </label>
       <div className="group relative mt-1.5">
         <span
           className={cn(
             'pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 transition-colors duration-300',
-            error ? 'text-brand-400' : value ? 'text-[#ff8b8f]' : 'text-zinc-600 group-focus-within:text-[#ff8b8f]',
+            error ? 'text-rose-500' : value ? 'text-brand-500' : 'text-ink-soft group-focus-within:text-brand-500',
           )}
         >
           {icon}
@@ -475,11 +475,11 @@ function Field({
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
           className={cn(
-            'w-full rounded-xl border bg-white/[0.04] py-3 pr-11 pl-10.5 text-sm text-white transition-all duration-300 outline-none',
-            'placeholder:text-zinc-600',
+            'w-full rounded-xl border bg-surface-2 py-3 pr-11 pl-10.5 text-sm text-ink transition-all duration-300 outline-none',
+            'placeholder:text-ink-soft/60',
             error
-              ? 'border-[#ff2735]/60 shadow-[0_0_0_4px_rgba(227,6,19,0.14),0_0_20px_-6px_rgba(227,6,19,0.5)]'
-              : 'border-white/10 focus:border-[#ff2735]/60 focus:bg-white/[0.06] focus:shadow-[0_0_0_4px_rgba(227,6,19,0.14),0_0_24px_-8px_rgba(227,6,19,0.5)]',
+              ? 'border-rose-500/60 shadow-[0_0_0_4px_rgba(244,63,94,0.1)]'
+              : 'border-line focus:border-brand-500 focus:shadow-[0_0_0_4px_rgba(220,38,38,0.1)]',
           )}
         />
         {type === 'password' && (
@@ -487,13 +487,13 @@ function Field({
             type="button"
             onClick={() => setShow((s) => !s)}
             aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-            className="absolute top-1/2 right-3 -translate-y-1/2 rounded-lg p-1 text-zinc-600 transition-colors duration-200 hover:text-zinc-300"
+            className="absolute top-1/2 right-3 -translate-y-1/2 rounded-lg p-1 text-ink-muted transition-colors duration-200 hover:text-ink"
           >
             {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
           </button>
         )}
       </div>
-      <p className={cn('mt-1.5 min-h-4 text-[11px] font-medium transition-opacity duration-300', error ? 'text-[#ff2735]' : 'opacity-0')}>
+      <p className={cn('mt-1.5 min-h-4 text-[11px] font-medium transition-opacity duration-300', error ? 'text-rose-600' : 'opacity-0')}>
         {error || '·'}
       </p>
     </div>
@@ -545,7 +545,7 @@ export function LoginScreen() {
   };
 
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-[#0a0a0a] text-white">
+    <main className="relative min-h-dvh overflow-hidden bg-[#f8fafc] text-ink">
       <LoginBackground />
 
       <div className="relative z-10 mx-auto grid min-h-dvh max-w-[1500px] lg:grid-cols-[minmax(0,11fr)_minmax(0,9fr)]">
@@ -561,14 +561,14 @@ export function LoginScreen() {
           >
             <motion.div
               animate={controls}
-              className="gradient-border-card relative rounded-3xl p-8 shadow-[0_40px_120px_-30px_rgba(0,0,0,0.9),0_0_60px_-20px_rgba(227,6,19,0.45)] sm:p-10"
+              className="gradient-border-card relative rounded-3xl bg-white p-8 shadow-[0_24px_70px_-24px_rgba(15,23,42,0.25)] sm:p-10"
             >
-              {/* Halo decorativo rojo del card */}
+              {/* Halo decorativo azul del card */}
               <div
                 className="pointer-events-none absolute -inset-px rounded-3xl opacity-70"
                 style={{
                   background:
-                    'linear-gradient(135deg, rgba(255,39,53,0.28), transparent 25%, transparent 72%, rgba(227,6,19,0.22))',
+                    'linear-gradient(135deg, rgba(220,38,38,0.12), transparent 25%, transparent 72%, rgba(220,38,38,0.08))',
                   maskImage: 'radial-gradient(ellipse 90% 80% at 50% 0%, black, transparent 70%)',
                   WebkitMaskImage: 'radial-gradient(ellipse 90% 80% at 50% 0%, black, transparent 70%)',
                 }}
@@ -578,8 +578,8 @@ export function LoginScreen() {
               <div className="flex items-center gap-3 lg:hidden">
                 <BrandMark size="sm" />
                 <div>
-                  <p className="text-sm font-bold tracking-tight text-white">Total Capacitación</p>
-                  <p className="text-[11px] text-zinc-500">Control de Ingresos</p>
+                  <p className="text-sm font-bold tracking-tight text-ink">Total Capacitación</p>
+                  <p className="text-[11px] text-ink-soft">Control de Ingresos</p>
                 </div>
               </div>
 
@@ -588,16 +588,16 @@ export function LoginScreen() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2, ease: EASE }}
-                  className="flex items-center gap-2 text-[10px] font-bold tracking-[0.22em] text-[#ff8b8f] uppercase"
+                  className="flex items-center gap-2 text-[10px] font-bold tracking-[0.22em] text-brand-600 uppercase"
                 >
-                  <span className="h-px w-6 bg-gradient-to-r from-[#ff2735] to-transparent" />
+                  <span className="h-px w-6 bg-gradient-to-r from-brand-500 to-transparent" />
                   Acceso corporativo
                 </motion.p>
                 <motion.h1
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.25, ease: EASE }}
-                  className="mt-2 text-2xl font-extrabold tracking-tight text-white xl:text-[28px]"
+                  className="mt-2 text-2xl font-extrabold tracking-tight text-ink xl:text-[28px]"
                 >
                   Bienvenido
                 </motion.h1>
@@ -605,7 +605,7 @@ export function LoginScreen() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.32, ease: EASE }}
-                  className="mt-1.5 text-sm text-zinc-500"
+                  className="mt-1.5 text-sm text-ink-muted"
                 >
                   Ingrese sus credenciales para acceder a la plataforma.
                 </motion.p>
@@ -680,19 +680,19 @@ export function LoginScreen() {
                       submitting && 'cursor-wait',
                     )}
                     style={{
-                      background: 'linear-gradient(120deg, #ff2735, #e30613 40%, #b30510 72%, #ff2735)',
+                      background: 'linear-gradient(120deg, #dc2626, #ef4444 40%, #b91c1c 72%, #dc2626)',
                       backgroundSize: '260% 260%',
                       animation: 'login-gradient 7s linear infinite',
-                      boxShadow: '0 16px 44px -12px rgba(227,6,19,0.65), 0 0 0 1px rgba(255,255,255,0.12) inset',
+                      boxShadow: '0 16px 36px -12px rgba(220,38,38,0.55), 0 0 0 1px rgba(255,255,255,0.12) inset',
                       transition: 'box-shadow 0.3s ease',
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.boxShadow =
-                        '0 22px 64px -10px rgba(227,6,19,0.85), 0 0 44px -6px rgba(255,39,53,0.55), 0 0 0 1px rgba(255,255,255,0.18) inset';
+                        '0 22px 48px -10px rgba(220,38,38,0.7), 0 0 24px -6px rgba(220,38,38,0.4), 0 0 0 1px rgba(255,255,255,0.18) inset';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.boxShadow =
-                        '0 16px 44px -12px rgba(227,6,19,0.65), 0 0 0 1px rgba(255,255,255,0.12) inset';
+                        '0 16px 36px -12px rgba(220,38,38,0.55), 0 0 0 1px rgba(255,255,255,0.12) inset';
                     }}
                   >
                     <span className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/25 to-transparent opacity-50" />
@@ -715,15 +715,15 @@ export function LoginScreen() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.7 }}
-                className="mt-7 flex items-center justify-center gap-1.5 border-t border-white/[0.08] pt-5 text-[11px] font-medium text-zinc-600"
+                className="mt-7 flex items-center justify-center gap-1.5 border-t border-line pt-5 text-[11px] font-medium text-ink-muted"
               >
-                <ShieldCheck className="size-3.5 text-emerald-400/80" />
+                <ShieldCheck className="size-3.5 text-emerald-500/80" />
                 Uso interno · Solo personal autorizado
               </motion.div>
             </motion.div>
 
             {/* Decoración bajo el card: iconos esquina */}
-            <div className="pointer-events-none mt-6 hidden items-center justify-center gap-6 text-zinc-700 sm:flex" aria-hidden>
+            <div className="pointer-events-none mt-6 hidden items-center justify-center gap-6 text-slate-300 sm:flex" aria-hidden>
               <CheckCircle2 className="size-4" />
               <Hourglass className="size-4" />
               <XCircle className="size-4" />

@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { memo, type ReactNode } from 'react';
 import { ChartCard } from '@/components/charts/ChartCard';
-import { DonutChart } from '@/components/charts/charts';
+import { SemiDonutChart } from '@/components/charts/charts';
 import { GraduationCap, Trophy, UserCheck, UserX, UserRound } from 'lucide-react';
 import type { CapacitadorSummary, Promotor, SerieItem } from '@/types';
 import { cn, formatNumber } from '@/lib/utils';
@@ -11,12 +11,12 @@ import { ResumenDeCaidas } from '@/components/dashboard/caidas/ResumenDeCaidas';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const AVATAR_GRADIENTS: Array<[string, string]> = [
-  ['#e30613', '#ff2735'],
-  ['#ff2735', '#ff6b6b'],
-  ['#22c55e', '#4ade80'],
-  ['#f59e0b', '#fb923c'],
-  ['#a8050f', '#e30613'],
-  ['#ff6b6b', '#e30613'],
+  ['#2563eb', '#60a5fa'],
+  ['#8b5cf6', '#c4b5fd'],
+  ['#10b981', '#34d399'],
+  ['#f59e0b', '#fbbf24'],
+  ['#6366f1', '#a5b4fc'],
+  ['#0ea5e9', '#7dd3fc'],
 ];
 
 function initialsOf(name: string): string {
@@ -33,6 +33,12 @@ export const ResultadoDonut = memo(function ResultadoDonut({ data, total, record
   const noPasa = data.find((d) => d.name.startsWith('No'))?.value ?? 0;
   const pendiente = total - pasa - noPasa;
   const hasRecords = records !== undefined;
+  const chartData = [
+    { name: 'Pasa a operaciones', value: pasa },
+    { name: 'No pasa', value: noPasa },
+    { name: 'En capacitación', value: pendiente },
+  ].filter((d) => d.value > 0);
+  const chartColors = ['#10b981', '#ef4444', '#f59e0b'];
 
   return (
     <ChartCard
@@ -40,7 +46,7 @@ export const ResultadoDonut = memo(function ResultadoDonut({ data, total, record
       description="Distribución del resultado del proceso de capacitación"
       icon={<GraduationCap className="size-4" />}
     >
-      <DonutChart data={data} centerValue={total} centerLabel="TOTAL INGRESOS" />
+      <SemiDonutChart data={chartData} colors={chartColors} centerValue={total} centerLabel="Total Ingresos" />
       {hasRecords ? (
         <div className="mt-2 grid grid-cols-2 gap-3">
           <ResultadoCard
@@ -48,7 +54,7 @@ export const ResultadoDonut = memo(function ResultadoDonut({ data, total, record
             value={pasa}
             total={total}
             icon={<UserCheck className="size-3.5" />}
-            className="border-emerald-500/20 bg-emerald-500/8 text-emerald-600 hover:shadow-glow-emerald dark:text-emerald-400"
+            className="border-emerald-500/20 bg-emerald-500/8 text-emerald-600"
           />
           {pendiente > 0 && (
             <ResultadoCard
@@ -56,7 +62,7 @@ export const ResultadoDonut = memo(function ResultadoDonut({ data, total, record
               value={pendiente}
               total={total}
               icon={<UserRound className="size-3.5" />}
-              className="border-amber-500/20 bg-amber-500/8 text-amber-600 hover:shadow-glow-amber dark:text-amber-400"
+              className="border-amber-500/20 bg-amber-500/8 text-amber-600"
             />
           )}
           <div className="col-span-2">
@@ -70,14 +76,14 @@ export const ResultadoDonut = memo(function ResultadoDonut({ data, total, record
             value={pasa}
             total={total}
             icon={<UserCheck className="size-3.5" />}
-            className="border-emerald-500/20 bg-emerald-500/8 text-emerald-600 hover:shadow-glow-emerald dark:text-emerald-400"
+            className="border-emerald-500/20 bg-emerald-500/8 text-emerald-600"
           />
           <ResultadoCard
             label="No pasa"
             value={noPasa}
             total={total}
             icon={<UserX className="size-3.5" />}
-            className="border-rose-500/20 bg-rose-500/8 text-rose-600 hover:shadow-glow-rose dark:text-rose-400"
+            className="border-rose-500/20 bg-rose-500/8 text-rose-600"
           />
           {pendiente > 0 && (
             <div className="col-span-2">
@@ -86,7 +92,7 @@ export const ResultadoDonut = memo(function ResultadoDonut({ data, total, record
                 value={pendiente}
                 total={total}
                 icon={<UserRound className="size-3.5" />}
-                className="border-amber-500/20 bg-amber-500/8 text-amber-600 hover:shadow-glow-amber dark:text-amber-400"
+                className="border-amber-500/20 bg-amber-500/8 text-amber-600"
               />
             </div>
           )}
@@ -110,7 +116,7 @@ function ResultadoCard({
   className: string;
 }) {
   return (
-    <div className={cn('rounded-xl border p-3 transition-all duration-300 hover:-translate-y-0.5', className)}>
+    <div className={cn('rounded-xl border p-3 transition-colors duration-300 hover:border-ink/15', className)}>
       <p className="flex items-center gap-1.5 text-xs font-bold">{icon} {label}</p>
       <p className="mt-1 text-2xl font-bold text-ink tabular-nums">{formatNumber(value)}</p>
       <p className="text-xs text-ink-soft">{total > 0 ? ((value / total) * 100).toFixed(1) : 0}%</p>
@@ -143,28 +149,28 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
           <motion.div
             key={c.capacitador}
             variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } } }}
-            className="group relative overflow-hidden rounded-2xl border border-line bg-surface-2 p-4 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-400/40 hover:shadow-glow-sm"
+            className="group relative overflow-hidden rounded-2xl border border-line bg-surface-2 p-4 shadow-card transition-colors duration-300 hover:border-ink/15"
           >
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-line to-transparent" />
             <div className="flex items-center gap-3">
               <span className="flex w-8 shrink-0 justify-center">
                 {i < 3 ? (
-                  <span className="text-lg leading-none" style={{ filter: `drop-shadow(0 0 8px ${from})` }}>{MEDALS[i]}</span>
+                  <span className="text-lg leading-none">{MEDALS[i]}</span>
                 ) : (
-                  <span className="rounded-md bg-white/5 px-1.5 py-0.5 text-xs font-bold text-ink-soft tabular-nums">{i + 1}</span>
+                  <span className="rounded-md bg-ink/10 px-1.5 py-0.5 text-xs font-bold text-ink-soft tabular-nums">{i + 1}</span>
                 )}
               </span>
               <span
-                className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/15 text-sm font-bold text-white"
-                style={{ background: `linear-gradient(135deg, ${from}, ${to})`, boxShadow: `0 0 16px ${from}66` }}
+                className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-line text-sm font-bold text-white"
+                style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
               >
                 {initialsOf(c.capacitador)}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold text-ink">{c.capacitador}</p>
                 <p className="text-[11px] font-semibold text-ink-soft">
-                  {c.asignados} asignados · <span className="text-emerald-400">{c.aprobados} aprobados</span> ·{' '}
-                  <span className="text-rose-400">{c.noAprobados} no aprobados</span>
+                  {c.asignados} asignados · <span className="text-emerald-600">{c.aprobados} aprobados</span> ·{' '}
+                  <span className="text-rose-600">{c.noAprobados} no aprobados</span>
                 </p>
               </div>
               <div className="shrink-0 text-right">
@@ -175,16 +181,16 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
 
             <div className="mt-3">
               <div className="mb-1 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
-                <span className="flex items-center gap-1"><Trophy className="size-3 text-amber-400" /> Carga total</span>
+                <span className="flex items-center gap-1"><Trophy className="size-3 text-amber-600" /> Carga total</span>
                 <span className="tabular-nums">{formatNumber(c.asignados)} / {formatNumber(maxAsignados)}</span>
               </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.05]">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink/10">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${(c.asignados / maxAsignados) * 100}%` }}
                   transition={{ duration: 0.7, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
                   className="h-full rounded-full"
-                  style={{ background: `linear-gradient(90deg, ${from}, ${to})`, boxShadow: `0 0 10px ${from}88` }}
+                  style={{ background: `linear-gradient(90deg, ${from}, ${to})` }}
                 />
               </div>
             </div>
@@ -193,31 +199,31 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
               <div className="mb-1 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
                 <span>Resultado</span>
                 <span className="tabular-nums">
-                  <span className="text-emerald-400">{segA.toFixed(0)}%</span> ·{' '}
-                  <span className="text-rose-400">{segB.toFixed(0)}%</span> ·{' '}
+                  <span className="text-emerald-600">{segA.toFixed(0)}%</span> ·{' '}
+                  <span className="text-rose-600">{segB.toFixed(0)}%</span> ·{' '}
                   <span className="text-ink-soft">{segP.toFixed(0)}%</span>
                 </span>
               </div>
-              <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-white/[0.05]">
+              <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-ink/10">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${segA}%` }}
                   transition={{ duration: 0.6, delay: 0.15 + i * 0.06 }}
-                  className="h-full bg-gradient-to-r from-emerald-500 to-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.6)]"
+                  className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400"
                   title={`Aprobados: ${c.aprobados}`}
                 />
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${segB}%` }}
                   transition={{ duration: 0.6, delay: 0.2 + i * 0.06 }}
-                  className="h-full bg-gradient-to-r from-rose-500 to-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.6)]"
+                  className="h-full bg-gradient-to-r from-rose-500 to-rose-400"
                   title={`No aprobados: ${c.noAprobados}`}
                 />
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${segP}%` }}
                   transition={{ duration: 0.6, delay: 0.25 + i * 0.06 }}
-                  className="h-full bg-white/15"
+                  className="h-full bg-ink/15"
                   title={`Pendientes: ${pendientes}`}
                 />
               </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { CalendarRange, Table2, Tags, TrendingDown } from 'lucide-react';
+import { CalendarRange, MapPin, Table2, Tags } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SectionTitle } from '@/components/common/SectionTitle';
@@ -14,15 +14,11 @@ import { AnalisisZonaSection } from '@/components/dashboard/zonas/AnalisisZonaSe
 import { CaidasPorMomentoSalidaChart } from '@/components/dashboard/caidas/CaidasPorMomentoSalidaChart';
 import { RankingDiaCaidaSede } from '@/components/dashboard/caidas/RankingDiaCaidaSede';
 import { LeaderboardDiaCaidaSupervisor } from '@/components/dashboard/caidas/LeaderboardDiaCaidaSupervisor';
-import { CaidasPorSede } from '@/components/dashboard/caidas/CaidasPorSede';
-import { CaidasPorSupervisor } from '@/components/dashboard/caidas/CaidasPorSupervisor';
 import { DataTable } from '@/components/tables/DataTable';
 import { PromotorDetailModal } from '@/components/modals/PromotorDetailModal';
 import { useAppData } from '@/hooks/useAppData';
 import type { Promotor } from '@/types';
 import {
-  caidasPorSede,
-  caidasPorSupervisor,
   computeEmbudo,
   caidasPorMomentoSalida,
   caidasPorDiaPorSede,
@@ -37,16 +33,12 @@ export default function CaidasPage() {
   const [selected, setSelected] = useState<Promotor | null>(null);
 
   const ejecutivo = useMemo(() => {
-    const sedeData = caidasPorSede(filtered);
-    const supervisorData = caidasPorSupervisor(filtered);
     const embudo = computeEmbudo(filtered);
     const porMomento = caidasPorMomentoSalida(filtered);
     const porDiaSede = caidasPorDiaPorSede(filtered);
     const porDiaSupervisor = caidasPorDiaPorSupervisor(filtered);
 
     return {
-      sedes: sedeData,
-      supervisores: supervisorData,
       embudo,
       porMomento,
       porDiaSede,
@@ -80,24 +72,20 @@ export default function CaidasPage() {
 
       <ResumenDesercion data={desercion} />
 
-      <AnalisisReclutadoresSection data={reclutadores} />
-
       <section className="mt-6">
         <SectionTitle
           icon={<CalendarRange className="size-4" />}
           title="¿En qué momento se produce la caída?"
-          subtitle={`Momento de salida (Nunca asistió o Día 1 al 10) · ${kpis.noPasanAOperaciones} caídas analizadas`}
+          subtitle={`Momento de salida (Nunca asistió o Día 1 al 12) · ${kpis.noPasanAOperaciones} caídas analizadas`}
         />
         <CaidasPorMomentoSalidaChart data={ejecutivo.porMomento} />
       </section>
 
-      <AnalisisZonaSection data={zonas} />
-
       <section className="mt-6">
         <SectionTitle
-          icon={<CalendarRange className="size-4" />}
-          title="Día de caída por sede y supervisor"
-          subtitle="Día promedio de caída y total de caídas dentro de cada dimensión"
+          icon={<MapPin className="size-4" />}
+          title="¿Dónde y cuándo se produce la caída?"
+          subtitle={`Volumen, día promedio y participación por sede y supervisor · ${kpis.noPasanAOperaciones} caídas según filtros activos`}
         />
         <div className="grid gap-4 lg:grid-cols-2">
           <RankingDiaCaidaSede
@@ -113,17 +101,9 @@ export default function CaidasPage() {
         </div>
       </section>
 
-      <section className="mt-6">
-        <SectionTitle
-          icon={<TrendingDown className="size-4" />}
-          title="Dónde se producen las caídas"
-          subtitle={`${kpis.noPasanAOperaciones} caídas distribuidas por sede y supervisor`}
-        />
-        <div className="grid gap-4 lg:grid-cols-2">
-          <CaidasPorSede data={ejecutivo.sedes} />
-          <CaidasPorSupervisor data={ejecutivo.supervisores} />
-        </div>
-      </section>
+      <AnalisisZonaSection data={zonas} />
+
+      <AnalisisReclutadoresSection data={reclutadores} />
 
       <section className="mt-6">
         <SectionTitle

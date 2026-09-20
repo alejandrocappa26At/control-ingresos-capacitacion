@@ -14,7 +14,7 @@ interface TimelineStep {
 }
 
 const toneBg: Record<string, string> = {
-  brand: 'from-brand-500/25 to-brand-500/5 text-brand-300',
+  brand: 'from-brand-500/25 to-brand-500/5 text-brand-600',
   amber: 'from-amber-500/25 to-amber-500/5 text-amber-400',
   emerald: 'from-emerald-500/25 to-emerald-500/5 text-emerald-400',
   rose: 'from-rose-500/25 to-rose-500/5 text-rose-400',
