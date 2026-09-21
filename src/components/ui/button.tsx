@@ -13,13 +13,13 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const variantClasses: Record<Variant, string> = {
   default:
-    'bg-brand-500 text-white shadow-[0_8px_24px_-10px_rgba(37,99,235,0.5)] hover:bg-brand-600 hover:-translate-y-0.5 hover:shadow-glow',
+    'bg-brand-500 text-white shadow-[0_8px_24px_-10px_rgba(227,6,19,0.5)] hover:bg-brand-400 hover:-translate-y-0.5 hover:shadow-glow',
   brand:
-    'gradient-brand text-white shadow-[0_8px_24px_-10px_rgba(37,99,235,0.5)] hover:-translate-y-0.5 hover:shadow-glow-lg',
+    'gradient-brand text-white shadow-[0_8px_24px_-10px_rgba(227,6,19,0.5)] hover:-translate-y-0.5 hover:shadow-glow-lg',
   secondary:
-    'border border-brand-500/30 bg-surface-2 text-brand-700 hover:border-brand-500/40 hover:bg-brand-50 hover:text-brand-700',
+    'border border-brand-500/30 bg-surface-2 text-brand-300 hover:border-brand-400/40 hover:bg-brand-500/10 hover:text-brand-200',
   outline:
-    'border border-line bg-surface-2 text-ink transition-all duration-300 hover:border-brand-500/40 hover:bg-brand-50 hover:text-brand-700',
+    'border border-line bg-surface-2 text-ink transition-all duration-300 hover:border-brand-400/40 hover:bg-brand-500/10 hover:text-brand-200',
   ghost: 'bg-transparent hover:bg-surface-3 text-ink-muted hover:text-ink',
   destructive: 'bg-rose-500 text-white hover:bg-rose-600 hover:shadow-glow-rose',
   success: 'bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-glow-emerald',

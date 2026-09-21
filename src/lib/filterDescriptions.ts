@@ -40,6 +40,16 @@ function dateChipLabel(value: DateFilterValue): string | null {
   }
 }
 
+const MULTI_FIELDS: Array<{ key: keyof FilterState; label: string }> = [
+  { key: 'jurisdiccion', label: 'Jurisdicción' },
+  { key: 'zonaComercial', label: 'Zona comercial' },
+  { key: 'sede', label: 'Sede' },
+  { key: 'distrito', label: 'Distrito' },
+  { key: 'tienda', label: 'Tienda' },
+  { key: 'supervisor', label: 'Supervisor' },
+  { key: 'responsableAS', label: 'Responsable A&S' },
+];
+
 function textValue(filters: FilterState, key: keyof FilterState): string {
   const value = filters[key];
   return typeof value === 'string' ? value : '';
@@ -47,6 +57,17 @@ function textValue(filters: FilterState, key: keyof FilterState): string {
 
 export function describeActiveFilters(filters: FilterState): FilterChip[] {
   const chips: FilterChip[] = [];
+
+  for (const { key, label } of MULTI_FIELDS) {
+    const values = filters[key] as string[];
+    for (const value of values) {
+      chips.push({
+        id: `${key}:${value}`,
+        label: `${label}: ${value}`,
+        remove: (f) => ({ ...f, [key]: (f[key] as string[]).filter((v) => v !== value) } as FilterState),
+      });
+    }
+  }
 
   const pushText = (key: keyof FilterState, shortLabel: string) => {
     const value = textValue(filters, key).trim();
@@ -58,13 +79,6 @@ export function describeActiveFilters(filters: FilterState): FilterChip[] {
     });
   };
 
-  pushText('jurisdiccion', 'Jurisdicción');
-  pushText('zonaComercial', 'Zona comercial');
-  pushText('sede', 'Sede');
-  pushText('distrito', 'Distrito');
-  pushText('tienda', 'Tienda');
-  pushText('supervisor', 'Supervisor');
-  pushText('responsableAS', 'Responsable A&S');
   pushText('modalidad', 'Modalidad');
 
   for (const key of DATE_FIELD_KEYS) {

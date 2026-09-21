@@ -97,10 +97,10 @@ export function buildColumns(): ColumnDef<Promotor, unknown>[] {
         const promotor = info.row.original;
         const etapa = etapaSalida(promotor);
         const tone: Record<EtapaSalidaKind, { text: string; dot: string }> = {
-          NUNCA_ASISTIO: { text: 'text-rose-600', dot: 'bg-rose-500' },
+          NUNCA_ASISTIO: { text: 'text-rose-400', dot: 'bg-rose-500' },
           DIA: { text: 'text-rose-500', dot: 'bg-rose-400' },
-          PASO_A_OPERACIONES: { text: 'text-emerald-600', dot: 'bg-emerald-500' },
-          EN_CAPACITACION: { text: 'text-amber-600', dot: 'bg-amber-400' },
+          PASO_A_OPERACIONES: { text: 'text-emerald-400', dot: 'bg-emerald-500' },
+          EN_CAPACITACION: { text: 'text-amber-400', dot: 'bg-amber-400' },
         };
         return (
           <span className={cn('inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold', tone[etapa.kind].text)}>
@@ -274,7 +274,7 @@ export function DataTable({ data, onRowClick, pageSize = 10, loading }: DataTabl
                   return (
                     <th
                       key={header.id}
-                      className="sticky top-0 z-10 border-b border-line bg-slate-50 px-3 py-2.5 text-[11px] font-bold tracking-wide whitespace-nowrap text-ink-muted uppercase first:rounded-tl-xl"
+                      className="sticky top-0 z-10 border-b border-line bg-surface-2 px-3 py-2.5 text-[11px] font-bold tracking-wide whitespace-nowrap text-ink-muted uppercase first:rounded-tl-xl"
                       style={{ width: header.getSize() }}
                     >
                       {header.column.getCanSort() ? (
@@ -308,7 +308,7 @@ export function DataTable({ data, onRowClick, pageSize = 10, loading }: DataTabl
                 className={cn(
                   'group border-b border-line transition-all duration-200 last:border-0',
                   rowIndex % 2 === 1 && 'bg-surface/40',
-                  onRowClick && 'cursor-pointer hover:bg-brand-50/70 hover:shadow-[inset_3px_0_0_rgba(37,99,235,0.55)]',
+                  onRowClick && 'cursor-pointer hover:bg-brand-500/10 hover:shadow-[inset_3px_0_0_rgba(227,6,19,0.55)]',
                 )}
               >
                 {row.getVisibleCells().map((cell) => (

@@ -62,8 +62,8 @@ export function DateFilterInput({ label, value, onChange }: DateFilterInputProps
             className={
               'rounded-lg border px-2.5 py-1 text-xs font-semibold transition-all duration-300 ' +
               (mode === t
-                ? 'border-rose-500/30 bg-rose-50 text-rose-600'
-                : 'border-transparent text-ink-muted hover:bg-slate-100')
+                ? 'border-rose-500/30 bg-rose-500/10 text-rose-400'
+                : 'border-transparent text-ink-muted hover:bg-surface-3')
             }
           >
             {t === 'all' ? 'Todo' : t === 'day' ? 'Día' : t === 'month' ? 'Mes' : t === 'year' ? 'Año' : 'Rango'}

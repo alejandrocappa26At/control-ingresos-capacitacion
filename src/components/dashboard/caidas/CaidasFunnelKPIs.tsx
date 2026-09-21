@@ -8,9 +8,9 @@ import { QiEChart, tipHeader, tipRow } from '@/components/charts/EChart';
 import type { EmbudoCapacitacion } from '@/services/analytics/falls';
 
 const EMBUDO_COLORS: Array<{ name: string; fill: string; glow: string }> = [
-  { name: 'Total de ingresos', fill: '#2563eb', glow: 'rgba(37,99,235,0.25)' },
-  { name: 'Inician capacitación', fill: '#8b5cf6', glow: 'rgba(139,92,246,0.25)' },
-  { name: 'Pasan a operaciones', fill: '#059669', glow: 'rgba(5,150,105,0.25)' },
+  { name: 'Total de ingresos', fill: '#e30613', glow: 'rgba(227,6,19,0.35)' },
+  { name: 'Inician capacitación', fill: '#ff5a66', glow: 'rgba(255,90,102,0.3)' },
+  { name: 'Pasan a operaciones', fill: '#00d26a', glow: 'rgba(0,210,106,0.3)' },
 ];
 
 function EmbudoCapacitacion({ embudo }: { embudo: EmbudoCapacitacion }) {
@@ -57,7 +57,7 @@ function EmbudoCapacitacion({ embudo }: { embudo: EmbudoCapacitacion }) {
           },
         },
         labelLine: { show: false },
-        itemStyle: { borderColor: '#ffffff', borderWidth: 2, borderRadius: 10, opacity: 0.96 },
+        itemStyle: { borderColor: '#0b0f17', borderWidth: 2, borderRadius: 10, opacity: 0.96 },
         emphasis: { itemStyle: { shadowBlur: 18 } },
         animationDuration: 800,
         animationEasing: 'cubicOut',

@@ -5,12 +5,12 @@ type BadgeTone = 'default' | 'success' | 'warning' | 'danger' | 'info' | 'neutra
 
 const tones: Record<BadgeTone, string> = {
   default: 'bg-surface-3 text-ink border-line',
-  success: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
-  warning: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25',
-  danger: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25',
+  success: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
+  warning: 'bg-amber-500/10 text-amber-400 border-amber-500/25',
+  danger: 'bg-rose-500/10 text-rose-400 border-rose-500/25',
   info: 'bg-white/10 text-zinc-300 border-white/15',
-  neutral: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/25',
-  brand: 'bg-brand-500/10 text-brand-600 dark:text-brand-300 border-brand-500/25',
+  neutral: 'bg-slate-500/10 text-slate-400 border-slate-500/25',
+  brand: 'bg-brand-500/10 text-brand-300 border-brand-500/25',
 };
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {

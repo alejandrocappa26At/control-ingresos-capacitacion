@@ -7,22 +7,22 @@ import type { CaidaDimensionDia } from '@/services/analytics/falls';
 
 const RANK_STYLES = [
   {
-    ring: 'ring-amber-400/60',
-    text: 'text-amber-700',
-    bg: 'from-amber-200/70 to-amber-400/30',
-    label: 'border-amber-400/40 bg-amber-100 text-amber-700',
+    ring: 'ring-amber-400/50',
+    text: 'text-amber-300',
+    bg: 'from-amber-500/30 to-amber-400/10',
+    label: 'border-amber-400/40 bg-amber-500/15 text-amber-300',
   },
   {
-    ring: 'ring-zinc-300/50',
-    text: 'text-zinc-600',
-    bg: 'from-zinc-200/60 to-zinc-400/30',
-    label: 'border-zinc-300/40 bg-zinc-100 text-zinc-600',
+    ring: 'ring-zinc-400/40',
+    text: 'text-zinc-300',
+    bg: 'from-zinc-500/25 to-zinc-400/10',
+    label: 'border-zinc-400/30 bg-zinc-500/15 text-zinc-300',
   },
   {
-    ring: 'ring-orange-500/50',
-    text: 'text-orange-600',
-    bg: 'from-orange-200/60 to-orange-400/30',
-    label: 'border-orange-400/40 bg-orange-100 text-orange-700',
+    ring: 'ring-orange-400/50',
+    text: 'text-orange-300',
+    bg: 'from-orange-500/25 to-orange-400/10',
+    label: 'border-orange-400/40 bg-orange-500/15 text-orange-300',
   },
   {
     ring: 'ring-line',
@@ -68,7 +68,7 @@ export function LeaderboardDiaCaidaSupervisor({
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-rose-400/40 to-transparent" />
 
       <div className="relative mb-4 flex items-center gap-2.5">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-rose-500/10 text-rose-300">
           <Trophy className="size-4" />
         </span>
         <div className="min-w-0 leading-tight">
@@ -100,7 +100,7 @@ export function LeaderboardDiaCaidaSupervisor({
                 className={cn(
                   'flex size-7 shrink-0 items-center justify-center rounded-lg border text-xs font-black',
                   isChampion
-                    ? 'border-amber-400/40 bg-amber-200/70 text-amber-700'
+                    ? 'border-amber-400/40 bg-amber-500/20 text-amber-300'
                     : 'border-line bg-surface-3/60 text-ink-soft',
                 )}
               >
@@ -121,9 +121,9 @@ export function LeaderboardDiaCaidaSupervisor({
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold text-ink">{r.name}</p>
                 <p className="flex items-center gap-1 text-[11px] text-ink-soft">
-                  <CalendarDays className="size-3 text-rose-600" />
+                  <CalendarDays className="size-3 text-rose-400" />
                   Día promedio
-                  <span className="font-bold text-rose-600">{r.diaPromedio != null ? r.diaPromedio.toFixed(1) : '—'}</span>
+                  <span className="font-bold text-rose-400">{r.diaPromedio != null ? r.diaPromedio.toFixed(1) : '—'}</span>
                 </p>
               </div>
 

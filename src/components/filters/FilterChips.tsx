@@ -18,16 +18,16 @@ export function FilterChips() {
     <div className="relative z-20 border-b border-line/60 bg-canvas/60 backdrop-blur-sm">
       <div className="flex flex-wrap items-center gap-1.5 px-4 py-2 sm:px-6 lg:px-8">
         <span className="mr-1 inline-flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-ink-soft uppercase">
-          <SlidersHorizontal className="size-3 text-brand-600" />
+          <SlidersHorizontal className="size-3 text-brand-400" />
           Filtros activos
         </span>
         {chips.map((chip) =>
           chip.kind === 'date' ? (
             <span
               key={chip.id}
-              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line bg-white py-1 pr-1.5 pl-1.5 text-xs font-bold text-ink-soft transition-colors hover:border-rose-500/40 hover:text-rose-600"
+              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line bg-surface-3 py-1 pr-1.5 pl-1.5 text-xs font-bold text-ink-soft transition-colors hover:border-rose-500/40 hover:text-rose-400"
             >
-              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-500/10 text-brand-400">
                 <Calendar className="size-3" />
               </span>
               <span className="truncate">{chip.label}</span>
@@ -35,7 +35,7 @@ export function FilterChips() {
                 type="button"
                 onClick={() => setFilters(chip.remove(filters))}
                 aria-label={`Quitar filtro de fecha: ${chip.label}`}
-                className="ml-0.5 flex size-4 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-rose-50 hover:text-rose-600"
+                className="ml-0.5 flex size-4 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-rose-500/10 hover:text-rose-400"
               >
                 <X className="size-3" />
               </button>
@@ -43,14 +43,14 @@ export function FilterChips() {
           ) : (
             <span
               key={chip.id}
-              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line bg-white py-1 pr-1.5 pl-2.5 text-xs font-semibold text-ink-soft transition-colors hover:border-rose-500/40 hover:text-rose-600"
+              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line bg-surface-3 py-1 pr-1.5 pl-2.5 text-xs font-semibold text-ink-soft transition-colors hover:border-rose-500/40 hover:text-rose-400"
             >
               <span className="truncate">{chip.label}</span>
               <button
                 type="button"
                 onClick={() => setFilters(chip.remove(filters))}
                 aria-label={`Quitar filtro: ${chip.label}`}
-                className="flex size-4 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-rose-50 hover:text-rose-600"
+                className="flex size-4 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-rose-500/10 hover:text-rose-400"
               >
                 <X className="size-3" />
               </button>

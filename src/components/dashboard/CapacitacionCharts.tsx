@@ -11,7 +11,7 @@ import { ResumenDeCaidas } from '@/components/dashboard/caidas/ResumenDeCaidas';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const AVATAR_GRADIENTS: Array<[string, string]> = [
-  ['#2563eb', '#60a5fa'],
+  ['#e30613', '#ff3b47'],
   ['#8b5cf6', '#c4b5fd'],
   ['#10b981', '#34d399'],
   ['#f59e0b', '#fbbf24'],
@@ -54,7 +54,7 @@ export const ResultadoDonut = memo(function ResultadoDonut({ data, total, record
             value={pasa}
             total={total}
             icon={<UserCheck className="size-3.5" />}
-            className="border-emerald-500/20 bg-emerald-500/8 text-emerald-600"
+            className="border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
           />
           {pendiente > 0 && (
             <ResultadoCard
@@ -62,7 +62,7 @@ export const ResultadoDonut = memo(function ResultadoDonut({ data, total, record
               value={pendiente}
               total={total}
               icon={<UserRound className="size-3.5" />}
-              className="border-amber-500/20 bg-amber-500/8 text-amber-600"
+              className="border-amber-500/25 bg-amber-500/10 text-amber-400"
             />
           )}
           <div className="col-span-2">
@@ -76,14 +76,14 @@ export const ResultadoDonut = memo(function ResultadoDonut({ data, total, record
             value={pasa}
             total={total}
             icon={<UserCheck className="size-3.5" />}
-            className="border-emerald-500/20 bg-emerald-500/8 text-emerald-600"
+            className="border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
           />
           <ResultadoCard
             label="No pasa"
             value={noPasa}
             total={total}
             icon={<UserX className="size-3.5" />}
-            className="border-rose-500/20 bg-rose-500/8 text-rose-600"
+            className="border-rose-500/25 bg-rose-500/10 text-rose-400"
           />
           {pendiente > 0 && (
             <div className="col-span-2">
@@ -92,7 +92,7 @@ export const ResultadoDonut = memo(function ResultadoDonut({ data, total, record
                 value={pendiente}
                 total={total}
                 icon={<UserRound className="size-3.5" />}
-                className="border-amber-500/20 bg-amber-500/8 text-amber-600"
+                className="border-amber-500/25 bg-amber-500/10 text-amber-400"
               />
             </div>
           )}
@@ -169,8 +169,8 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold text-ink">{c.capacitador}</p>
                 <p className="text-[11px] font-semibold text-ink-soft">
-                  {c.asignados} asignados · <span className="text-emerald-600">{c.aprobados} aprobados</span> ·{' '}
-                  <span className="text-rose-600">{c.noAprobados} no aprobados</span>
+                  {c.asignados} asignados · <span className="text-emerald-400">{c.aprobados} aprobados</span> ·{' '}
+                  <span className="text-rose-400">{c.noAprobados} no aprobados</span>
                 </p>
               </div>
               <div className="shrink-0 text-right">
@@ -181,7 +181,7 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
 
             <div className="mt-3">
               <div className="mb-1 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
-                <span className="flex items-center gap-1"><Trophy className="size-3 text-amber-600" /> Carga total</span>
+                <span className="flex items-center gap-1"><Trophy className="size-3 text-amber-400" /> Carga total</span>
                 <span className="tabular-nums">{formatNumber(c.asignados)} / {formatNumber(maxAsignados)}</span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink/10">
@@ -199,8 +199,8 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
               <div className="mb-1 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
                 <span>Resultado</span>
                 <span className="tabular-nums">
-                  <span className="text-emerald-600">{segA.toFixed(0)}%</span> ·{' '}
-                  <span className="text-rose-600">{segB.toFixed(0)}%</span> ·{' '}
+                  <span className="text-emerald-400">{segA.toFixed(0)}%</span> ·{' '}
+                  <span className="text-rose-400">{segB.toFixed(0)}%</span> ·{' '}
                   <span className="text-ink-soft">{segP.toFixed(0)}%</span>
                 </span>
               </div>
@@ -230,7 +230,7 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
             </div>
 
             <div className="mt-2.5 grid grid-cols-3 gap-2 text-center">
-              <MiniStat label="Finalizados" value={c.finalizados} tone="text-zinc-300" />
+              <MiniStat label="Finalizados" value={c.finalizados} tone="text-zinc-400" />
               <MiniStat label="En proceso" value={c.enProceso} tone="text-amber-400" />
               <MiniStat label="Pendientes" value={pendientes} tone="text-ink-soft" />
             </div>

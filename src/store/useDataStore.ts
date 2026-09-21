@@ -6,14 +6,14 @@ import { matchesDateFilter } from '@/lib/dates';
 import { normalizeKey, splitCapacitadores } from '@/lib/utils';
 
 export const EMPTY_FILTERS: FilterState = {
-  jurisdiccion: '',
+  jurisdiccion: [],
   fechaIngreso: { type: 'all' },
-  zonaComercial: '',
-  sede: '',
-  distrito: '',
-  tienda: '',
-  supervisor: '',
-  responsableAS: '',
+  zonaComercial: [],
+  sede: [],
+  distrito: [],
+  tienda: [],
+  supervisor: [],
+  responsableAS: [],
   modalidad: '',
   capacitador: [],
   inicioCapacitacion: { type: 'all' },
@@ -63,6 +63,7 @@ function countActiveFilters(filters: FilterState): number {
     if (key === 'fechaIngreso' || key === 'inicioCapacitacion' || key === 'finCapacitacion' || key === 'entregaOperaciones') {
       return acc + (value && value.type !== 'all' ? 1 : 0);
     }
+    if (Array.isArray(value)) return acc + value.length;
     return acc + (hasActiveFilter(value) ? 1 : 0);
   }, 0);
 }
@@ -145,14 +146,19 @@ export function selectFilteredRecords(input: {
   function matches(r: Promotor): boolean {
     const f = filters;
 
-    if (f.jurisdiccion && r.jurisdiccion !== f.jurisdiccion) return false;
-    if (f.zonaComercial && normalizeKey(r.zonaComercial) !== normalizeKey(f.zonaComercial)) return false;
-    if (f.sede && r.sede !== f.sede) return false;
-    if (f.distrito && r.distrito !== f.distrito) return false;
-    if (f.tienda && r.nombreTienda !== f.tienda) return false;
-    if (f.supervisor && r.supervisor !== f.supervisor) return false;
-    if (f.responsableAS && r.responsableAS !== f.responsableAS) return false;
-    if (f.modalidad && r.modalidad !== f.modalidad) return false;
+    const inList = (selected: string[], value: string) => selected.length === 0 || selected.includes(value);
+    const inNormalized = (selected: string[], value: string) =>
+      selected.length === 0 || selected.includes(normalizeKey(value));
+    const is = (selected: string, value: string) => !selected || selected === value;
+
+    if (!inList(f.jurisdiccion, r.jurisdiccion)) return false;
+    if (!inNormalized(f.zonaComercial, r.zonaComercial)) return false;
+    if (!inList(f.sede, r.sede)) return false;
+    if (!inList(f.distrito, r.distrito)) return false;
+    if (!inList(f.tienda, r.nombreTienda)) return false;
+    if (!inList(f.supervisor, r.supervisor)) return false;
+    if (!inList(f.responsableAS, r.responsableAS)) return false;
+    if (!is(f.modalidad, r.modalidad)) return false;
     if (f.capacitador.length > 0 && !matchesCapacitadores(r, f.capacitador)) return false;
 
     if (f.pasaAOperaciones) {

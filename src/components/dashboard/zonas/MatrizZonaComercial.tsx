@@ -32,7 +32,7 @@ export function MatrizZonaComercial({
       <Card className="h-full">
         <CardHeader className="flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-rose-500/10 text-rose-400">
               <MapPin className="size-4" />
             </span>
             <div>
@@ -55,7 +55,7 @@ export function MatrizZonaComercial({
     <Card className="h-full">
       <CardHeader className="flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-rose-500/10 text-rose-400">
             <MapPin className="size-4" />
           </span>
           <div>
@@ -69,12 +69,12 @@ export function MatrizZonaComercial({
 
       <CardContent className="pt-4">
         {zonaCritica && zonaCritica.deserciones > 0 && (
-          <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-rose-200 bg-rose-50/80 px-3.5 py-2.5 text-[11px] font-medium text-ink">
+          <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-rose-500/30 bg-rose-500/[0.08] px-3.5 py-2.5 text-[11px] font-medium text-ink">
             <span className="text-sm leading-none">🔴</span>
-            <span className="font-black tracking-wider text-rose-700 uppercase">Zona más crítica</span>
+            <span className="font-black tracking-wider text-rose-400 uppercase">Zona más crítica</span>
             <span className="font-bold text-ink">{zonaCritica.zona}</span>
-            <span className="tabular-nums text-rose-700">{formatNumber(zonaCritica.deserciones)} caídas</span>
-            <span className="tabular-nums text-amber-700">{zonaCritica.tasaDesercion.toFixed(1)}% de tasa</span>
+            <span className="tabular-nums text-rose-400">{formatNumber(zonaCritica.deserciones)} caídas</span>
+            <span className="tabular-nums text-amber-400">{zonaCritica.tasaDesercion.toFixed(1)}% de tasa</span>
           </div>
         )}
 

@@ -35,9 +35,9 @@ export default function CapacitacionPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard index={0} title="EN CAPACITACIÓN" value={kpis.enCapacitacion} icon={GraduationCap} tone="amber" subtitle={`${enProcesoCapacitadores} asignaciones en proceso`} />
+        <KpiCard index={0} title="EN CAPACITACIÓN" value={kpis.enCapacitacion} icon={GraduationCap} tone="orange" subtitle={`${enProcesoCapacitadores} asignaciones en proceso`} />
         <KpiCard index={1} title="CAPACITACIÓN FINALIZADA" value={kpis.capacitacionFinalizada} icon={CheckCircle2} tone="slate" />
-        <KpiCard index={2} title="APROBADOS" value={kpis.pasanAOperaciones} icon={UserCheck} tone="emerald" subtitle={`${kpis.porcentajeAprobacion.toFixed(1)}% de aprobación`} />
+        <KpiCard index={2} title="APROBADOS" value={kpis.pasanAOperaciones} icon={UserCheck} tone="green" subtitle={`${kpis.porcentajeAprobacion.toFixed(1)}% de aprobación`} />
         <KpiCard index={3} title="NO APROBADOS" value={kpis.noPasanAOperaciones} icon={UserX} tone="rose" subtitle={`${kpis.porcentajeCaida.toFixed(1)}% de caída`} />
       </div>
 

@@ -4,12 +4,17 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  BadgeCheck,
   Building2,
   ChevronDown,
   GraduationCap,
+  Map,
   MapPin,
+  MapPinned,
   SlidersHorizontal,
+  Store,
   TrendingDown,
+  UserCog,
   X,
   type LucideIcon,
 } from 'lucide-react';
@@ -18,6 +23,7 @@ import { useAppData } from '@/hooks/useAppData';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/input';
 import { CapacitadorMultiSelect } from '@/components/filters/CapacitadorMultiSelect';
+import { MultiSelectFilter } from '@/components/filters/MultiSelectFilter';
 import { PeriodoAnalisis } from '@/components/filters/PeriodoAnalisis';
 import {
   DateFilterInput,
@@ -51,12 +57,12 @@ function FilterGroup({
         onClick={onToggle}
         className="flex w-full items-center gap-2.5 px-4 py-3 text-left transition-colors hover:bg-surface/40"
       >
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-line bg-brand-50 text-brand-600">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-line bg-brand-500/10 text-brand-400">
           <Icon className="size-3.5" />
         </span>
         <span className="text-xs font-bold tracking-wider text-ink uppercase">{title}</span>
         {active > 0 && (
-          <span className="rounded-full bg-brand-500/10 px-2 py-0.5 text-[10px] font-bold text-brand-600 tabular-nums">
+          <span className="rounded-full bg-brand-500/10 px-2 py-0.5 text-[10px] font-bold text-brand-400 tabular-nums">
             {active}
           </span>
         )}
@@ -150,14 +156,14 @@ export function FilterDrawer() {
                 <p className="truncate text-[11px] font-medium text-ink-soft">Globales · panel lateral</p>
               </div>
               {active > 0 && (
-                <span className="shrink-0 rounded-full bg-brand-500/10 px-2.5 py-1 text-[11px] font-bold text-brand-600 tabular-nums">
+                <span className="shrink-0 rounded-full bg-brand-500/10 px-2.5 py-1 text-[11px] font-bold text-brand-400 tabular-nums">
                   {active}
                 </span>
               )}
               <button
                 onClick={close}
                 aria-label="Cerrar filtros"
-                className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-line text-ink-muted transition-all duration-300 hover:border-brand-500/30 hover:bg-brand-50 hover:text-brand-600"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-line text-ink-muted transition-all duration-300 hover:border-brand-500/30 hover:bg-brand-500/10 hover:text-brand-400"
               >
                 <X className="size-4" />
               </button>
@@ -166,7 +172,7 @@ export function FilterDrawer() {
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
               <PeriodoAnalisis />
 
-              <div className="flex items-center gap-2 rounded-xl border border-brand-500/20 bg-brand-500/8 px-3 py-2 text-[11px] font-semibold text-brand-600">
+              <div className="flex items-center gap-2 rounded-xl border border-brand-500/20 bg-brand-500/8 px-3 py-2 text-[11px] font-semibold text-brand-400">
                 <span className="size-1.5 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_6px_currentColor]" />
                 Cambios en tiempo real · el dashboard sigue visible
               </div>
@@ -180,48 +186,63 @@ export function FilterDrawer() {
               >
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold tracking-wide text-ink-muted">Jurisdicción</label>
-                  <Select value={filters.jurisdiccion} onChange={(e) => update({ jurisdiccion: e.target.value })}>
-                    <option value="">Todas</option>
-                    {jurisdicciones.map((j) => (
-                      <option key={j} value={j}>{j}</option>
-                    ))}
-                  </Select>
+                  <MultiSelectFilter
+                    value={filters.jurisdiccion}
+                    onChange={(v) => update({ jurisdiccion: v })}
+                    options={jurisdicciones}
+                    icon={MapPin}
+                    emptyLabel="Todas las jurisdicciones"
+                    searchPlaceholder="Buscar jurisdicción..."
+                    countToken="jurisdicciones"
+                  />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold tracking-wide text-ink-muted">Zona comercial</label>
-                  <Select value={filters.zonaComercial} onChange={(e) => update({ zonaComercial: e.target.value })}>
-                    <option value="">Todas</option>
-                    {zonas.map((z) => (
-                      <option key={z} value={z}>{z}</option>
-                    ))}
-                  </Select>
+                  <MultiSelectFilter
+                    value={filters.zonaComercial}
+                    onChange={(v) => update({ zonaComercial: v })}
+                    options={zonas}
+                    icon={MapPinned}
+                    emptyLabel="Todas las zonas"
+                    searchPlaceholder="Buscar zona..."
+                    countToken="zonas"
+                  />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold tracking-wide text-ink-muted">Sede</label>
-                  <Select value={filters.sede} onChange={(e) => update({ sede: e.target.value })}>
-                    <option value="">Todas</option>
-                    {sedes.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </Select>
+                  <MultiSelectFilter
+                    value={filters.sede}
+                    onChange={(v) => update({ sede: v })}
+                    options={sedes}
+                    icon={Building2}
+                    emptyLabel="Todas las sedes"
+                    searchPlaceholder="Buscar sede..."
+                    countToken="sedes"
+                  />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold tracking-wide text-ink-muted">Distrito</label>
-                  <Select value={filters.distrito} onChange={(e) => update({ distrito: e.target.value })}>
-                    <option value="">Todos</option>
-                    {distritos.map((d) => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </Select>
+                  <MultiSelectFilter
+                    value={filters.distrito}
+                    onChange={(v) => update({ distrito: v })}
+                    options={distritos}
+                    icon={Map}
+                    emptyLabel="Todos los distritos"
+                    searchPlaceholder="Buscar distrito..."
+                    countToken="distritos"
+                  />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="mb-1.5 block text-xs font-semibold tracking-wide text-ink-muted">Tienda</label>
-                  <Select value={filters.tienda} onChange={(e) => update({ tienda: e.target.value })}>
-                    <option value="">Todas</option>
-                    {tiendas.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </Select>
+                  <MultiSelectFilter
+                    value={filters.tienda}
+                    onChange={(v) => update({ tienda: v })}
+                    options={tiendas}
+                    icon={Store}
+                    emptyLabel="Todas las tiendas"
+                    searchPlaceholder="Buscar tienda..."
+                    countToken="tiendas"
+                  />
                 </div>
               </FilterGroup>
 
@@ -234,21 +255,27 @@ export function FilterDrawer() {
               >
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold tracking-wide text-ink-muted">Supervisor</label>
-                  <Select value={filters.supervisor} onChange={(e) => update({ supervisor: e.target.value })}>
-                    <option value="">Todos</option>
-                    {supervisores.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </Select>
+                  <MultiSelectFilter
+                    value={filters.supervisor}
+                    onChange={(v) => update({ supervisor: v })}
+                    options={supervisores}
+                    icon={UserCog}
+                    emptyLabel="Todos los supervisores"
+                    searchPlaceholder="Buscar supervisor..."
+                    countToken="supervisores"
+                  />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold tracking-wide text-ink-muted">Responsable A&S</label>
-                  <Select value={filters.responsableAS} onChange={(e) => update({ responsableAS: e.target.value })}>
-                    <option value="">Todos</option>
-                    {responsables.map((r) => (
-                      <option key={r} value={r}>{r}</option>
-                    ))}
-                  </Select>
+                  <MultiSelectFilter
+                    value={filters.responsableAS}
+                    onChange={(v) => update({ responsableAS: v })}
+                    options={responsables}
+                    icon={BadgeCheck}
+                    emptyLabel="Todos los responsables"
+                    searchPlaceholder="Buscar responsable..."
+                    countToken="responsables A&S"
+                  />
                 </div>
               </FilterGroup>
 
@@ -339,7 +366,7 @@ export function FilterDrawer() {
             <div className="relative z-10 border-t border-line/80 px-4 py-3">
               <div className="mb-2.5 flex items-center justify-between gap-2 text-[11px] font-semibold text-ink-soft">
                 <span>
-                  <span className="font-bold text-brand-600 tabular-nums">{formatNumber(filtered.length)}</span> de{' '}
+                  <span className="font-bold text-brand-400 tabular-nums">{formatNumber(filtered.length)}</span> de{' '}
                   <span className="font-bold text-ink tabular-nums">{formatNumber(records.length)}</span> registros
                 </span>
                 <span className="tabular-nums">

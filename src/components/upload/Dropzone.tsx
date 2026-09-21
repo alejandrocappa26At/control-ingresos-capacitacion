@@ -243,7 +243,7 @@ export function Dropzone() {
           <div className="flex items-start gap-3">
             <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-500" />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+              <p className="text-sm font-bold text-emerald-400">
                 Archivo procesado correctamente
               </p>
               <p className="mt-1 text-xs text-ink-muted">
@@ -251,7 +251,7 @@ export function Dropzone() {
                 analizar los datos desde el Dashboard y las demás secciones.
               </p>
               {filtered.length === 0 && (
-                <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-600 dark:text-amber-400">
+                <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-400">
                   <SearchX className="size-4" />
                   Los filtros activos actualmente no muestran registros. Limpia los filtros para ver toda la información.
                 </div>

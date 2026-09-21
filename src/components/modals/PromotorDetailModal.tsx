@@ -40,7 +40,7 @@ interface SectionProps {
 }
 
 const SECTION_TONES: Record<NonNullable<SectionProps['tone']>, { tile: string }> = {
-  brand: { tile: 'from-brand-500/25 to-brand-500/5 text-brand-600' },
+  brand: { tile: 'from-brand-500/25 to-brand-500/5 text-brand-400' },
   emerald: { tile: 'from-emerald-500/25 to-emerald-500/5 text-emerald-400' },
   amber: { tile: 'from-amber-500/25 to-amber-500/5 text-amber-400' },
   rose: { tile: 'from-rose-500/25 to-rose-500/5 text-rose-400' },
@@ -150,7 +150,7 @@ export function PromotorDetailModal({ promotor, onClose }: { promotor: Promotor 
           icon={promotor.resultado === 'APROBADO' ? <CheckCircle2 className="size-4" /> : promotor.resultado === 'NO_APROBADO' ? <XCircle className="size-4" /> : <UserRound className="size-4" />}
           label="Estado"
           value={resultLabel}
-          tone="from-brand-500/25 to-brand-500/5 text-brand-600"
+          tone="from-brand-500/25 to-brand-500/5 text-brand-400"
         />
       </div>
 
@@ -220,7 +220,7 @@ export function PromotorDetailModal({ promotor, onClose }: { promotor: Promotor 
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 shadow-[0_0_24px_-8px_rgba(244,63,94,0.5)] backdrop-blur"
             >
-              <p className="text-xs font-semibold leading-relaxed text-rose-600">
+              <p className="text-xs font-semibold leading-relaxed text-rose-400">
                 {promotor.totalDias != null && promotor.totalDias > 0 ? (
                   <>
                     El promotor abandonó o fue retirado en el{' '}
@@ -242,7 +242,7 @@ export function PromotorDetailModal({ promotor, onClose }: { promotor: Promotor 
             className="rounded-2xl border border-line bg-surface-2/70 p-4 backdrop-blur transition-all duration-300 hover:shadow-glow-sm"
           >
             <div className="mb-4 flex items-center gap-2 text-sm font-bold tracking-tight text-ink">
-              <span className="flex size-8 items-center justify-center rounded-lg border border-white/10 bg-gradient-to-b from-brand-500/25 to-brand-500/5 text-brand-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+              <span className="flex size-8 items-center justify-center rounded-lg border border-white/10 bg-gradient-to-b from-brand-500/25 to-brand-500/5 text-brand-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
                 <ClipboardList className="size-4" />
               </span>
               PROCESO DE CAPACITACIÓN

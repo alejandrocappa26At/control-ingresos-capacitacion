@@ -15,7 +15,7 @@ const toneColors: Record<string, string> = {
 };
 
 const glowColors: Record<string, string> = {
-  brand: 'shadow-[0_0_10px_rgba(37,99,235,0.22)]',
+  brand: 'shadow-[0_0_10px_rgba(227,6,19,0.3)]',
   success: 'shadow-[0_0_10px_rgba(16,185,129,0.22)]',
   warning: 'shadow-[0_0_10px_rgba(245,158,11,0.22)]',
   danger: 'shadow-[0_0_10px_rgba(220,38,38,0.22)]',

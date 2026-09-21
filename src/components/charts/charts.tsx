@@ -8,7 +8,7 @@ import { CountUp } from '@/components/ui/count-up';
 import { BarChart3 } from 'lucide-react';
 import { QiEChart, qiVTextGradient, tipHeader, tipRow } from '@/components/charts/EChart';
 
-export const CHART_COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#6b7280', '#8b5cf6', '#0ea5e9', '#64748b'];
+export const CHART_COLORS = ['#e30613', '#ff3b47', '#00d26a', '#ffb800', '#ff7a00', '#8b5cf6', '#2563eb', '#64748b'];
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
@@ -63,16 +63,16 @@ export function BaseBarChart({
     xAxis: {
       type: 'category',
       data: rows.map((d) => String(d[nameKey])),
-      axisLabel: { color: '#6b7280', fontSize: 11, hideOverlap: true },
+      axisLabel: { color: '#94a3b8', fontSize: 11, hideOverlap: true },
     },
     yAxis: {
       type: 'value',
-      splitLine: { lineStyle: { color: 'rgba(100,116,139,0.22)', type: 'dashed' } },
-      axisLabel: { color: '#6b7280', fontSize: 11, formatter: (v: number) => shortNum(v) },
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)', type: 'dashed' } },
+      axisLabel: { color: '#94a3b8', fontSize: 11, formatter: (v: number) => shortNum(v) },
     },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(148,163,184,0.14)' } },
+      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(148,163,184,0.08)' } },
       formatter: (ps) => {
         const params = Array.isArray(ps) ? ps : [ps];
         const first = params[0];
@@ -99,7 +99,7 @@ export function BaseBarChart({
         label: {
           show: true,
           position: 'top',
-          color: '#374151',
+          color: '#94a3b8',
           fontSize: 11,
           fontWeight: 700,
           formatter: (p) => formatNumber(Number(p.value) || 0),
@@ -137,7 +137,7 @@ export function HorizontalRankingChart({
   data,
   height,
   icon: Icon,
-  color = '#2563eb',
+  color = '#e30613',
 }: {
   data: RankingDatum[];
   height?: number;
@@ -228,7 +228,7 @@ export function HorizontalRankingChart({
 export function ExecutiveTreemap({
   data,
   height = 300,
-  base = '#2563eb',
+  base = '#e30613',
 }: {
   data: Array<{ name: string; value: number }>;
   height?: number;
@@ -238,8 +238,8 @@ export function ExecutiveTreemap({
   if (!rows.length) return <NoData />;
   const total = rows.reduce((acc, d) => acc + d.value, 0);
   const max = Math.max(...rows.map((d) => d.value), 1);
-  const dark = mixColor(base, '#1e3a8a', 0.85);
-  const light = mixColor(base, '#bfdbfe', 0.55);
+  const dark = mixColor(base, '#0b0f17', 0.85);
+  const light = mixColor(base, '#ffffff', 0.5);
 
   const option: EChartsOption = {
     tooltip: {
@@ -274,7 +274,7 @@ export function ExecutiveTreemap({
             name: d.name,
             value: d.value,
             itemStyle: { color: mixColor(light, base, t) },
-            label: { color: t > 0.55 ? '#ffffff' : dark },
+            label: { color: t > 0.5 ? '#ffffff' : dark },
           };
         }),
       },
@@ -334,7 +334,7 @@ export function DonutChart({
         itemStyle: { borderColor: 'var(--surface-2)', borderWidth: 2 },
         label: { show: false },
         labelLine: { show: false },
-        emphasis: { scaleSize: 8, itemStyle: { shadowColor: 'rgba(17,24,39,0.12)', shadowBlur: 8 } },
+        emphasis: { scaleSize: 8, itemStyle: { shadowColor: 'rgba(0,0,0,0.5)', shadowBlur: 8 } },
         animationDuration: 900,
         animationEasing: 'cubicOut',
         data: data.map((entry, i) => ({
@@ -442,7 +442,7 @@ export function SemiDonutChart({
         itemStyle: { borderColor: 'var(--surface-2)', borderWidth: 2, borderRadius: 6 },
         label: { show: false },
         labelLine: { show: false },
-        emphasis: { scaleSize: 6, itemStyle: { shadowColor: 'rgba(17,24,39,0.1)', shadowBlur: 6 } },
+        emphasis: { scaleSize: 6, itemStyle: { shadowColor: 'rgba(0,0,0,0.5)', shadowBlur: 6 } },
         animationDuration: 900,
         animationEasing: 'cubicOut',
         data: rows.map((entry, i) => ({
@@ -539,7 +539,7 @@ export function PremiumAreaChart({
         }
         if (metaKey && datum != null) {
           const metaNum = Number(datum[metaKey]) || 0;
-          html += `<div style="margin-top:6px;padding:6px 10px;border-radius:8px;background:rgba(220,38,38,0.08);display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:#b91c1c"><span>${metaKey}</span><span>${metaNum.toFixed(1)}%</span></div>`;
+          html += `<div style="margin-top:6px;padding:6px 10px;border-radius:8px;background:rgba(227,6,19,0.16);display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:#ff5a66"><span>${metaKey}</span><span>${metaNum.toFixed(1)}%</span></div>`;
         }
         return html;
       },
@@ -551,10 +551,10 @@ export function PremiumAreaChart({
       icon: 'roundRect',
       itemWidth: 10,
       itemHeight: 10,
-      textStyle: { color: '#6b7280', fontSize: 12 },
+      textStyle: { color: '#94a3b8', fontSize: 12 },
     },
-    xAxis: { type: 'category', data: rows.map((r) => r.name), axisLabel: { color: '#6b7280', fontSize: 11, hideOverlap: true } },
-    yAxis: { type: 'value', splitLine: { lineStyle: { color: 'rgba(100,116,139,0.22)', type: 'dashed' } }, axisLabel: { color: '#6b7280', fontSize: 11, formatter: (v: number) => shortNum(v) } },
+    xAxis: { type: 'category', data: rows.map((r) => r.name), axisLabel: { color: '#94a3b8', fontSize: 11, hideOverlap: true } },
+    yAxis: { type: 'value', splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)', type: 'dashed' } }, axisLabel: { color: '#94a3b8', fontSize: 11, formatter: (v: number) => shortNum(v) } },
     series: active.map((s) => ({
       type: 'line',
       name: s.key,
@@ -584,7 +584,7 @@ export function SegmentBar({ data, height = 14 }: { data: Array<{ name: string; 
     if (/(pasa|aprob|asistir|asistieron)/.test(key)) return '#10b981';
     if (/(no|falt|reprob|deserc|ca[ií]da)/.test(key)) return '#ef4444';
     if (/(capacit|proceso|pend|en curso)/.test(key)) return '#f59e0b';
-    return '#6b7280';
+    return '#94a3b8';
   };
   return (
     <motion.div
@@ -592,7 +592,7 @@ export function SegmentBar({ data, height = 14 }: { data: Array<{ name: string; 
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       className="flex w-full overflow-hidden rounded-full"
-      style={{ height, boxShadow: 'inset 0 1px 3px rgba(15,23,42,0.08)' }}
+      style={{ height, boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.4)' }}
     >
       {data.map((segment, i) => {
         const color = segmentColor(segment.name);

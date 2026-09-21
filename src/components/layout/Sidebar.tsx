@@ -13,7 +13,6 @@ import {
   PresentationIcon,
   LogOut,
   FileSpreadsheet,
-  SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react';
 import { useDataStore } from '@/store/useDataStore';
@@ -25,38 +24,29 @@ import { Tooltip } from '@/components/ui/tooltip';
 type Tone = 'amber' | 'red';
 
 const BADGE_TONES: Record<Tone, { chip: string; dot: string }> = {
-  amber: { chip: 'bg-amber-50 text-amber-700 ring-amber-600/25', dot: 'bg-amber-500' },
-  red: { chip: 'bg-red-50 text-red-700 ring-red-600/25', dot: 'bg-red-500' },
+  amber: { chip: 'bg-amber-500/15 text-amber-300 ring-amber-400/30', dot: 'bg-amber-400' },
+  red: { chip: 'bg-red-500/15 text-red-300 ring-red-400/30', dot: 'bg-red-500' },
 };
 
 interface NavItem {
   label: string;
   icon: LucideIcon;
   href?: string;
-  filters?: boolean;
   badge?: Tone;
 }
 
 const NAV_SECTIONS: Array<{ section: string; items: NavItem[] }> = [
   {
-    section: 'Análisis',
+    section: '📊 Análisis',
     items: [
       { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-    ],
-  },
-  {
-    section: 'Operaciones',
-    items: [
       { href: '/capacitacion', label: 'Capacitación', icon: GraduationCap, badge: 'amber' },
+      { href: '/caidas', label: 'Caídas', icon: TrendingDown, badge: 'red' },
     ],
   },
   {
-    section: 'Control',
-    items: [
-      { href: '/caidas', label: 'Caídas', icon: TrendingDown, badge: 'red' },
-      { filters: true, label: 'Filtros', icon: SlidersHorizontal },
-      { href: '/upload', label: 'Importar Excel', icon: FileSpreadsheet },
-    ],
+    section: '📁 Datos',
+    items: [{ href: '/upload', label: 'Importar Excel', icon: FileSpreadsheet }],
   },
 ];
 
@@ -70,9 +60,6 @@ export function Sidebar() {
   const collapsed = useDataStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useDataStore((s) => s.toggleSidebar);
   const records = useDataStore((s) => s.records);
-  const filterDrawerOpen = useDataStore((s) => s.filterDrawerOpen);
-  const openFilterDrawer = useDataStore((s) => s.openFilterDrawer);
-  const activeFiltersCount = useDataStore((s) => s.activeFiltersCount);
   const sessionUser = useSessionStore((s) => s.user);
   const logout = useSessionStore((s) => s.logout);
 
@@ -86,15 +73,9 @@ export function Sidebar() {
   }, [records]);
 
   const badgeCount = (item: NavItem): number => {
-    if (item.filters) return activeFiltersCount;
     if (!item.badge) return 0;
     return item.badge === 'amber' ? badges.capacitacion : badges.caidas;
   };
-
-  const itemChip = (isFilters: boolean) =>
-    isFilters
-      ? { chip: 'bg-brand-50 text-brand-700 ring-brand-600/25', dot: 'bg-brand-500' }
-      : null;
 
   return (
     <motion.aside
@@ -102,7 +83,7 @@ export function Sidebar() {
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        'fixed top-0 left-0 z-40 flex h-dvh flex-col overflow-hidden border-r border-line bg-surface-2 shadow-[8px_0_40px_-20px_rgba(17,24,39,0.12)] transition-[width] duration-300 ease-out',
+        'fixed top-0 left-0 z-40 flex h-dvh flex-col overflow-hidden border-r border-line bg-surface-2 shadow-[8px_0_40px_-20px_rgba(0,0,0,0.55)] transition-[width] duration-300 ease-out',
         collapsed ? 'w-[76px]' : 'w-[248px]',
       )}
     >
@@ -142,13 +123,9 @@ export function Sidebar() {
 
               <div className="space-y-1">
                 {items.map((item) => {
-                  const isFilters = item.filters === true;
-                  const active = isFilters
-                    ? filterDrawerOpen
-                    : item.href != null && (pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href)));
+                  const active = item.href != null && (pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href)));
                   const count = badgeCount(item);
                   const tone = item.badge ? BADGE_TONES[item.badge] : null;
-                  const chip = itemChip(isFilters);
 
                   const inner = (
                     <>
@@ -156,7 +133,7 @@ export function Sidebar() {
                         <motion.span
                           layoutId="sidebar-active-pill"
                           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                          className="absolute inset-0 rounded-xl border border-red-500/20 bg-red-50/70 shadow-[0_0_24px_-8px_rgba(220,38,38,0.5)]"
+                          className="absolute inset-0 rounded-xl border border-red-500/25 bg-red-500/20 shadow-[0_0_24px_-6px_rgba(227,6,19,0.45)]"
                         />
                       )}
 
@@ -164,8 +141,8 @@ export function Sidebar() {
                         className={cn(
                           'relative flex size-8 shrink-0 items-center justify-center rounded-[10px] border transition-all duration-300',
                           active
-                          ? 'border-red-500/25 bg-red-50 text-red-600 shadow-[0_0_18px_-6px_rgba(220,38,38,0.5)]'
-                          : 'border-transparent text-ink-muted group-hover:bg-red-50/60 group-hover:text-red-600',
+                          ? 'border-red-500/30 bg-red-500/15 text-red-300 shadow-[0_0_18px_-4px_rgba(227,6,19,0.45)]'
+                          : 'border-transparent text-ink-muted group-hover:bg-red-500/15 group-hover:text-red-400',
                         )}
                       >
                         <item.icon className="size-[17px] transition-transform duration-300 group-hover:scale-110" />
@@ -173,7 +150,7 @@ export function Sidebar() {
                           <span
                             className={cn(
                               'absolute -top-1.5 -right-1.5 flex min-w-4 items-center justify-center rounded-full border border-surface-2 px-1 py-px text-[9px] font-bold ring-1 tabular-nums',
-                              tone?.chip ?? chip?.chip,
+                              tone?.chip,
                             )}
                           >
                             {formatCount(count)}
@@ -182,12 +159,12 @@ export function Sidebar() {
                       </span>
 
                       {!collapsed && (
-                        <span className={cn('truncate text-sm font-semibold', active && 'text-red-700')}>{item.label}</span>
+                        <span className={cn('truncate text-sm font-semibold', active && 'text-red-300')}>{item.label}</span>
                       )}
 
                       {!collapsed && count > 0 && (
-                        <span className={cn('ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset tabular-nums', tone?.chip ?? chip?.chip)}>
-                          <span className={cn('size-1.5 rounded-full', tone?.dot ?? chip?.dot)} />
+                        <span className={cn('ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset tabular-nums', tone?.chip)}>
+                          <span className={cn('size-1.5 rounded-full', tone?.dot)} />
                           {formatCount(count)}
                         </span>
                       )}
@@ -197,22 +174,12 @@ export function Sidebar() {
                   const classes = cn(
                     'group relative flex w-full items-center gap-3 rounded-xl px-2.5 py-2 transition-all duration-200 ease-out',
                     active
-                      ? 'text-brand-700'
-                      : 'text-ink-soft hover:bg-slate-100 hover:text-ink',
+                      ? 'text-brand-300'
+                      : 'text-ink-soft hover:bg-surface-3 hover:text-ink',
                     collapsed && 'justify-center px-0 hover:bg-transparent',
                   );
 
-                  const content = isFilters ? (
-                    <button
-                      key="filtros-action"
-                      type="button"
-                      onClick={openFilterDrawer}
-                      className={classes}
-                      aria-label={`Abrir panel de filtros · ${count} activo${count === 1 ? '' : 's'}`}
-                    >
-                      {inner}
-                    </button>
-                  ) : (
+                  const content = (
                     <Link key={item.href} href={item.href!} className={classes}>
                       {inner}
                     </Link>
@@ -220,12 +187,12 @@ export function Sidebar() {
 
                   if (collapsed) {
                     return (
-                      <Tooltip key={isFilters ? 'filtros' : item.href} content={item.label} side="right">
+                      <Tooltip key={item.href} content={item.label} side="right">
                         {content}
                       </Tooltip>
                     );
                   }
-                  return <div key={isFilters ? 'filtros' : item.href}>{content}</div>;
+                  return <div key={item.href}>{content}</div>;
                 })}
               </div>
             </div>
@@ -245,8 +212,8 @@ export function Sidebar() {
             {!collapsed && (
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-bold text-ink">{sessionUser ?? 'capacitacion'}</p>
-                <p className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-600">
-                  <span className="size-1 rounded-full bg-emerald-500" />
+                <p className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-400">
+                  <span className="size-1 rounded-full bg-emerald-400" />
                   En línea
                 </p>
               </div>
@@ -257,7 +224,7 @@ export function Sidebar() {
                 <button
                   onClick={toggleSidebar}
                   aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
-                  className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line text-ink-soft transition-all duration-200 hover:bg-slate-100 hover:text-brand-600 active:scale-95"
+                  className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line text-ink-soft transition-all duration-200 hover:bg-surface-3 hover:text-brand-400 active:scale-95"
                 >
                   {collapsed ? <PanelLeftOpen className="size-4" /> : <ChevronsLeft className="size-4" />}
                 </button>
@@ -266,7 +233,7 @@ export function Sidebar() {
                 <button
                   onClick={logout}
                   aria-label="Cerrar sesión"
-                  className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line text-ink-soft transition-all duration-200 hover:bg-red-50 hover:text-red-600 active:scale-95"
+                  className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line text-ink-soft transition-all duration-200 hover:bg-red-500/15 hover:text-red-400 active:scale-95"
                 >
                   <LogOut className="size-4" />
                 </button>

@@ -193,7 +193,7 @@ function DualMonthCalendar({ value, onChange }: { value: DateFilterValue; onChan
   return (
     <div className="mt-3 rounded-xl border border-line bg-black/20 p-3">
       <div className="mb-2.5 flex items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-brand-600">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-brand-400">
           <CalendarRange className="size-3.5" />
           Rango personalizado
         </span>
@@ -202,7 +202,7 @@ function DualMonthCalendar({ value, onChange }: { value: DateFilterValue; onChan
             type="button"
             onClick={() => setViewMonth(shiftMonth(viewMonth, -1))}
             aria-label="Mes anterior"
-            className="flex size-7 items-center justify-center rounded-lg border border-line bg-surface/50 text-ink-soft transition-all duration-300 hover:border-brand-400/40 hover:bg-brand-500/10 hover:text-brand-600"
+            className="flex size-7 items-center justify-center rounded-lg border border-line bg-surface/50 text-ink-soft transition-all duration-300 hover:border-brand-400/40 hover:bg-brand-500/10 hover:text-brand-400"
           >
             <ChevronLeft className="size-3.5" />
           </button>
@@ -210,7 +210,7 @@ function DualMonthCalendar({ value, onChange }: { value: DateFilterValue; onChan
             type="button"
             onClick={() => setViewMonth(shiftMonth(viewMonth, 1))}
             aria-label="Mes siguiente"
-            className="flex size-7 items-center justify-center rounded-lg border border-line bg-surface/50 text-ink-soft transition-all duration-300 hover:border-brand-400/40 hover:bg-brand-500/10 hover:text-brand-600"
+            className="flex size-7 items-center justify-center rounded-lg border border-line bg-surface/50 text-ink-soft transition-all duration-300 hover:border-brand-400/40 hover:bg-brand-500/10 hover:text-brand-400"
           >
             <ChevronRight className="size-3.5" />
           </button>
@@ -224,8 +224,8 @@ function DualMonthCalendar({ value, onChange }: { value: DateFilterValue; onChan
 
       <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-line/70 pt-2.5">
         <p className="text-[10px] leading-tight text-ink-soft">
-          <span className="font-semibold text-brand-600">1.</span> Clic en el día de inicio ·{' '}
-          <span className="font-semibold text-brand-600">2.</span> Clic en el día de fin
+          <span className="font-semibold text-brand-400">1.</span> Clic en el día de inicio ·{' '}
+          <span className="font-semibold text-brand-400">2.</span> Clic en el día de fin
         </p>
         <button
           type="button"
@@ -302,8 +302,8 @@ export function PeriodoAnalisis(): React.JSX.Element {
   return (
     <div className="sticky top-2 z-20">
       <div className="relative overflow-hidden rounded-2xl border border-brand-500/25 bg-surface-2/90 shadow-[0_18px_48px_-18px_rgba(15,23,42,0.12)] backdrop-blur-xl">
-        <div className="pointer-events-none absolute -top-14 -right-10 size-40 rounded-full opacity-40" style={{ background: 'radial-gradient(circle at 40% 40%, rgba(37,99,235,0.14), transparent 66%)', filter: 'blur(32px)' }} />
-        <div className="pointer-events-none absolute -bottom-16 -left-12 size-44 rounded-full opacity-35" style={{ background: 'radial-gradient(circle at 60% 40%, rgba(37,99,235,0.1), transparent 66%)', filter: 'blur(38px)' }} />
+        <div className="pointer-events-none absolute -top-14 -right-10 size-40 rounded-full opacity-40" style={{ background: 'radial-gradient(circle at 40% 40%, rgba(227,6,19,0.18), transparent 66%)', filter: 'blur(32px)' }} />
+        <div className="pointer-events-none absolute -bottom-16 -left-12 size-44 rounded-full opacity-35" style={{ background: 'radial-gradient(circle at 60% 40%, rgba(227,6,19,0.12), transparent 66%)', filter: 'blur(38px)' }} />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/70 to-transparent" />
 
         <div className="relative z-10 px-4 pt-3.5 pb-4">
@@ -369,7 +369,7 @@ export function PeriodoAnalisis(): React.JSX.Element {
                     'rounded-lg px-2 py-1.5 text-[10px] font-bold transition-all duration-300',
                     activePreset
                       ? 'gradient-brand text-white shadow-glow-sm'
-                      : 'border border-line bg-surface/50 text-ink-soft hover:-translate-y-0.5 hover:border-brand-400/40 hover:bg-brand-500/10 hover:text-brand-700 hover:shadow-glow-sm',
+                      : 'border border-line bg-surface/50 text-ink-soft hover:-translate-y-0.5 hover:border-brand-400/40 hover:bg-brand-500/10 hover:text-brand-400 hover:shadow-glow-sm',
                   )}
                 >
                   {p.label}
@@ -381,7 +381,7 @@ export function PeriodoAnalisis(): React.JSX.Element {
           <button
             type="button"
             onClick={() => setCustomOpen((o) => !o)}
-            className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-lg border border-brand-500/25 bg-brand-500/10 px-3 py-1.5 text-[10px] font-bold tracking-wide text-brand-600 uppercase transition-all duration-300 hover:border-brand-400/50 hover:bg-brand-500/15 hover:shadow-glow-sm"
+            className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-lg border border-brand-500/25 bg-brand-500/10 px-3 py-1.5 text-[10px] font-bold tracking-wide text-brand-400 uppercase transition-all duration-300 hover:border-brand-400/50 hover:bg-brand-500/15 hover:shadow-glow-sm"
           >
             <CalendarRange className={cn('size-3.5 transition-transform duration-300', customOpen && 'rotate-180')} />
             Periodo personalizado

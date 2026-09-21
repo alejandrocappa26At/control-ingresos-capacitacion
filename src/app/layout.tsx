@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Plus_Jakarta_Sans, Geist_Mono } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './globals.css';
 import { AppShell } from '@/components/layout/AppShell';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: '--font-plus-jakarta-sans',
   subsets: ['latin'],
 });
 
@@ -26,9 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${plusJakartaSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-canvas font-[family-name:var(--font-geist-sans)] text-ink antialiased">
+      <body className="min-h-full bg-canvas font-[family-name:var(--font-plus-jakarta-sans)] text-ink antialiased">
         <ErrorBoundary fallbackTitle="Ocurrió un problema al cargar la aplicación">
           <AppShell>{children}</AppShell>
         </ErrorBoundary>
@@ -36,12 +36,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           position="bottom-right"
           expand
           richColors
-          theme="light"
+          theme="dark"
           toastOptions={{
             style: {
-              fontFamily: 'var(--font-geist-sans)',
-              background: '#ffffff',
-              border: '1px solid rgba(17, 24, 39, 0.1)',
+              fontFamily: 'var(--font-plus-jakarta-sans)',
+              background: '#161d2e',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              color: '#f8fafc',
               backdropFilter: 'blur(16px)',
             },
           }}

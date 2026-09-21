@@ -36,7 +36,7 @@ function mulberry32(seed: number) {
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-const BRAND_GRADIENT = 'linear-gradient(135deg, #2563eb 0%, #3b82f6 55%, #1d4ed8 100%)';
+const BRAND_GRADIENT = 'linear-gradient(135deg, #e30613 0%, #ff3b47 55%, #c10511 100%)';
 
 /* ------------------------------------------------------------------ */
 /* Logo corporativo                                                    */
@@ -67,7 +67,7 @@ function BrandMark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
         </defs>
         <circle cx="24" cy="24" r="15" fill="none" stroke="url(#login-logo-glow)" strokeWidth="2.4" />
         <circle cx="24" cy="24" r="8.5" fill="url(#login-logo-glow)" />
-        <circle cx="24" cy="24" r="3.2" fill="#2563eb" />
+        <circle cx="24" cy="24" r="3.2" fill="#e30613" />
       </svg>
       <span className="absolute -top-0.5 -right-0.5 size-3 rounded-full bg-white ring-2 ring-[#f8fafc]" style={{ boxShadow: '0 0 10px rgba(220,38,38,0.5)' }} />
     </motion.div>
@@ -107,7 +107,7 @@ function LoginBackground() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
       {/* Base */}
-      <div className="absolute inset-0 bg-[#f8fafc]" />
+      <div className="absolute inset-0 bg-[#0b0f17]" />
 
       {/* Aurora azul blobs */}
       <div
@@ -129,7 +129,7 @@ function LoginBackground() {
       <div
         className="absolute -bottom-[24%] left-[16%] size-[60vw] rounded-full opacity-60"
         style={{
-          background: 'radial-gradient(circle at 40% 60%, rgba(30,64,175,0.12), transparent 62%)',
+          background: 'radial-gradient(circle at 40% 60%, rgba(227,6,19,0.12), transparent 62%)',
           filter: 'blur(110px)',
           animation: 'aurora-drift 38s ease-in-out infinite alternate',
         }}
@@ -150,7 +150,7 @@ function LoginBackground() {
         className="absolute inset-0 opacity-[0.5]"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(100,116,139,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(100,116,139,0.14) 1px, transparent 1px)',
+            'linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)',
           backgroundSize: '56px 56px',
           maskImage: 'radial-gradient(ellipse 80% 70% at 30% 40%, black 20%, transparent 75%)',
           WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 30% 40%, black 20%, transparent 75%)',
@@ -190,10 +190,10 @@ function LoginBackground() {
 /* ------------------------------------------------------------------ */
 
 const MOCK_STATS: Array<{ label: string; value: string; dot: string; tone: string }> = [
-  { label: 'Ingresos', value: '3572', dot: 'bg-brand-500', tone: 'text-blue-600' },
-  { label: 'Aprobados', value: '2795', dot: 'bg-emerald-500', tone: 'text-emerald-600' },
-  { label: 'No pasan', value: '739', dot: 'bg-rose-500', tone: 'text-rose-600' },
-  { label: 'En cap.', value: '38', dot: 'bg-amber-500', tone: 'text-amber-600' },
+  { label: 'Ingresos', value: '3572', dot: 'bg-brand-500', tone: 'text-blue-400' },
+  { label: 'Aprobados', value: '2795', dot: 'bg-emerald-500', tone: 'text-emerald-400' },
+  { label: 'No pasan', value: '739', dot: 'bg-rose-500', tone: 'text-rose-400' },
+  { label: 'En cap.', value: '38', dot: 'bg-amber-500', tone: 'text-amber-400' },
 ];
 
 function SparklineArea() {
@@ -212,9 +212,9 @@ function SparklineArea() {
           <stop offset="100%" stopColor="rgba(220,38,38,0)" />
         </linearGradient>
         <linearGradient id="login-spark-stroke" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#3b82f6" />
-          <stop offset="55%" stopColor="#2563eb" />
-          <stop offset="100%" stopColor="#60a5fa" />
+          <stop offset="0%" stopColor="#ff5a66" />
+          <stop offset="55%" stopColor="#e30613" />
+          <stop offset="100%" stopColor="#ff3b47" />
         </linearGradient>
       </defs>
       <polygon points={area} fill="url(#login-spark-fill)" />
@@ -231,7 +231,7 @@ function SparklineArea() {
         cx={step * (points.length - 1)}
         cy={h - points[points.length - 1] * (h - 12) - 6}
         r="3.5"
-        fill="#2563eb"
+        fill="#e30613"
         style={{ filter: 'drop-shadow(0 2px 5px rgba(220,38,38,0.5))' }}
       />
     </svg>
@@ -258,11 +258,11 @@ function Donut({ pct }: { pct: number }) {
       />
       <defs>
         <linearGradient id="login-donut-stroke" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#10b981" />
-          <stop offset="100%" stopColor="#2563eb" />
+          <stop offset="0%" stopColor="#00d26a" />
+          <stop offset="100%" stopColor="#e30613" />
         </linearGradient>
       </defs>
-      <text x="32" y="34" textAnchor="middle" className="fill-[#111827] text-[11px] font-bold" style={{ fontFamily: 'inherit' }}>
+      <text x="32" y="34" textAnchor="middle" className="fill-[#f8fafc] text-[11px] font-bold" style={{ fontFamily: 'inherit' }}>
         {pct}%
       </text>
     </svg>
@@ -271,7 +271,7 @@ function Donut({ pct }: { pct: number }) {
 
 function DashboardMock() {
   return (
-    <div className="relative w-full rounded-2xl border border-line bg-white/95 p-5 shadow-card backdrop-blur-xl">
+    <div className="relative w-full rounded-2xl border border-line bg-surface-2/90 p-5 shadow-card backdrop-blur-xl">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="flex size-7 items-center justify-center rounded-lg text-white" style={{ background: BRAND_GRADIENT, boxShadow: '0 4px 14px -4px rgba(220,38,38,0.5)' }}>
@@ -282,7 +282,7 @@ function DashboardMock() {
             <p className="text-[10px] text-ink-soft">Panel ejecutivo</p>
           </div>
         </div>
-        <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+        <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
           <span className="size-1.5 animate-pulse-glow rounded-full bg-emerald-500" /> Hoy
         </span>
       </div>
@@ -293,7 +293,7 @@ function DashboardMock() {
 
       <div className="mt-4 grid grid-cols-4 gap-2">
         {MOCK_STATS.map((s) => (
-          <div key={s.label} className="rounded-xl border border-line bg-slate-50 p-2.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-400/40 hover:shadow-glow-sm">
+          <div key={s.label} className="rounded-xl border border-line bg-surface-3/60 p-2.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-400/40 hover:shadow-glow-sm">
             <p className={cn('text-base font-bold tabular-nums', s.tone)}>{s.value}</p>
             <p className="mt-0.5 flex items-center gap-1 text-[9px] font-medium text-ink-soft">
               <span className={cn('size-1 rounded-full', s.dot)} />
@@ -331,7 +331,7 @@ function FloatCard({
       <motion.div
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 5.5, delay: Number(floatDelay), repeat: Infinity, ease: 'easeInOut' }}
-        className="rounded-2xl border border-line bg-white/95 p-3.5 shadow-card backdrop-blur-xl"
+        className="rounded-2xl border border-line bg-surface-2/90 p-3.5 shadow-card backdrop-blur-xl"
       >
         {children}
       </motion.div>
@@ -398,7 +398,7 @@ function BrandPanel() {
 
         <FloatCard delay={0.7} floatDelay="1.8" className="bottom-2 -left-8">
           <div className="flex items-center gap-2.5">
-            <span className="flex size-8 items-center justify-center rounded-xl border border-brand-500/30 bg-brand-500/10 text-brand-600">
+            <span className="flex size-8 items-center justify-center rounded-xl border border-brand-500/30 bg-brand-500/10 text-brand-300">
               <CheckCircle2 className="size-4" />
             </span>
             <div>
@@ -460,7 +460,7 @@ function Field({
         <span
           className={cn(
             'pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 transition-colors duration-300',
-            error ? 'text-rose-500' : value ? 'text-brand-500' : 'text-ink-soft group-focus-within:text-brand-500',
+            error ? 'text-rose-500' : value ? 'text-brand-400' : 'text-ink-soft group-focus-within:text-brand-400',
           )}
         >
           {icon}
@@ -478,8 +478,8 @@ function Field({
             'w-full rounded-xl border bg-surface-2 py-3 pr-11 pl-10.5 text-sm text-ink transition-all duration-300 outline-none',
             'placeholder:text-ink-soft/60',
             error
-              ? 'border-rose-500/60 shadow-[0_0_0_4px_rgba(244,63,94,0.1)]'
-              : 'border-line focus:border-brand-500 focus:shadow-[0_0_0_4px_rgba(220,38,38,0.1)]',
+              ? 'border-rose-500/60 shadow-[0_0_0_4px_rgba(244,63,94,0.12)]'
+              : 'border-line focus:border-brand-400/70 focus:shadow-[0_0_0_4px_rgba(227,6,19,0.14)]',
           )}
         />
         {type === 'password' && (
@@ -493,7 +493,7 @@ function Field({
           </button>
         )}
       </div>
-      <p className={cn('mt-1.5 min-h-4 text-[11px] font-medium transition-opacity duration-300', error ? 'text-rose-600' : 'opacity-0')}>
+      <p className={cn('mt-1.5 min-h-4 text-[11px] font-medium transition-opacity duration-300', error ? 'text-rose-400' : 'opacity-0')}>
         {error || '·'}
       </p>
     </div>
@@ -545,7 +545,7 @@ export function LoginScreen() {
   };
 
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-[#f8fafc] text-ink">
+    <main className="relative min-h-dvh overflow-hidden bg-[#0b0f17] text-ink">
       <LoginBackground />
 
       <div className="relative z-10 mx-auto grid min-h-dvh max-w-[1500px] lg:grid-cols-[minmax(0,11fr)_minmax(0,9fr)]">
@@ -561,7 +561,7 @@ export function LoginScreen() {
           >
             <motion.div
               animate={controls}
-              className="gradient-border-card relative rounded-3xl bg-white p-8 shadow-[0_24px_70px_-24px_rgba(15,23,42,0.25)] sm:p-10"
+              className="gradient-border-card relative rounded-3xl p-8 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.6)] sm:p-10"
             >
               {/* Halo decorativo azul del card */}
               <div
@@ -588,7 +588,7 @@ export function LoginScreen() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2, ease: EASE }}
-                  className="flex items-center gap-2 text-[10px] font-bold tracking-[0.22em] text-brand-600 uppercase"
+                  className="flex items-center gap-2 text-[10px] font-bold tracking-[0.22em] text-brand-400 uppercase"
                 >
                   <span className="h-px w-6 bg-gradient-to-r from-brand-500 to-transparent" />
                   Acceso corporativo
@@ -680,19 +680,19 @@ export function LoginScreen() {
                       submitting && 'cursor-wait',
                     )}
                     style={{
-                      background: 'linear-gradient(120deg, #dc2626, #ef4444 40%, #b91c1c 72%, #dc2626)',
+                      background: 'linear-gradient(120deg, #e30613, #ff3b47 40%, #c10511 72%, #e30613)',
                       backgroundSize: '260% 260%',
                       animation: 'login-gradient 7s linear infinite',
-                      boxShadow: '0 16px 36px -12px rgba(220,38,38,0.55), 0 0 0 1px rgba(255,255,255,0.12) inset',
+                      boxShadow: '0 16px 36px -12px rgba(227,6,19,0.55), 0 0 0 1px rgba(255,255,255,0.12) inset',
                       transition: 'box-shadow 0.3s ease',
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.boxShadow =
-                        '0 22px 48px -10px rgba(220,38,38,0.7), 0 0 24px -6px rgba(220,38,38,0.4), 0 0 0 1px rgba(255,255,255,0.18) inset';
+                        '0 22px 48px -10px rgba(227,6,19,0.7), 0 0 24px -6px rgba(227,6,19,0.4), 0 0 0 1px rgba(255,255,255,0.18) inset';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.boxShadow =
-                        '0 16px 36px -12px rgba(220,38,38,0.55), 0 0 0 1px rgba(255,255,255,0.12) inset';
+                        '0 16px 36px -12px rgba(227,6,19,0.55), 0 0 0 1px rgba(255,255,255,0.12) inset';
                     }}
                   >
                     <span className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/25 to-transparent opacity-50" />
@@ -723,7 +723,7 @@ export function LoginScreen() {
             </motion.div>
 
             {/* Decoración bajo el card: iconos esquina */}
-            <div className="pointer-events-none mt-6 hidden items-center justify-center gap-6 text-slate-300 sm:flex" aria-hidden>
+            <div className="pointer-events-none mt-6 hidden items-center justify-center gap-6 text-slate-500 sm:flex" aria-hidden>
               <CheckCircle2 className="size-4" />
               <Hourglass className="size-4" />
               <XCircle className="size-4" />

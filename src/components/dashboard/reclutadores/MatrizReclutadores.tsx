@@ -25,7 +25,7 @@ export function MatrizReclutadores({ data }: { data: ResumenReclutador[] }) {
       <Card className="h-full">
         <CardHeader className="flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400">
               <Users className="size-4" />
             </span>
             <div>
@@ -48,7 +48,7 @@ export function MatrizReclutadores({ data }: { data: ResumenReclutador[] }) {
     <Card className="h-full">
       <CardHeader className="flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400">
             <Users className="size-4" />
           </span>
           <div>
@@ -122,7 +122,7 @@ export function MatrizReclutadores({ data }: { data: ResumenReclutador[] }) {
                   </span>
                 </div>
 
-                <span className="text-right font-bold tabular-nums text-emerald-700">
+                <span className="text-right font-bold tabular-nums text-emerald-400">
                   {r.procesosFinalizados > 0 ? `${r.tasaPermanencia.toFixed(1)}%` : '—'}
                 </span>
               </motion.div>

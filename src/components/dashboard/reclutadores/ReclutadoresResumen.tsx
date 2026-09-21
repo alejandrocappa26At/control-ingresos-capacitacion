@@ -11,34 +11,34 @@ type Tone = 'brand' | 'slate' | 'red' | 'emerald' | 'amber';
 
 const TONES: Record<Tone, { icon: string; tile: string; bar: string; hover: string }> = {
   brand: {
-    icon: 'text-brand-600',
-    tile: 'bg-brand-50 text-brand-600',
-    bar: 'from-brand-500 via-brand-400 to-brand-700',
-    hover: 'group-hover:border-brand-500/30',
+    icon: 'text-brand-400',
+    tile: 'bg-brand-500/10 text-brand-300',
+    bar: 'from-brand-500 via-brand-400 to-brand-500',
+    hover: 'group-hover:border-brand-400/30',
   },
   slate: {
-    icon: 'text-slate-500',
-    tile: 'bg-slate-100 text-slate-600',
+    icon: 'text-slate-400',
+    tile: 'bg-slate-500/10 text-slate-300',
     bar: 'from-slate-400 via-slate-300 to-slate-500',
     hover: 'group-hover:border-slate-400/30',
   },
   red: {
-    icon: 'text-red-600',
-    tile: 'bg-red-50 text-red-600',
+    icon: 'text-red-400',
+    tile: 'bg-red-500/10 text-red-300',
     bar: 'from-red-500 via-rose-400 to-rose-500',
-    hover: 'group-hover:border-red-500/30',
+    hover: 'group-hover:border-red-400/30',
   },
   emerald: {
-    icon: 'text-emerald-600',
-    tile: 'bg-emerald-50 text-emerald-600',
+    icon: 'text-emerald-400',
+    tile: 'bg-emerald-500/10 text-emerald-300',
     bar: 'from-emerald-500 via-teal-400 to-teal-500',
-    hover: 'group-hover:border-emerald-500/30',
+    hover: 'group-hover:border-emerald-400/30',
   },
   amber: {
-    icon: 'text-amber-600',
-    tile: 'bg-amber-50 text-amber-600',
+    icon: 'text-amber-400',
+    tile: 'bg-amber-500/10 text-amber-300',
     bar: 'from-amber-500 via-orange-400 to-orange-500',
-    hover: 'group-hover:border-amber-500/30',
+    hover: 'group-hover:border-amber-400/30',
   },
 };
 
@@ -62,7 +62,7 @@ function ResumenCard({ index, title, value, sub, icon: Icon, tone }: ResumenCard
     >
       <div
         className={cn(
-          'relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface-2 p-5 shadow-[0_1px_3px_rgba(17,24,39,0.06),0_8px_24px_-12px_rgba(17,24,39,0.12)] transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01]',
+          'relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface-2 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.25),0_8px_24px_-12px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01]',
           s.hover,
         )}
       >

@@ -103,7 +103,7 @@ function RankingCard({ title, subtitle, children }: { title: string; subtitle: s
   return (
     <div className="rounded-2xl border border-line bg-surface-2 p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-glow">
       <div className="mb-3 flex items-center gap-2">
-        <span className={cn('flex size-8 items-center justify-center rounded-lg border border-rose-200/60 bg-gradient-to-b shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]', 'from-rose-500/25 to-rose-500/5 text-rose-600')}>
+        <span className={cn('flex size-8 items-center justify-center rounded-lg border border-rose-500/30 bg-gradient-to-b shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]', 'from-rose-500/25 to-rose-500/5 text-rose-400')}>
           <TrendingDown className="size-4" />
         </span>
         <div>

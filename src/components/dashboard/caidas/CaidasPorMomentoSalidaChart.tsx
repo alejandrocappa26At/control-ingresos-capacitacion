@@ -40,17 +40,17 @@ function tierFor(value: number, max: number): Tier {
 
 function estadoFor(name: string): { label: string; emoji: string; cls: string } {
   if (name === 'Nunca asistió') {
-    return { label: 'CRÍTICO', emoji: '🔴', cls: 'border-red-400/40 bg-red-500/10 text-red-600' };
+    return { label: 'CRÍTICO', emoji: '🔴', cls: 'border-red-400/40 bg-red-500/10 text-red-400' };
   }
   const day = parseInt(name.replace(/\D/g, ''), 10);
   if (day >= 1 && day <= 3) {
-    return { label: 'TEMPRANO', emoji: '🟠', cls: 'border-orange-400/40 bg-orange-500/10 text-orange-600' };
+    return { label: 'TEMPRANO', emoji: '🟠', cls: 'border-orange-400/40 bg-orange-500/10 text-orange-400' };
   }
   if (day >= 4 && day <= 6) {
-    return { label: 'INTERMEDIO', emoji: '🟡', cls: 'border-amber-400/40 bg-amber-500/10 text-amber-600' };
+    return { label: 'INTERMEDIO', emoji: '🟡', cls: 'border-amber-400/40 bg-amber-500/10 text-amber-400' };
   }
   if (day >= 7 && day <= 10) {
-    return { label: 'TARDÍO', emoji: '🟢', cls: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-600' };
+    return { label: 'TARDÍO', emoji: '🟢', cls: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-400' };
   }
   return { label: '—', emoji: '⚪', cls: 'border-zinc-400/30 bg-zinc-500/10 text-zinc-500' };
 }
@@ -244,7 +244,7 @@ export function CaidasPorMomentoSalidaChart({ data }: { data: MomentoSalida[] })
             Medio
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-sm bg-[#6b7280]" />
+            <span className="size-2 rounded-sm bg-[#94a3b8]" />
             Bajo
           </span>
         </div>
@@ -307,7 +307,7 @@ export function CaidasPorMomentoSalidaChart({ data }: { data: MomentoSalida[] })
                 <div
                   className={cn(
                     'mt-1 text-[8px] font-bold tracking-wide whitespace-nowrap transition-colors sm:text-[9px]',
-                    isActive ? 'text-red-600' : 'text-ink-muted',
+                    isActive ? 'text-red-400' : 'text-ink-muted',
                   )}
                 >
                   {shortName}

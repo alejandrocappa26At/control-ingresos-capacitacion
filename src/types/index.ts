@@ -51,14 +51,14 @@ export interface DateFilterValue {
 }
 
 export interface FilterState {
-  jurisdiccion: string;
+  jurisdiccion: string[];
   fechaIngreso: DateFilterValue;
-  zonaComercial: string;
-  sede: string;
-  distrito: string;
-  tienda: string;
-  supervisor: string;
-  responsableAS: string;
+  zonaComercial: string[];
+  sede: string[];
+  distrito: string[];
+  tienda: string[];
+  supervisor: string[];
+  responsableAS: string[];
   modalidad: string;
   capacitador: string[];
   inicioCapacitacion: DateFilterValue;

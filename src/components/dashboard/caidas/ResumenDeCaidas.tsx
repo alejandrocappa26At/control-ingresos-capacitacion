@@ -92,7 +92,7 @@ export const ResumenDeCaidas = memo(function ResumenDeCaidas({ records }: { reco
             variant="outline"
             size="sm"
             onClick={() => setOpen(true)}
-            className="mt-3 w-full border-rose-500/30 text-rose-500 hover:border-rose-500/60 hover:bg-rose-500/10 hover:text-rose-600"
+            className="mt-3 w-full border-rose-500/30 text-rose-500 hover:border-rose-500/60 hover:bg-rose-500/10 hover:text-rose-400"
           >
             <ListX className="size-4" />
             Ver detalle completo ({formatNumber(total)})
@@ -166,7 +166,7 @@ function SummaryRow({
           {value ?? '—'}
         </p>
       </div>
-      <span className="shrink-0 rounded-md bg-rose-500/15 px-1.5 py-0.5 text-[10px] font-bold text-rose-600 tabular-nums">
+      <span className="shrink-0 rounded-md bg-rose-500/15 px-1.5 py-0.5 text-[10px] font-bold text-rose-400 tabular-nums">
         {formatNumber(count ?? 0)}
       </span>
     </div>

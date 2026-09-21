@@ -76,7 +76,7 @@ export function AttendanceControl({ asistencia }: { asistencia: AsistenciaSummar
           icon={<Percent className="size-4" />}
           label="Promedio general de asistencia"
           value={`${asistencia.promedioGeneral.toFixed(1)}%`}
-          iconTone="from-brand-500/25 to-brand-500/5 text-brand-600"
+          iconTone="from-brand-500/25 to-brand-500/5 text-brand-400"
         />
         <StatCard
           icon={<CalendarCheck2 className="size-4" />}

@@ -40,7 +40,7 @@ export function RankingDiaCaidaSede({ data, totalCaidas, subtitle }: RankingDiaC
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-rose-400/40 to-transparent" />
 
       <div className="relative mb-3 flex items-center gap-2.5">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-rose-500/10 text-rose-300">
           <MapPin className="size-4" />
         </span>
         <div className="min-w-0 leading-tight">
@@ -50,16 +50,16 @@ export function RankingDiaCaidaSede({ data, totalCaidas, subtitle }: RankingDiaC
       </div>
 
       {top && (
-        <div className="relative mb-3 overflow-hidden rounded-2xl border border-rose-200 bg-gradient-to-br from-rose-50 via-rose-50/60 to-transparent p-3.5">
-          <div className="pointer-events-none absolute -top-10 -right-10 size-32 rounded-full bg-rose-500/15 blur-3xl" />
-          <p className="relative text-[10px] font-black tracking-widest text-rose-600 uppercase">Sede con mayor impacto</p>
+        <div className="relative mb-3 overflow-hidden rounded-2xl border border-rose-500/30 bg-gradient-to-br from-rose-500/[0.12] via-rose-500/[0.06] to-transparent p-3.5">
+          <div className="pointer-events-none absolute -top-10 -right-10 size-32 rounded-full bg-rose-500/20 blur-3xl" />
+          <p className="relative text-[10px] font-black tracking-widest text-rose-400 uppercase">Sede con mayor impacto</p>
           <div className="relative mt-1 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
             <p className="truncate text-xl font-black tracking-tight text-ink">{MEDALS[0]} {top.name}</p>
             <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-full border border-rose-400/40 bg-rose-500/10 px-2 py-0.5 text-[11px] font-bold text-rose-700">
+              <span className="rounded-full border border-rose-400/40 bg-rose-500/10 px-2 py-0.5 text-[11px] font-bold text-rose-300">
                 Día {top.diaPromedio != null ? top.diaPromedio.toFixed(1) : '—'}
               </span>
-              <span className="text-lg font-black tabular-nums text-rose-600">{formatNumber(top.total)}</span>
+              <span className="text-lg font-black tabular-nums text-rose-400">{formatNumber(top.total)}</span>
               <span className="text-[11px] font-bold text-ink-soft">{pctDelTotal(top.total).toFixed(1)}% del total</span>
             </div>
           </div>
@@ -84,11 +84,11 @@ export function RankingDiaCaidaSede({ data, totalCaidas, subtitle }: RankingDiaC
                   <p className="truncate text-sm font-bold text-ink">{r.name}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
-                  <span className="flex items-center gap-1 rounded-full border border-rose-400/30 bg-rose-500/10 px-2 py-0.5 text-[11px] font-bold text-rose-700">
-                    <CalendarDays className="size-3 text-rose-600" />
+                  <span className="flex items-center gap-1 rounded-full border border-rose-400/30 bg-rose-500/10 px-2 py-0.5 text-[11px] font-bold text-rose-300">
+                    <CalendarDays className="size-3 text-rose-400" />
                     Día {r.diaPromedio != null ? r.diaPromedio.toFixed(1) : '—'}
                   </span>
-                  <span className="font-black tabular-nums text-rose-600">{formatNumber(r.total)}</span>
+                  <span className="font-black tabular-nums text-rose-400">{formatNumber(r.total)}</span>
                   <span className="w-12 text-right text-[11px] font-bold tabular-nums text-ink-soft">
                     {pctDelTotal(r.total).toFixed(1)}%
                   </span>
