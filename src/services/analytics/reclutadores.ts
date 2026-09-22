@@ -1,5 +1,6 @@
 import type { Promotor } from '@/types';
 import { normalizeKey } from '@/lib/utils';
+import { esDesercion as esDesercionUnica, esBajaCapacitacion } from './desercionBase';
 
 export type NivelDesercion = 'excelente' | 'bueno' | 'riesgo' | 'critico';
 
@@ -51,7 +52,7 @@ export interface ReclutadoresAnalisis {
 }
 
 export function esDesercion(r: Promotor): boolean {
-  return r.pasaAOperaciones === 0 && r.totalDias === 0;
+  return esDesercionUnica(r);
 }
 
 export function analizarReclutadores(records: Promotor[]): ReclutadoresAnalisis {
@@ -85,9 +86,10 @@ export function analizarReclutadores(records: Promotor[]): ReclutadoresAnalisis 
     entry.ingresos += 1;
     if (r.pasaAOperaciones === 1) {
       entry.pasanOperaciones += 1;
-    } else if (r.pasaAOperaciones === 0) {
-      if (r.totalDias != null && r.totalDias >= 1) entry.bajas += 1;
-      else entry.deserciones += 1;
+    } else if (esBajaCapacitacion(r)) {
+      entry.bajas += 1;
+    } else if (esDesercion(r)) {
+      entry.deserciones += 1;
     } else {
       entry.pendientes += 1;
     }

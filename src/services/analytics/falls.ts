@@ -2,6 +2,7 @@ import { normalizeKey } from '@/lib/utils';
 import { MAX_TOTAL_DIAS } from '@/lib/constants';
 import { diasEntre, todayISO } from '@/lib/dates';
 import type { CaidaRanking, Promotor } from '@/types';
+import { desercionesDe } from './desercionBase';
 
 export function caidas(records: Promotor[]): Promotor[] {
   return records.filter((r) => r.pasaAOperaciones === 0);
@@ -94,7 +95,7 @@ export interface MomentoSalida {
 }
 
 export function caidasPorMomentoSalida(records: Promotor[]): MomentoSalida[] {
-  const caidasList = caidas(records);
+  const caidasList = desercionesDe(records);
   const total = caidasList.length;
   const diaCounts = new Map<number, number>();
   let nunca = 0;
@@ -135,33 +136,20 @@ export function caidasPorDiaPorDimension(
   records: Promotor[],
   getter: (r: Promotor) => string,
 ): CaidaDimensionDia[] {
-  const byDim = new Map<string, Map<number, number>>();
-  for (const r of caidas(records)) {
+  const byDim = new Map<string, CaidaDimensionDia>();
+  for (const r of desercionesDe(records)) {
     const norm = normalizeKey(getter(r));
-    if (!norm || norm === '—' || r.totalDias == null || r.totalDias === 0) continue;
-    if (!byDim.has(norm)) byDim.set(norm, new Map());
-    const byDay = byDim.get(norm)!;
-    byDay.set(r.totalDias, (byDay.get(r.totalDias) ?? 0) + 1);
-  }
-
-  const result: CaidaDimensionDia[] = [];
-  for (const [name, byDay] of byDim) {
-    let dia: number | null = null;
-    let cantidad = 0;
-    let total = 0;
-    let sumaDias = 0;
-    for (const [d, c] of byDay) {
-      total += c;
-      sumaDias += d * c;
-      if (c > cantidad) {
-        cantidad = c;
-        dia = d;
-      }
+    if (!norm || norm === '—') continue;
+    let entry = byDim.get(norm);
+    if (!entry) {
+      entry = { name: norm, dia: null, diaPromedio: null, cantidad: 0, total: 0 };
+      byDim.set(norm, entry);
     }
-    result.push({ name, dia, diaPromedio: total > 0 ? sumaDias / total : null, cantidad, total });
+    entry.cantidad += 1;
+    entry.total += 1;
   }
 
-  return result.sort((a, b) => b.cantidad - a.cantidad || b.total - a.total);
+  return Array.from(byDim.values()).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
 }
 
 export function caidasPorDiaPorSede(records: Promotor[]): CaidaDimensionDia[] {

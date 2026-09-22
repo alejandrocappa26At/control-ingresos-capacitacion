@@ -1,5 +1,6 @@
 import type { Promotor } from '@/types';
 import { normalizeKey } from '@/lib/utils';
+import { esDesercion as esDesercionUnica } from './desercionBase';
 import { nivelDesercion, type NivelDesercion } from './reclutadores';
 
 export const ZONA_SEMAFORO_RANGOS = [
@@ -29,7 +30,7 @@ export interface ZonasAnalisis {
 }
 
 export function esDesercionZona(r: Promotor): boolean {
-  return r.pasaAOperaciones === 0 && r.totalDias === 0;
+  return esDesercionUnica(r);
 }
 
 export function analizarZonas(records: Promotor[]): ZonasAnalisis {

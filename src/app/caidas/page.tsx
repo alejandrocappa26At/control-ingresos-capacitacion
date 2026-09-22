@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CalendarRange, MapPin, Table2, Tags } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -27,10 +27,16 @@ import {
 import { analizarDesercion } from '@/services/analytics/desercion';
 import { analizarReclutadores } from '@/services/analytics/reclutadores';
 import { analizarZonas } from '@/services/analytics/zonas';
+import { validarConsistenciaDesercion } from '@/services/analytics/validacion';
 
 export default function CaidasPage() {
   const { records, filtered, kpis, motivosCaida, subMotivosCaida } = useAppData();
   const [selected, setSelected] = useState<Promotor | null>(null);
+
+  useEffect(() => {
+    if (filtered.length === 0) return;
+    validarConsistenciaDesercion(filtered);
+  }, [filtered]);
 
   const ejecutivo = useMemo(() => {
     const embudo = computeEmbudo(filtered);
@@ -76,7 +82,7 @@ export default function CaidasPage() {
         <SectionTitle
           icon={<CalendarRange className="size-4" />}
           title="¿En qué momento se produce la caída?"
-          subtitle={`Momento de salida (Nunca asistió o Día 1 al 12) · ${kpis.noPasanAOperaciones} caídas analizadas`}
+          subtitle={`Momento de salida (Nunca asistió) · ${desercion.totalDeserciones} deserciones analizadas`}
         />
         <CaidasPorMomentoSalidaChart data={ejecutivo.porMomento} />
       </section>
@@ -85,18 +91,18 @@ export default function CaidasPage() {
         <SectionTitle
           icon={<MapPin className="size-4" />}
           title="¿Dónde y cuándo se produce la caída?"
-          subtitle={`Volumen, día promedio y participación por sede y supervisor · ${kpis.noPasanAOperaciones} caídas según filtros activos`}
+          subtitle={`Volumen y día promedio por sede y supervisor · ${desercion.totalDeserciones} deserciones según filtros activos`}
         />
         <div className="grid gap-4 lg:grid-cols-2">
           <RankingDiaCaidaSede
             data={ejecutivo.porDiaSede}
-            totalCaidas={kpis.noPasanAOperaciones}
-            subtitle={`${formatNumber(ejecutivo.porDiaSede.length)} sedes con caídas`}
+            totalCaidas={desercion.totalDeserciones}
+            subtitle={`${formatNumber(ejecutivo.porDiaSede.length)} sedes con deserciones`}
           />
           <LeaderboardDiaCaidaSupervisor
             data={ejecutivo.porDiaSupervisor}
-            totalCaidas={kpis.noPasanAOperaciones}
-            subtitle={`${formatNumber(ejecutivo.porDiaSupervisor.length)} supervisores con caídas`}
+            totalCaidas={desercion.totalDeserciones}
+            subtitle={`${formatNumber(ejecutivo.porDiaSupervisor.length)} supervisores con deserciones`}
           />
         </div>
       </section>

@@ -1,5 +1,6 @@
 import type { Promotor } from '@/types';
 import { normalizeKey } from '@/lib/utils';
+import { esDesercion } from './desercionBase';
 
 export const MONTH_NAMES = [
   'Enero',
@@ -50,6 +51,11 @@ export interface DesercionAnalisis {
   tasaDesercion: number;
   bajas: number;
   bajasPct: number;
+  /** Bajas (PASA=No + DÍAS 1-12) que abandonaron en su día 1-3. Suma con bajasDia4_12 = bajas. */
+  bajasDia1_3: number;
+  /** Bajas (PASA=No + DÍAS 1-12) que abandonaron en su día 4-12. Suma con bajasDia1_3 = bajas. */
+  bajasDia4_12: number;
+  porDia: number[];
   pasanOperaciones: number;
   pasanPct: number;
   mesMayor: ResumenMes | null;
@@ -64,7 +70,7 @@ export interface DesercionAnalisis {
 }
 
 export function deserciones(records: Promotor[]): Promotor[] {
-  return records.filter((r) => r.totalDias === 0);
+  return records.filter(esDesercion);
 }
 
 function mesDeIngreso(r: Promotor): number {
@@ -81,12 +87,21 @@ export function analizarDesercion(records: Promotor[]): DesercionAnalisis {
   const totalDeserciones = deser.length;
 
   let bajas = 0;
+  let bajasDia1_3 = 0;
+  let bajasDia4_12 = 0;
+  const porDia = new Array<number>(12).fill(0);
   let pasanOperaciones = 0;
   for (const r of records) {
     if (r.pasaAOperaciones === 1) {
       pasanOperaciones += 1;
     } else if (r.pasaAOperaciones === 0 && r.totalDias != null && r.totalDias >= 1) {
       bajas += 1;
+      porDia[Math.max(0, Math.min(r.totalDias - 1, 11))] += 1;
+      if (r.totalDias <= 3) {
+        bajasDia1_3 += 1;
+      } else {
+        bajasDia4_12 += 1;
+      }
     }
   }
 
@@ -163,6 +178,9 @@ export function analizarDesercion(records: Promotor[]): DesercionAnalisis {
     tasaDesercion: totalIngresos > 0 ? (totalDeserciones / totalIngresos) * 100 : 0,
     bajas,
     bajasPct: pctTotal(bajas),
+    bajasDia1_3,
+    bajasDia4_12,
+    porDia,
     pasanOperaciones,
     pasanPct: pctTotal(pasanOperaciones),
     mesMayor,
