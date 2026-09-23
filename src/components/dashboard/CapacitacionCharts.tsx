@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { memo, type ReactNode } from 'react';
 import { ChartCard } from '@/components/charts/ChartCard';
 import { SemiDonutChart } from '@/components/charts/charts';
-import { GraduationCap, Trophy, UserCheck, UserX, UserRound } from 'lucide-react';
+import { GraduationCap, Trophy, UserCheck, UserX, UserRound, AlertCircle } from 'lucide-react';
 import type { CapacitadorSummary, Promotor, SerieItem } from '@/types';
 import { cn, formatNumber } from '@/lib/utils';
 import { ResumenDeCaidas } from '@/components/dashboard/caidas/ResumenDeCaidas';
@@ -30,15 +30,17 @@ function initialsOf(name: string): string {
 
 export const ResultadoDonut = memo(function ResultadoDonut({ data, total, records }: { data: SerieItem[]; total: number; records?: Promotor[] }) {
   const pasa = data.find((d) => d.name.startsWith('Pasa'))?.value ?? 0;
-  const noPasa = data.find((d) => d.name.startsWith('No'))?.value ?? 0;
-  const pendiente = total - pasa - noPasa;
+  const bajas = data.find((d) => d.name.startsWith('Baja'))?.value ?? 0;
+  const desercion = data.find((d) => d.name.startsWith('Deserc'))?.value ?? 0;
+  const pendiente = data.find((d) => d.name.startsWith('En capac'))?.value ?? 0;
   const hasRecords = records !== undefined;
   const chartData = [
     { name: 'Pasa a operaciones', value: pasa },
-    { name: 'No pasa', value: noPasa },
+    { name: 'Baja durante capacitación', value: bajas },
+    { name: 'Deserción', value: desercion },
     { name: 'En capacitación', value: pendiente },
   ].filter((d) => d.value > 0);
-  const chartColors = ['#10b981', '#ef4444', '#f59e0b'];
+  const chartColors = ['#10b981', '#f59e0b', '#18181b', '#f59e0b'];
 
   return (
     <ChartCard
@@ -56,18 +58,36 @@ export const ResultadoDonut = memo(function ResultadoDonut({ data, total, record
             icon={<UserCheck className="size-3.5" />}
             className="border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
           />
+          <ResultadoCard
+            label="Baja durante capacitación"
+            value={bajas}
+            total={total}
+            icon={<AlertCircle className="size-3.5" />}
+            className="border-amber-500/25 bg-amber-500/10 text-amber-400"
+          />
+          <ResultadoCard
+            label="Deserción"
+            value={desercion}
+            total={total}
+            icon={<UserX className="size-3.5" />}
+            className="border-zinc-900/25 bg-zinc-900/10 text-zinc-400"
+          />
           {pendiente > 0 && (
-            <ResultadoCard
-              label="En capacitación"
-              value={pendiente}
-              total={total}
-              icon={<UserRound className="size-3.5" />}
-              className="border-amber-500/25 bg-amber-500/10 text-amber-400"
-            />
+            <div className="col-span-2">
+              <ResultadoCard
+                label="En capacitación"
+                value={pendiente}
+                total={total}
+                icon={<UserRound className="size-3.5" />}
+                className="border-amber-500/25 bg-amber-500/10 text-amber-400"
+              />
+            </div>
           )}
-          <div className="col-span-2">
-            <ResumenDeCaidas records={records} />
-          </div>
+          {hasRecords && (
+            <div className="col-span-2">
+              <ResumenDeCaidas records={records} />
+            </div>
+          )}
         </div>
       ) : (
         <div className="mt-2 grid grid-cols-2 gap-3">
@@ -79,11 +99,18 @@ export const ResultadoDonut = memo(function ResultadoDonut({ data, total, record
             className="border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
           />
           <ResultadoCard
-            label="No pasa"
-            value={noPasa}
+            label="Baja durante capacitación"
+            value={bajas}
+            total={total}
+            icon={<AlertCircle className="size-3.5" />}
+            className="border-amber-500/25 bg-amber-500/10 text-amber-400"
+          />
+          <ResultadoCard
+            label="Deserción"
+            value={desercion}
             total={total}
             icon={<UserX className="size-3.5" />}
-            className="border-rose-500/25 bg-rose-500/10 text-rose-400"
+            className="border-zinc-900/25 bg-zinc-900/10 text-zinc-400"
           />
           {pendiente > 0 && (
             <div className="col-span-2">
@@ -126,7 +153,10 @@ function ResultadoCard({
 
 export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { data: CapacitadorSummary[] }) {
   const rows = data
-    .map((c) => ({ ...c, tasa: c.finalizados > 0 ? (c.aprobados / c.finalizados) * 100 : 0 }))
+    .map((c) => ({
+      ...c,
+      tasa: c.finalizados > 0 ? (c.aprobados / c.finalizados) * 100 : 0,
+    }))
     .sort((a, b) => b.tasa - a.tasa || b.aprobados - a.aprobados);
   const maxAsignados = Math.max(...rows.map((c) => c.asignados), 1);
 
@@ -141,10 +171,11 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
     >
       {rows.map((c, i) => {
         const [from, to] = AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length];
-        const pendientes = Math.max(0, c.asignados - c.finalizados);
+        const enCapacitacion = Math.max(0, c.asignados - c.finalizados);
         const segA = c.asignados > 0 ? (c.aprobados / c.asignados) * 100 : 0;
-        const segB = c.asignados > 0 ? (c.noAprobados / c.asignados) * 100 : 0;
-        const segP = c.asignados > 0 ? (pendientes / c.asignados) * 100 : 0;
+        const segB = c.asignados > 0 ? (c.bajasCapacitacion / c.asignados) * 100 : 0;
+        const segC = c.asignados > 0 ? (c.desercion / c.asignados) * 100 : 0;
+        const segP = c.asignados > 0 ? (enCapacitacion / c.asignados) * 100 : 0;
         return (
           <motion.div
             key={c.capacitador}
@@ -170,7 +201,8 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
                 <p className="truncate text-sm font-bold text-ink">{c.capacitador}</p>
                 <p className="text-[11px] font-semibold text-ink-soft">
                   {c.asignados} asignados · <span className="text-emerald-400">{c.aprobados} aprobados</span> ·{' '}
-                  <span className="text-rose-400">{c.noAprobados} no aprobados</span>
+                  <span className="text-amber-400">{c.bajasCapacitacion} baja capacitación</span> ·{' '}
+                  <span className="text-zinc-400">{c.desercion} deserción</span>
                 </p>
               </div>
               <div className="shrink-0 text-right">
@@ -200,7 +232,8 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
                 <span>Resultado</span>
                 <span className="tabular-nums">
                   <span className="text-emerald-400">{segA.toFixed(0)}%</span> ·{' '}
-                  <span className="text-rose-400">{segB.toFixed(0)}%</span> ·{' '}
+                  <span className="text-amber-400">{segB.toFixed(0)}%</span> ·{' '}
+                  <span className="text-zinc-400">{segC.toFixed(0)}%</span> ·{' '}
                   <span className="text-ink-soft">{segP.toFixed(0)}%</span>
                 </span>
               </div>
@@ -216,23 +249,31 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
                   initial={{ width: 0 }}
                   animate={{ width: `${segB}%` }}
                   transition={{ duration: 0.6, delay: 0.2 + i * 0.06 }}
-                  className="h-full bg-gradient-to-r from-rose-500 to-rose-400"
-                  title={`No aprobados: ${c.noAprobados}`}
+                  className="h-full bg-gradient-to-r from-amber-500 to-amber-400"
+                  title={`Baja capacitación: ${c.bajasCapacitacion}`}
+                />
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${segC}%` }}
+                  transition={{ duration: 0.6, delay: 0.25 + i * 0.06 }}
+                  className="h-full bg-gradient-to-r from-zinc-700 to-zinc-500"
+                  title={`Deserción: ${c.desercion}`}
                 />
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${segP}%` }}
-                  transition={{ duration: 0.6, delay: 0.25 + i * 0.06 }}
+                  transition={{ duration: 0.6, delay: 0.3 + i * 0.06 }}
                   className="h-full bg-ink/15"
-                  title={`Pendientes: ${pendientes}`}
+                  title={`En capacitación: ${enCapacitacion}`}
                 />
               </div>
             </div>
 
-            <div className="mt-2.5 grid grid-cols-3 gap-2 text-center">
-              <MiniStat label="Finalizados" value={c.finalizados} tone="text-zinc-400" />
-              <MiniStat label="En proceso" value={c.enProceso} tone="text-amber-400" />
-              <MiniStat label="Pendientes" value={pendientes} tone="text-ink-soft" />
+            <div className="mt-2.5 grid grid-cols-4 gap-2 text-center">
+              <MiniStat label="Aprobados" value={c.aprobados} tone="text-emerald-400" />
+              <MiniStat label="Baja capacitación" value={c.bajasCapacitacion} tone="text-amber-400" />
+              <MiniStat label="Deserción" value={c.desercion} tone="text-zinc-400" />
+              <MiniStat label="En capacitación" value={enCapacitacion} tone="text-ink-soft" />
             </div>
           </motion.div>
         );

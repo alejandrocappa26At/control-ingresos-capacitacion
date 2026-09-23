@@ -71,7 +71,7 @@ export default function CaidasPage() {
     <>
       <PageHeader
         title="Dashboard Ejecutivo de Caídas"
-        description={`Solo registros con PASA A OPERACIONES = No · ${kpis.noPasanAOperaciones} caídas según filtros activos`}
+        description={`Solo registros con PASA A OPERACIONES = No · ${kpis.desercion + kpis.bajasCapacitacion} caídas según filtros activos`}
       />
 
       <CaidasFunnelKPIs embudo={ejecutivo.embudo} />
@@ -115,9 +115,9 @@ export default function CaidasPage() {
         <SectionTitle
           icon={<Tags className="size-4" />}
           title="Motivos y submotivos de caída"
-          subtitle={`${kpis.noPasanAOperaciones} caídas clasificadas por motivo y submotivo`}
+          subtitle={`${kpis.desercion + kpis.bajasCapacitacion} caídas clasificadas por motivo y submotivo`}
         />
-        <CaidasRanking motivo={motivosCaida} subMotivo={subMotivosCaida} total={kpis.noPasanAOperaciones} />
+        <CaidasRanking motivo={motivosCaida} subMotivo={subMotivosCaida} total={kpis.desercion + kpis.bajasCapacitacion} />
       </section>
 
       <section className="mt-6">

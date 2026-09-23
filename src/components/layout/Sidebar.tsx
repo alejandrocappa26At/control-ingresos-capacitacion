@@ -4,15 +4,18 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import {
   LayoutDashboard,
   GraduationCap,
   TrendingDown,
   PanelLeftOpen,
   ChevronsLeft,
-  PresentationIcon,
   LogOut,
   FileSpreadsheet,
+  BrainCircuit,
+  DatabaseZap,
+  BarChart4,
   type LucideIcon,
 } from 'lucide-react';
 import { useDataStore } from '@/store/useDataStore';
@@ -35,9 +38,11 @@ interface NavItem {
   badge?: Tone;
 }
 
-const NAV_SECTIONS: Array<{ section: string; items: NavItem[] }> = [
+const NAV_SECTIONS: Array<{ section: string; icon: LucideIcon; color: 'red' | 'amber'; items: NavItem[] }> = [
   {
-    section: '📊 Análisis',
+    section: 'ANÁLISIS ESTRATÉGICO',
+    icon: BrainCircuit,
+    color: 'red',
     items: [
       { href: '/', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/capacitacion', label: 'Capacitación', icon: GraduationCap, badge: 'amber' },
@@ -45,7 +50,9 @@ const NAV_SECTIONS: Array<{ section: string; items: NavItem[] }> = [
     ],
   },
   {
-    section: '📁 Datos',
+    section: 'GESTIÓN DE DATOS',
+    icon: DatabaseZap,
+    color: 'amber',
     items: [{ href: '/upload', label: 'Importar Excel', icon: FileSpreadsheet }],
   },
 ];
@@ -68,7 +75,7 @@ export function Sidebar() {
     const kpi = computeKpis(records);
     return {
       capacitacion: kpi.enCapacitacion,
-      caidas: kpi.noPasanAOperaciones,
+      caidas: kpi.desercion + kpi.bajasCapacitacion,
     };
   }, [records]);
 
@@ -91,12 +98,20 @@ export function Sidebar() {
         {/* Logo */}
         <div className={cn('flex items-center gap-3 px-4 pt-6 pb-5', collapsed && 'justify-center px-2')}>
           <motion.div
-            whileHover={{ scale: 1.06 }}
+            whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="relative flex size-10 shrink-0 items-center justify-center rounded-xl gradient-brand text-white"
+            className="relative flex shrink-0 items-center justify-center rounded-lg overflow-hidden"
+            style={{ width: '70px', height: '70px' }}
           >
-            <PresentationIcon className="size-5" />
-            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-emerald-400 ring-2 ring-surface-2" />
+            <Image
+              src="/logo1at.jpg"
+              alt="Logo"
+              width={70}
+              height={70}
+              priority
+              className="object-cover transition-transform duration-300 group-hover:scale-103"
+              unoptimized
+            />
           </motion.div>
           {!collapsed && (
             <div className="min-w-0">
@@ -109,15 +124,49 @@ export function Sidebar() {
 
         {/* Navegación por categorías */}
         <nav className="min-h-0 flex-1 overflow-y-auto px-3 pb-2">
-          {NAV_SECTIONS.map(({ section, items }) => (
+          {NAV_SECTIONS.map(({ section, icon: SectionIcon, color, items }) => (
             <div key={section} className="mb-2">
               <div className={cn('flex items-center gap-2 px-3 pt-4 pb-2', collapsed && 'items-center justify-center px-0 pt-3 pb-1')}>
                 {!collapsed ? (
-                  <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.18em] text-ink-muted uppercase">
-                    {section}
+                  <div className="flex items-center gap-2">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                      className={cn(
+                        'relative flex size-7 shrink-0 items-center justify-center rounded-lg border shadow-[0_0_16px_-4px_rgba(227,6,19,0.25)] hover:shadow-[0_0_24px_-2px_rgba(227,6,19,0.4)] hover:scale-105 transition-all duration-300',
+                        color === 'red'
+                          ? 'bg-gradient-to-br from-red-500/15 via-red-500/5 to-transparent border-red-500/20'
+                          : 'bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent border-amber-500/20'
+                      )}
+                    >
+                      <SectionIcon className={cn('size-3.5', color === 'red' ? 'text-red-400' : 'text-amber-400')} />
+                      <motion.span
+                        className={cn('absolute -top-0.5 -right-0.5 size-1.5 rounded-full', color === 'red' ? 'bg-red-500' : 'bg-amber-500')}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.2, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                      />
+                    </motion.div>
+                    <div className="min-w-0">
+                      <p className="truncate text-[10px] font-bold tracking-[0.18em] text-ink-muted uppercase">{section}</p>
+                      <div className="mt-0.5 h-px w-12 bg-gradient-to-r from-brand-500/60 to-transparent" />
+                    </div>
                   </div>
                 ) : (
-                  <span className="h-px w-8 rounded bg-line-2" />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    className={cn(
+                      'flex size-7 shrink-0 items-center justify-center rounded-lg border shadow-[0_0_16px_-4px_rgba(227,6,19,0.25)] hover:shadow-[0_0_24px_-2px_rgba(227,6,19,0.4)] hover:scale-105 transition-all duration-300',
+                      color === 'red'
+                        ? 'bg-gradient-to-br from-red-500/15 via-red-500/5 to-transparent border-red-500/20'
+                        : 'bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent border-amber-500/20'
+                    )}
+                  >
+                    <SectionIcon className={cn('size-3.5', color === 'red' ? 'text-red-400' : 'text-amber-400')} />
+                  </motion.div>
                 )}
               </div>
 

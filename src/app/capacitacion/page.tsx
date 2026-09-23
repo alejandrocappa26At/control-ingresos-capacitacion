@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { GraduationCap, CheckCircle2, UserCheck, UserX, Clock3 } from 'lucide-react';
+import { GraduationCap, CheckCircle2, UserCheck, UserX, Clock3, AlertCircle } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SectionTitle } from '@/components/common/SectionTitle';
 import { KpiCard } from '@/components/dashboard/KpiCard';
@@ -34,11 +34,12 @@ export default function CapacitacionPage() {
         description={`${capacitadores.length} capacitadores activos · seguimiento del proceso formativo`}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <KpiCard index={0} title="EN CAPACITACIÓN" value={kpis.enCapacitacion} icon={GraduationCap} tone="orange" subtitle={`${enProcesoCapacitadores} asignaciones en proceso`} />
         <KpiCard index={1} title="CAPACITACIÓN FINALIZADA" value={kpis.capacitacionFinalizada} icon={CheckCircle2} tone="slate" />
         <KpiCard index={2} title="APROBADOS" value={kpis.pasanAOperaciones} icon={UserCheck} tone="green" subtitle={`${kpis.porcentajeAprobacion.toFixed(1)}% de aprobación`} />
-        <KpiCard index={3} title="NO APROBADOS" value={kpis.noPasanAOperaciones} icon={UserX} tone="rose" subtitle={`${kpis.porcentajeCaida.toFixed(1)}% de caída`} />
+        <KpiCard index={3} title="BAJAS CAPACITACIÓN" value={kpis.bajasCapacitacion} icon={AlertCircle} tone="amber" />
+        <KpiCard index={4} title="DESERCIÓN" value={kpis.desercion} icon={UserX} tone="slate" subtitle={`${kpis.porcentajeCaida.toFixed(1)}% de caída`} />
       </div>
 
       <section className="mt-6 grid gap-4 lg:grid-cols-3">

@@ -6,7 +6,7 @@ import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CountUp } from '@/components/ui/count-up';
 
-type Tone = 'blue' | 'orange' | 'slate' | 'green' | 'rose' | 'emerald';
+type Tone = 'blue' | 'orange' | 'slate' | 'green' | 'rose' | 'emerald' | 'amber';
 
 interface ToneConfig {
   color: string;
@@ -44,6 +44,11 @@ const toneConfig: Record<Tone, ToneConfig> = {
     color: '#22c55e',
     glow: 'rgba(34,197,94,0.35)',
     tile: 'border-[#22c55e]/25 bg-[#22c55e]/10 text-[#22c55e] shadow-[0_6px_20px_-8px_rgba(34,197,94,0.5)]',
+  },
+  amber: {
+    color: '#f59e0b',
+    glow: 'rgba(245,158,11,0.35)',
+    tile: 'border-[#f59e0b]/25 bg-[#f59e0b]/10 text-[#f59e0b] shadow-[0_6px_20px_-8px_rgba(245,158,11,0.5)]',
   },
 };
 

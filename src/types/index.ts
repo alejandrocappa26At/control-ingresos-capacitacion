@@ -104,7 +104,8 @@ export interface Kpis {
   enCapacitacion: number;
   capacitacionFinalizada: number;
   pasanAOperaciones: number;
-  noPasanAOperaciones: number;
+  desercion: number;
+  bajasCapacitacion: number;
   porcentajeAprobacion: number;
   porcentajeCaida: number;
   procesosFinalizados: number;
@@ -122,7 +123,8 @@ export interface CapacitadorSummary {
   finalizados: number;
   enProceso: number;
   aprobados: number;
-  noAprobados: number;
+  desercion: number;
+  bajasCapacitacion: number;
 }
 
 export interface DiaAsistencia {

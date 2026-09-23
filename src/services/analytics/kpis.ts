@@ -1,28 +1,31 @@
 import type { Kpis, Promotor } from '@/types';
+import { esDesercion, esBajaCapacitacion } from './desercionBase';
 
 export function computeKpis(records: Promotor[]): Kpis {
   const totalIngresos = records.length;
 
   let lima = 0;
   let pasanAOperaciones = 0;
-  let noPasanAOperaciones = 0;
+  let desercion = 0;
+  let bajasCapacitacion = 0;
 
   for (const r of records) {
     if (r.jurisdiccion === 'LIMA') lima += 1;
     if (r.pasaAOperaciones === 1) pasanAOperaciones += 1;
-    else if (r.pasaAOperaciones === 0) noPasanAOperaciones += 1;
+    else if (esDesercion(r)) desercion += 1;
+    else if (esBajaCapacitacion(r)) bajasCapacitacion += 1;
   }
 
   const provincia = totalIngresos - lima;
-  const enCapacitacion = totalIngresos - pasanAOperaciones - noPasanAOperaciones;
-  const procesosFinalizados = pasanAOperaciones + noPasanAOperaciones;
+  const enCapacitacion = totalIngresos - pasanAOperaciones - desercion - bajasCapacitacion;
+  const procesosFinalizados = pasanAOperaciones + desercion + bajasCapacitacion;
 
   const porcentajeAprobacion = procesosFinalizados > 0
     ? (pasanAOperaciones / procesosFinalizados) * 100
     : 0;
 
   const porcentajeCaida = procesosFinalizados > 0
-    ? (noPasanAOperaciones / procesosFinalizados) * 100
+    ? ((desercion + bajasCapacitacion) / procesosFinalizados) * 100
     : 0;
 
   return {
@@ -32,7 +35,8 @@ export function computeKpis(records: Promotor[]): Kpis {
     enCapacitacion,
     capacitacionFinalizada: procesosFinalizados,
     pasanAOperaciones,
-    noPasanAOperaciones,
+    desercion,
+    bajasCapacitacion,
     porcentajeAprobacion,
     porcentajeCaida,
     procesosFinalizados,

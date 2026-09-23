@@ -1,6 +1,7 @@
 import type { CapacitadorSummary, Promotor, SerieItem } from '@/types';
 import { countBy } from './kpis';
 import { normalizeKey, esCapacitadorGenerico } from '@/lib/utils';
+import { esDesercion, esBajaCapacitacion } from './desercionBase';
 
 function toSerie(items: Array<{ name: string; value: number }>, total: number): SerieItem[] {
   return items.map(({ name, value }) => ({
@@ -46,15 +47,19 @@ export function analizarCapacitadores(records: Promotor[]): CapacitadoresResumen
       finalizados: 0,
       enProceso: 0,
       aprobados: 0,
-      noAprobados: 0,
+      desercion: 0,
+      bajasCapacitacion: 0,
     };
     entry.asignados += 1;
     if (r.pasaAOperaciones === 1) {
       entry.finalizados += 1;
       entry.aprobados += 1;
-    } else if (r.pasaAOperaciones === 0) {
+    } else if (esDesercion(r)) {
       entry.finalizados += 1;
-      entry.noAprobados += 1;
+      entry.desercion += 1;
+    } else if (esBajaCapacitacion(r)) {
+      entry.finalizados += 1;
+      entry.bajasCapacitacion += 1;
     } else {
       entry.enProceso += 1;
     }
@@ -73,16 +78,18 @@ export function cargaPorCapacitador(records: Promotor[]): CapacitadorSummary[] {
 
 export function resultadoCapacitacion(records: Promotor[]): SerieItem[] {
   const pasa = records.filter((r) => r.pasaAOperaciones === 1).length;
-  const noPasa = records.filter((r) => r.pasaAOperaciones === 0).length;
-  const pendiente = records.length - pasa - noPasa;
+  const desercion = records.filter(esDesercion).length;
+  const bajasCapacitacion = records.filter(esBajaCapacitacion).length;
+  const pendiente = records.length - pasa - desercion - bajasCapacitacion;
   return toSerie(
     [
       { name: 'Pasa a operaciones', value: pasa },
-      { name: 'No pasa', value: noPasa },
-      { name: 'Pendiente', value: pendiente },
+      { name: 'Baja durante capacitación', value: bajasCapacitacion },
+      { name: 'Deserción', value: desercion },
+      { name: 'En capacitación', value: pendiente },
     ],
     records.length,
-  ).filter((item) => item.value > 0 || item.name === 'Pendiente');
+  ).filter((item) => item.value > 0 || item.name === 'En capacitación');
 }
 
 export function ingresosPorMes(records: Promotor[]): SerieItem[] {
