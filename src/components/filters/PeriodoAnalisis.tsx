@@ -2,17 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  Calendar,
-  CalendarRange,
-  ChevronLeft,
-  ChevronRight,
-  RotateCcw,
-  X,
-} from 'lucide-react';
-import { parse, format, getDay, isSameDay, differenceInCalendarDays, lastDayOfMonth, formatISO } from 'date-fns';
+import { Calendar, CalendarRange, X } from 'lucide-react';
+import { parse, format, differenceInCalendarDays, lastDayOfMonth } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useDataStore } from '@/store/useDataStore';
+import { DateRangePicker } from '@/components/filters/DateRangePicker';
 import {
   matchesDateFilter,
   todayISO,
@@ -22,14 +16,11 @@ import {
   ddmmyyyy,
   fullMonthYear,
   monthBounds,
-  shiftMonth,
   currentQuarterRange,
   previousMonthISO,
 } from '@/lib/dates';
 import { formatNumber, cn } from '@/lib/utils';
 import type { DateFilterValue } from '@/types';
-
-const WEEKDAYS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'];
 
 function capitalize(value: string): string {
   return value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
@@ -77,168 +68,6 @@ const QUICK_PRESETS: Preset[] = [
   { id: 'trimestre', label: 'Trimestre actual', icon: 'range', build: () => ({ type: 'range', ...currentQuarterRange() }) },
   { id: 'anio', label: 'Año actual', icon: 'year', build: () => ({ type: 'year', year: currentYear() }) },
 ];
-
-function buildMonthCells(month: string): Array<{ iso: string | null; day: number }> {
-  const first = parse(month, 'yyyy-MM', new Date());
-  const offset = (getDay(first) + 6) % 7;
-  const last = lastDayOfMonth(first);
-  const cells: Array<{ iso: string | null; day: number }> = [];
-  for (let i = 0; i < offset; i++) cells.push({ iso: null, day: 0 });
-  const year = first.getFullYear();
-  const monthIndex = first.getMonth();
-  for (let d = 1; d <= last.getDate(); d++) {
-    cells.push({ iso: formatISO(new Date(year, monthIndex, d), { representation: 'date' }), day: d });
-  }
-  return cells;
-}
-
-function DualMonthCalendar({ value, onChange }: { value: DateFilterValue; onChange: (v: DateFilterValue) => void }) {
-  const [viewMonth, setViewMonth] = useState(() => {
-    if (value.type === 'range' && value.from) return value.from.slice(0, 7);
-    if (value.type === 'month' && value.month) return value.month;
-    if (value.type === 'day' && value.day) return value.day.slice(0, 7);
-    return currentMonth();
-  });
-  const [rangeStart, setRangeStart] = useState<string | null>(() =>
-    value.type === 'range' ? (value.from ?? null) : value.type === 'day' ? (value.day ?? null) : null,
-  );
-  const [hover, setHover] = useState<string | null>(null);
-  const [prevValue, setPrevValue] = useState(value);
-
-  if (value !== prevValue) {
-    setPrevValue(value);
-    if (value.type === 'range') setRangeStart(value.from ?? null);
-    else if (value.type === 'day') setRangeStart(value.day ?? null);
-    else setRangeStart(null);
-  }
-
-  const selFrom = value.type === 'range' ? value.from : value.type === 'day' ? value.day : null;
-  const selTo = value.type === 'range' ? value.to : null;
-
-  const selected = (iso: string): 'start' | 'end' | 'mid' | null => {
-    if (selFrom && selTo && iso >= selFrom && iso <= selTo) {
-      return iso === selFrom ? 'start' : iso === selTo ? 'end' : 'mid';
-    }
-    if (selFrom && selTo) return null;
-    if (selFrom === iso) return 'start';
-    return null;
-  };
-
-  const preview = (iso: string): boolean => {
-    if (!rangeStart || !hover) return false;
-    const lo = rangeStart < hover ? rangeStart : hover;
-    const hi = rangeStart < hover ? hover : rangeStart;
-    return iso > lo && iso < hi;
-  };
-
-  const onDayClick = (iso: string) => {
-    setHover(null);
-    if (!rangeStart) {
-      setRangeStart(iso);
-      return;
-    }
-    const from = rangeStart <= iso ? rangeStart : iso;
-    const to = rangeStart <= iso ? iso : rangeStart;
-    setRangeStart(null);
-    if (from === to) onChange({ type: 'day', day: from });
-    else onChange({ type: 'range', from, to });
-  };
-
-  const renderMonth = (month: string) => {
-    const first = parse(month, 'yyyy-MM', new Date());
-    const title = capitalize(format(first, 'MMMM yyyy', { locale: es }));
-
-    return (
-      <div className="min-w-0">
-        <div className="mb-2 text-center text-xs font-bold tracking-wider text-ink uppercase">{title}</div>
-        <div className="grid grid-cols-7 gap-y-0.5">
-          {WEEKDAYS.map((w) => (
-            <div key={w} className="pb-1 text-center text-[9px] font-bold tracking-wide text-ink-muted uppercase">
-              {w}
-            </div>
-          ))}
-          {buildMonthCells(month).map((cell, idx) => {
-            if (!cell.iso) return <div key={`b${idx}`} />;
-            const iso = cell.iso;
-            const state = selected(iso);
-            const inPreview = preview(iso);
-            const today = isSameDay(parse(iso, 'yyyy-MM-dd', new Date()), new Date());
-            return (
-              <div key={iso} className="flex justify-center p-0.5">
-                <button
-                  type="button"
-                  onClick={() => onDayClick(iso)}
-                  onMouseEnter={() => setHover(iso)}
-                  onMouseLeave={() => setHover(null)}
-                  className={cn(
-                    'flex size-7 items-center justify-center rounded-lg text-[11px] font-semibold tabular-nums transition-all duration-200',
-                    state === 'start' || state === 'end'
-                      ? 'gradient-brand text-white shadow-glow-sm'
-                      : state === 'mid' || inPreview
-                        ? 'bg-brand-500/20 text-brand-100'
-                        : 'text-ink-soft hover:bg-white/[0.08] hover:text-ink',
-                    today && !state && 'ring-1 ring-brand-400/60',
-                  )}
-                >
-                  {cell.day}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  return (
-    <div className="mt-3 rounded-xl border border-line bg-black/20 p-3">
-      <div className="mb-2.5 flex items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-brand-400">
-          <CalendarRange className="size-3.5" />
-          Rango personalizado
-        </span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setViewMonth(shiftMonth(viewMonth, -1))}
-            aria-label="Mes anterior"
-            className="flex size-7 items-center justify-center rounded-lg border border-line bg-surface/50 text-ink-soft transition-all duration-300 hover:border-brand-400/40 hover:bg-brand-500/10 hover:text-brand-400"
-          >
-            <ChevronLeft className="size-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMonth(shiftMonth(viewMonth, 1))}
-            aria-label="Mes siguiente"
-            className="flex size-7 items-center justify-center rounded-lg border border-line bg-surface/50 text-ink-soft transition-all duration-300 hover:border-brand-400/40 hover:bg-brand-500/10 hover:text-brand-400"
-          >
-            <ChevronRight className="size-3.5" />
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        {renderMonth(viewMonth)}
-        {renderMonth(shiftMonth(viewMonth, 1))}
-      </div>
-
-      <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-line/70 pt-2.5">
-        <p className="text-[10px] leading-tight text-ink-soft">
-          <span className="font-semibold text-brand-400">1.</span> Clic en el día de inicio ·{' '}
-          <span className="font-semibold text-brand-400">2.</span> Clic en el día de fin
-        </p>
-        <button
-          type="button"
-          onClick={() => onChange({ type: 'all' })}
-          className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-bold text-ink-muted transition-colors hover:bg-surface-3 hover:text-ink"
-        >
-          <RotateCcw className="size-3" />
-          LIMPIAR
-        </button>
-      </div>
-    </div>
-  );
-}
 
 export function PeriodoAnalisis(): React.JSX.Element {
   const records = useDataStore((s) => s.records);
@@ -396,7 +225,15 @@ export function PeriodoAnalisis(): React.JSX.Element {
                 transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
                 className="overflow-hidden"
               >
-                <DualMonthCalendar value={value} onChange={apply} />
+                <DateRangePicker
+                  from={value.type === 'range' ? (value.from ?? null) : value.type === 'day' ? (value.day ?? null) : null}
+                  to={value.type === 'range' ? (value.to ?? null) : null}
+                  onChange={(from, to) => {
+                    if (!from) apply({ type: 'all' });
+                    else if (!to) apply({ type: 'day', day: from });
+                    else apply({ type: 'range', from, to });
+                  }}
+                />
               </motion.div>
             )}
           </AnimatePresence>

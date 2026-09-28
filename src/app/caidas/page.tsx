@@ -1,29 +1,23 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarRange, MapPin, Table2, Tags } from 'lucide-react';
+import { MapPin, Tags } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SectionTitle } from '@/components/common/SectionTitle';
 import { NoDataYet } from '@/components/common/NoDataYet';
 import { CaidasRanking } from '@/components/dashboard/CaidasRanking';
 import { CaidasFunnelKPIs } from '@/components/dashboard/caidas/CaidasFunnelKPIs';
-import { ResumenDesercion } from '@/components/dashboard/caidas/ResumenDesercion';
 import { AnalisisReclutadoresSection } from '@/components/dashboard/reclutadores/AnalisisReclutadoresSection';
 import { AnalisisZonaSection } from '@/components/dashboard/zonas/AnalisisZonaSection';
 import { CaidasPorMomentoSalidaChart } from '@/components/dashboard/caidas/CaidasPorMomentoSalidaChart';
 import { RankingDiaCaidaSede } from '@/components/dashboard/caidas/RankingDiaCaidaSede';
 import { LeaderboardDiaCaidaSupervisor } from '@/components/dashboard/caidas/LeaderboardDiaCaidaSupervisor';
-import { DataTable } from '@/components/tables/DataTable';
+import { SupervisorDetailModal } from '@/components/dashboard/caidas/SupervisorDetailModal';
 import { PromotorDetailModal } from '@/components/modals/PromotorDetailModal';
 import { useAppData } from '@/hooks/useAppData';
 import type { Promotor } from '@/types';
-import {
-  computeEmbudo,
-  caidasPorMomentoSalida,
-  caidasPorDiaPorSede,
-  caidasPorDiaPorSupervisor,
-} from '@/services/analytics/falls';
+import { computeEmbudo, caidasPorDiaPorSede, caidasPorDiaPorSupervisor } from '@/services/analytics/falls';
 import { analizarDesercion } from '@/services/analytics/desercion';
 import { analizarReclutadores } from '@/services/analytics/reclutadores';
 import { analizarZonas } from '@/services/analytics/zonas';
@@ -32,6 +26,7 @@ import { validarConsistenciaDesercion } from '@/services/analytics/validacion';
 export default function CaidasPage() {
   const { records, filtered, kpis, motivosCaida, subMotivosCaida } = useAppData();
   const [selected, setSelected] = useState<Promotor | null>(null);
+  const [supervisorSel, setSupervisorSel] = useState<string | null>(null);
 
   useEffect(() => {
     if (filtered.length === 0) return;
@@ -40,13 +35,11 @@ export default function CaidasPage() {
 
   const ejecutivo = useMemo(() => {
     const embudo = computeEmbudo(filtered);
-    const porMomento = caidasPorMomentoSalida(filtered);
     const porDiaSede = caidasPorDiaPorSede(filtered);
     const porDiaSupervisor = caidasPorDiaPorSupervisor(filtered);
 
     return {
       embudo,
-      porMomento,
       porDiaSede,
       porDiaSupervisor,
     };
@@ -74,17 +67,15 @@ export default function CaidasPage() {
         description={`Solo registros con PASA A OPERACIONES = No · ${kpis.desercion + kpis.bajasCapacitacion} caídas según filtros activos`}
       />
 
-      <CaidasFunnelKPIs embudo={ejecutivo.embudo} />
-
-      <ResumenDesercion data={desercion} />
+      <CaidasFunnelKPIs
+        embudo={ejecutivo.embudo}
+        kpis={kpis}
+        mesMayor={desercion.mesMayor}
+        desercionDiaCero={desercion.totalDeserciones > 0}
+      />
 
       <section className="mt-6">
-        <SectionTitle
-          icon={<CalendarRange className="size-4" />}
-          title="¿En qué momento se produce la caída?"
-          subtitle={`Momento de salida (Nunca asistió) · ${desercion.totalDeserciones} deserciones analizadas`}
-        />
-        <CaidasPorMomentoSalidaChart data={ejecutivo.porMomento} />
+        <CaidasPorMomentoSalidaChart records={filtered} />
       </section>
 
       <section className="mt-6">
@@ -103,13 +94,14 @@ export default function CaidasPage() {
             data={ejecutivo.porDiaSupervisor}
             totalCaidas={desercion.totalDeserciones}
             subtitle={`${formatNumber(ejecutivo.porDiaSupervisor.length)} supervisores con deserciones`}
+            onSelect={setSupervisorSel}
           />
         </div>
       </section>
 
       <AnalisisZonaSection data={zonas} />
 
-      <AnalisisReclutadoresSection data={reclutadores} />
+      <AnalisisReclutadoresSection data={reclutadores} records={filtered} onSelectPromotor={setSelected} />
 
       <section className="mt-6">
         <SectionTitle
@@ -120,16 +112,12 @@ export default function CaidasPage() {
         <CaidasRanking motivo={motivosCaida} subMotivo={subMotivosCaida} total={kpis.desercion + kpis.bajasCapacitacion} />
       </section>
 
-      <section className="mt-6">
-        <SectionTitle
-          icon={<Table2 className="size-4" />}
-          title="Tabla detallada"
-          subtitle={`${filtered.length} promotores con caída según filtros activos`}
-        />
-        <div className="mt-3">
-          <DataTable data={filtered} onRowClick={setSelected} pageSize={10} />
-        </div>
-      </section>
+      <SupervisorDetailModal
+        supervisor={supervisorSel}
+        records={filtered}
+        onClose={() => setSupervisorSel(null)}
+        onSelectPromotor={setSelected}
+      />
 
       <PromotorDetailModal promotor={selected} onClose={() => setSelected(null)} />
     </>

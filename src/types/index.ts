@@ -101,13 +101,26 @@ export interface Kpis {
   totalIngresos: number;
   lima: number;
   provincia: number;
+  /** TOTAL DE DÍAS >= 1 */
+  inicianCapacitacion: number;
+  /** TOTAL DE DÍAS >= 1 Y PASA A OPERACIONES vacío */
   enCapacitacion: number;
+  /** TOTAL DE DÍAS >= 1 Y (PASA = 1 O PASA = 0) */
   capacitacionFinalizada: number;
+  /** TOTAL DE DÍAS >= 1 Y PASA A OPERACIONES = 1 */
   pasanAOperaciones: number;
+  /** TOTAL DE DÍAS = 0 Y PASA A OPERACIONES = 0 */
   desercion: number;
+  /** TOTAL DE DÍAS >= 1 Y PASA A OPERACIONES = 0 */
   bajasCapacitacion: number;
+  /** Registros que no encajan en ninguna regla (TOTAL DE DÍAS vacío o 0 con PASA != 0) */
+  sinClasificar: number;
+  /** Pasan a Operaciones / Inician Capacitación x 100 */
   porcentajeAprobacion: number;
-  porcentajeCaida: number;
+  /** Bajas durante Capacitación / Inician Capacitación x 100 */
+  porcentajeBajas: number;
+  /** Deserción / Total Ingresos x 100 */
+  porcentajeDesercion: number;
   procesosFinalizados: number;
 }
 
@@ -125,19 +138,6 @@ export interface CapacitadorSummary {
   aprobados: number;
   desercion: number;
   bajasCapacitacion: number;
-}
-
-export interface DiaAsistencia {
-  dia: number;
-  asistieron: number;
-  faltaron: number;
-  sinRegistro: number;
-  porcentaje: number;
-}
-
-export interface AsistenciaSummary {
-  porDia: DiaAsistencia[];
-  promedioGeneral: number;
 }
 
 export interface CaidaRanking {

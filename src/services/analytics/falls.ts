@@ -2,7 +2,15 @@ import { normalizeKey } from '@/lib/utils';
 import { MAX_TOTAL_DIAS } from '@/lib/constants';
 import { diasEntre, todayISO } from '@/lib/dates';
 import type { CaidaRanking, Promotor } from '@/types';
-import { desercionesDe } from './desercionBase';
+import {
+  bajasCapacitacion,
+  desercionesDe,
+  esAprobado,
+  esBajaCapacitacion,
+  esDesercion,
+  esEnCapacitacion,
+  iniciaCapacitacion,
+} from './desercionBase';
 
 export function caidas(records: Promotor[]): Promotor[] {
   return records.filter((r) => r.pasaAOperaciones === 0);
@@ -124,6 +132,50 @@ export function caidasPorMomentoSalida(records: Promotor[]): MomentoSalida[] {
   return result;
 }
 
+export interface CaidaPorMomento {
+  /** 'Nunca asistió' | 'Día 1' … 'Día 12' */
+  name: string;
+  /** TOTAL DE DÍAS = 0  Y  PASA A OPERACIONES = 0 */
+  desercion: number;
+  /** TOTAL DE DÍAS >= 1  Y  PASA A OPERACIONES = 0 */
+  bajas: number;
+  /** desercion + bajas */
+  total: number;
+  /** total como % del total de caídas (deserción + bajas) */
+  porcentaje: number;
+}
+
+/**
+ * Desglose de las pérdidas del proceso por momento de salida, separando las dos
+ * causas de caída. Siempre devuelve 13 filas: 'Nunca asistió' + Día 1 … Día 12.
+ *
+ * Por definición la deserción solo ocurre con TOTAL DE DÍAS = 0 (nunca asistió),
+ * por lo que se concentra en la primera fila; las bajas sí se reparten entre los
+ * días 1 a 12, que es donde se ve el día crítico de abandono.
+ */
+export function caidasPorMomentoDetallado(records: Promotor[]): CaidaPorMomento[] {
+  const deserciones = desercionesDe(records);
+  const bajas = bajasCapacitacion(records);
+  const total = deserciones.length + bajas.length;
+  const pct = (n: number) => (total > 0 ? (n / total) * 100 : 0);
+
+  const bajasPorDia = new Map<number, number>();
+  for (const r of bajas) {
+    const dia = Math.max(1, Math.min(r.totalDias ?? 1, MAX_TOTAL_DIAS));
+    bajasPorDia.set(dia, (bajasPorDia.get(dia) ?? 0) + 1);
+  }
+
+  const nunca = deserciones.length;
+  const result: CaidaPorMomento[] = [
+    { name: 'Nunca asistió', desercion: nunca, bajas: 0, total: nunca, porcentaje: pct(nunca) },
+  ];
+  for (let d = 1; d <= MAX_TOTAL_DIAS; d++) {
+    const value = bajasPorDia.get(d) ?? 0;
+    result.push({ name: `Día ${d}`, desercion: 0, bajas: value, total: value, porcentaje: pct(value) });
+  }
+  return result;
+}
+
 export interface CaidaDimensionDia {
   name: string;
   dia: number | null;
@@ -222,29 +274,20 @@ export function computeEmbudo(records: Promotor[]): EmbudoCapacitacion {
   const totalIngresos = records.length;
 
   // ══════════════════════════════════════════════════════════════════
-  //  REGLAS OFICIALES DEL NEGOCIO (fuente de verdad única)
+  //  Delegado a la fuente de verdad única (desercionBase.ts)
+  //
+  //  INICIAN CAPACITACIÓN:        TOTAL_DE_DIAS >= 1
+  //  DESERCIÓN:                   TOTAL_DE_DIAS = 0 Y PASA = 0
+  //  BAJAS:                       TOTAL_DE_DIAS >= 1 Y PASA = 0
+  //  APROBADOS:                   TOTAL_DE_DIAS >= 1 Y PASA = 1
+  //  EN CAPACITACIÓN:             TOTAL_DE_DIAS >= 1 Y PASA vacío
+  //  FINALIZADOS:                 TOTAL_DE_DIAS >= 1 Y (PASA = 1 O PASA = 0)
   // ══════════════════════════════════════════════════════════════════
-  //  INICIAN CAPACITACIÓN:        TOTAL_DE_DIAS >= 1                (sin importar PASA/estado/motivo)
-  //  DESERCIÓN:                   TOTAL_DE_DIAS = 0                 (sin importar PASA)
-  //  BAJAS DURANTE CAPACITACIÓN:  TOTAL_DE_DIAS >= 1 AND PASA = 0
-  //  PASAN A OPERACIONES:         PASA = 1
-  //  EN CAPACITACIÓN:             PASA pendiente AND TOTAL_DE_DIAS >= 1
-  const inicianCapacitacion = records.filter((r) => r.totalDias != null && r.totalDias >= 1).length;
-  const desercion = records.filter((r) => r.totalDias != null && r.totalDias === 0).length;
-
-  let bajas = 0;
-  let pasanOperaciones = 0;
-  let enCapacitacion = 0;
-
-  for (const r of records) {
-    if (r.pasaAOperaciones === 1) {
-      pasanOperaciones += 1;
-    } else if (r.pasaAOperaciones === 0) {
-      if (r.totalDias != null && r.totalDias >= 1) bajas += 1;
-    } else if (r.totalDias != null && r.totalDias >= 1) {
-      enCapacitacion += 1;
-    }
-  }
+  const inicianCapacitacion = records.filter(iniciaCapacitacion).length;
+  const desercion = records.filter(esDesercion).length;
+  const bajas = records.filter(esBajaCapacitacion).length;
+  const pasanOperaciones = records.filter(esAprobado).length;
+  const enCapacitacion = records.filter(esEnCapacitacion).length;
 
   // ════ AUDITORIA - logs temporales de consistencia (solicitados) ════
   auditarTotalDias(records);

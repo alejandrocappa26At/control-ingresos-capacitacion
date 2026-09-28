@@ -134,6 +134,20 @@ export function qiHGradient(from: string, to: string) {
   };
 }
 
+export function qiVGradient(from: string, to: string, topAlpha = 1, bottomAlpha = 1) {
+  return {
+    type: 'linear' as const,
+    x: 0,
+    y: 0,
+    x2: 0,
+    y2: 1,
+    colorStops: [
+      { offset: 0, color: hexA(from, topAlpha) },
+      { offset: 1, color: hexA(to, bottomAlpha) },
+    ],
+  };
+}
+
 function hexA(hex: string, alpha: number): string {
   const clean = hex.replace('#', '');
   const r = parseInt(clean.slice(0, 2), 16);

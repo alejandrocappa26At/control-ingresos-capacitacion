@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Percent, Trophy, Users } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { ChartEmpty } from '@/components/charts/charts';
 import { formatNumber } from '@/lib/utils';
 
@@ -30,8 +30,10 @@ const MEDALS = ['🥇', '🥈', '🥉'];
 
 export function SedeRanking({
   data,
+  onSelect,
 }: {
   data: Array<{ name: string; value: number }>;
+  onSelect?: (sede: string) => void;
 }) {
   const rows = data
     .filter((d) => d.value > 0)
@@ -43,7 +45,7 @@ export function SedeRanking({
   const max = Math.max(...rows.map((d) => d.value), 1);
 
   return (
-    <div className="relative z-10 flex flex-col gap-1">
+    <div className="flex flex-col gap-1">
       {rows.map((d, i) => {
         const color = RANK_COLORS[i] ?? GRAY_COLOR;
         const pct = total > 0 ? ((d.value / total) * 100).toFixed(1) : '0.0';
@@ -56,7 +58,21 @@ export function SedeRanking({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
-            className="group relative rounded-xl px-2 py-2 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-surface-3/70 hover:shadow-[0_6px_18px_-8px_rgba(0,0,0,0.25)]"
+            className="group relative w-full rounded-xl px-2 py-2 text-left transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-surface-3/70 hover:brightness-105 hover:shadow-[0_6px_18px_-8px_rgba(0,0,0,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
+            onClick={onSelect ? () => onSelect(d.name) : undefined}
+            onKeyDown={
+              onSelect
+                ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onSelect(d.name);
+                    }
+                  }
+                : undefined
+            }
+            role={onSelect ? 'button' : undefined}
+            tabIndex={onSelect ? 0 : undefined}
+            aria-label={onSelect ? `Ver detalle de ${d.name}` : undefined}
           >
             <div className="flex items-center gap-3">
               <span
@@ -74,7 +90,7 @@ export function SedeRanking({
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="truncate text-sm font-semibold text-ink" title={d.name}>
+                  <span className="truncate text-sm font-semibold text-ink">
                     {d.name}
                   </span>
                   <span className="shrink-0 text-sm font-bold text-ink tabular-nums">
@@ -100,43 +116,10 @@ export function SedeRanking({
                   </span>
                 </div>
               </div>
-            </div>
 
-            <div className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 scale-95 opacity-0 transition-all duration-200 ease-out group-hover:scale-100 group-hover:opacity-100">
-              <div className="relative w-48 rounded-xl border border-line bg-white p-3 shadow-[0_18px_40px_-14px_rgba(0,0,0,0.35),0_6px_16px_-8px_rgba(0,0,0,0.2)]">
-                <div className="absolute -left-1 top-1/2 size-2 -translate-y-1/2 rotate-45 border-b border-l border-line bg-white" />
-                <p className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-ink-soft">
-                  <Trophy className="size-3.5" style={{ color: color.text }} />
-                  Top {rank}
-                </p>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                  <div className="col-span-2">
-                    <p className="flex items-center gap-1 text-[10px] text-ink-soft">
-                      <MapPin className="size-3" />
-                      Sede
-                    </p>
-                    <p className="truncate text-sm font-bold text-ink" title={d.name}>
-                      {d.name}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="flex items-center gap-1 text-[10px] text-ink-soft">
-                      <Users className="size-3" />
-                      Ingresos
-                    </p>
-                    <p className="text-sm font-bold text-ink tabular-nums">{formatNumber(d.value)}</p>
-                  </div>
-                  <div>
-                    <p className="flex items-center gap-1 text-[10px] text-ink-soft">
-                      <Percent className="size-3" />
-                      Porcentaje
-                    </p>
-                    <p className="text-sm font-bold tabular-nums" style={{ color: color.text }}>
-                      {pct}%
-                    </p>
-                  </div>
-                </div>
-              </div>
+              {onSelect && (
+                <ChevronRight className="size-4 shrink-0 text-ink-soft transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-ink" />
+              )}
             </div>
           </motion.div>
         );

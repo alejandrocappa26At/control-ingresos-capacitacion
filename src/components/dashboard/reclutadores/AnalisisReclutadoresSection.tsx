@@ -3,11 +3,22 @@
 import { Users } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
 import { SectionTitle } from '@/components/common/SectionTitle';
+import type { Promotor } from '@/types';
 import type { ReclutadoresAnalisis } from '@/services/analytics/reclutadores';
 import { ReclutadoresResumen } from './ReclutadoresResumen';
 import { MatrizReclutadores } from './MatrizReclutadores';
 
-export function AnalisisReclutadoresSection({ data }: { data: ReclutadoresAnalisis }) {
+interface AnalisisReclutadoresSectionProps {
+  data: ReclutadoresAnalisis;
+  records: Promotor[];
+  onSelectPromotor?: (p: Promotor) => void;
+}
+
+export function AnalisisReclutadoresSection({
+  data,
+  records,
+  onSelectPromotor,
+}: AnalisisReclutadoresSectionProps) {
   return (
     <section className="mt-6 space-y-4">
       <SectionTitle
@@ -18,7 +29,7 @@ export function AnalisisReclutadoresSection({ data }: { data: ReclutadoresAnalis
 
       <ReclutadoresResumen data={data} />
 
-      <MatrizReclutadores data={data.productividad} />
+      <MatrizReclutadores data={data.productividad} records={records} onSelectPromotor={onSelectPromotor} />
     </section>
   );
 }

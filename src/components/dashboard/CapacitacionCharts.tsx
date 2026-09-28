@@ -1,13 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { memo, type ReactNode } from 'react';
-import { ChartCard } from '@/components/charts/ChartCard';
-import { SemiDonutChart } from '@/components/charts/charts';
-import { GraduationCap, Trophy, UserCheck, UserX, UserRound, AlertCircle } from 'lucide-react';
-import type { CapacitadorSummary, Promotor, SerieItem } from '@/types';
+import { memo } from 'react';
+import { Trophy } from 'lucide-react';
+import type { CapacitadorSummary } from '@/types';
 import { cn, formatNumber } from '@/lib/utils';
-import { ResumenDeCaidas } from '@/components/dashboard/caidas/ResumenDeCaidas';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const AVATAR_GRADIENTS: Array<[string, string]> = [
@@ -28,128 +25,6 @@ function initialsOf(name: string): string {
     .join('');
 }
 
-export const ResultadoDonut = memo(function ResultadoDonut({ data, total, records }: { data: SerieItem[]; total: number; records?: Promotor[] }) {
-  const pasa = data.find((d) => d.name.startsWith('Pasa'))?.value ?? 0;
-  const bajas = data.find((d) => d.name.startsWith('Baja'))?.value ?? 0;
-  const desercion = data.find((d) => d.name.startsWith('Deserc'))?.value ?? 0;
-  const pendiente = data.find((d) => d.name.startsWith('En capac'))?.value ?? 0;
-  const hasRecords = records !== undefined;
-  const chartData = [
-    { name: 'Pasa a operaciones', value: pasa },
-    { name: 'Baja durante capacitación', value: bajas },
-    { name: 'Deserción', value: desercion },
-    { name: 'En capacitación', value: pendiente },
-  ].filter((d) => d.value > 0);
-  const chartColors = ['#10b981', '#f59e0b', '#18181b', '#f59e0b'];
-
-  return (
-    <ChartCard
-      title="5. RESULTADO DE CAPACITACIÓN"
-      description="Distribución del resultado del proceso de capacitación"
-      icon={<GraduationCap className="size-4" />}
-    >
-      <SemiDonutChart data={chartData} colors={chartColors} centerValue={total} centerLabel="Total Ingresos" />
-      {hasRecords ? (
-        <div className="mt-2 grid grid-cols-2 gap-3">
-          <ResultadoCard
-            label="Pasa a operaciones"
-            value={pasa}
-            total={total}
-            icon={<UserCheck className="size-3.5" />}
-            className="border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
-          />
-          <ResultadoCard
-            label="Baja durante capacitación"
-            value={bajas}
-            total={total}
-            icon={<AlertCircle className="size-3.5" />}
-            className="border-amber-500/25 bg-amber-500/10 text-amber-400"
-          />
-          <ResultadoCard
-            label="Deserción"
-            value={desercion}
-            total={total}
-            icon={<UserX className="size-3.5" />}
-            className="border-zinc-900/25 bg-zinc-900/10 text-zinc-400"
-          />
-          {pendiente > 0 && (
-            <div className="col-span-2">
-              <ResultadoCard
-                label="En capacitación"
-                value={pendiente}
-                total={total}
-                icon={<UserRound className="size-3.5" />}
-                className="border-amber-500/25 bg-amber-500/10 text-amber-400"
-              />
-            </div>
-          )}
-          {hasRecords && (
-            <div className="col-span-2">
-              <ResumenDeCaidas records={records} />
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="mt-2 grid grid-cols-2 gap-3">
-          <ResultadoCard
-            label="Pasa a operaciones"
-            value={pasa}
-            total={total}
-            icon={<UserCheck className="size-3.5" />}
-            className="border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
-          />
-          <ResultadoCard
-            label="Baja durante capacitación"
-            value={bajas}
-            total={total}
-            icon={<AlertCircle className="size-3.5" />}
-            className="border-amber-500/25 bg-amber-500/10 text-amber-400"
-          />
-          <ResultadoCard
-            label="Deserción"
-            value={desercion}
-            total={total}
-            icon={<UserX className="size-3.5" />}
-            className="border-zinc-900/25 bg-zinc-900/10 text-zinc-400"
-          />
-          {pendiente > 0 && (
-            <div className="col-span-2">
-              <ResultadoCard
-                label="En capacitación"
-                value={pendiente}
-                total={total}
-                icon={<UserRound className="size-3.5" />}
-                className="border-amber-500/25 bg-amber-500/10 text-amber-400"
-              />
-            </div>
-          )}
-        </div>
-      )}
-    </ChartCard>
-  );
-});
-
-function ResultadoCard({
-  label,
-  value,
-  total,
-  icon,
-  className,
-}: {
-  label: string;
-  value: number;
-  total: number;
-  icon: ReactNode;
-  className: string;
-}) {
-  return (
-    <div className={cn('rounded-xl border p-3 transition-colors duration-300 hover:border-ink/15', className)}>
-      <p className="flex items-center gap-1.5 text-xs font-bold">{icon} {label}</p>
-      <p className="mt-1 text-2xl font-bold text-ink tabular-nums">{formatNumber(value)}</p>
-      <p className="text-xs text-ink-soft">{total > 0 ? ((value / total) * 100).toFixed(1) : 0}%</p>
-    </div>
-  );
-}
 
 export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { data: CapacitadorSummary[] }) {
   const rows = data
@@ -167,7 +42,7 @@ export const CapacitadoresTable = memo(function CapacitadoresTable({ data }: { d
       initial="hidden"
       animate="show"
       variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
-      className="grid gap-3 md:grid-cols-2"
+      className="grid gap-3 md:grid-cols-2 xl:grid-cols-3"
     >
       {rows.map((c, i) => {
         const [from, to] = AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length];

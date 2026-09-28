@@ -6,7 +6,7 @@ import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CountUp } from '@/components/ui/count-up';
 
-type Tone = 'blue' | 'orange' | 'slate' | 'green' | 'rose' | 'emerald' | 'amber';
+type Tone = 'blue' | 'indigo' | 'orange' | 'slate' | 'green' | 'rose' | 'emerald' | 'amber';
 
 interface ToneConfig {
   color: string;
@@ -19,6 +19,11 @@ const toneConfig: Record<Tone, ToneConfig> = {
     color: '#2563eb',
     glow: 'rgba(37,99,235,0.35)',
     tile: 'border-[#2563eb]/25 bg-[#2563eb]/10 text-[#2563eb] shadow-[0_6px_20px_-8px_rgba(37,99,235,0.5)]',
+  },
+  indigo: {
+    color: '#6366f1',
+    glow: 'rgba(99,102,241,0.35)',
+    tile: 'border-[#6366f1]/25 bg-[#6366f1]/10 text-[#6366f1] shadow-[0_6px_20px_-8px_rgba(99,102,241,0.5)]',
   },
   orange: {
     color: '#f59e0b',
@@ -54,7 +59,8 @@ const toneConfig: Record<Tone, ToneConfig> = {
 
 interface KpiCardProps {
   title: string;
-  value: number;
+  /** Número (se anima con CountUp) o texto corto, ej. el nombre de un mes. */
+  value: number | string;
   subtitle?: string;
   icon: LucideIcon;
   tone?: Tone;
@@ -80,33 +86,38 @@ export function KpiCard({
     '--kpi-glow': t.glow,
   } as CSSProperties;
 
+  const isText = typeof value === 'string';
+  const textValue = isText && value.length > 6 ? value.slice(0, 6) : value;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ delay: index * 0.05, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className="group relative h-full"
     >
       <div
         style={style}
-        className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-line border-l-4 bg-surface-2 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.25),0_10px_24px_-14px_rgba(0,0,0,0.5)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-[var(--kpi-accent)]/30 group-hover:shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_16px_36px_-16px_var(--kpi-glow)]"
+        className="relative flex h-full flex-col items-center justify-center overflow-hidden rounded-xl border border-line border-l-2 bg-surface-2 px-3 py-3 text-center shadow-[0_1px_3px_rgba(0,0,0,0.25)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-[var(--kpi-accent)]/30 group-hover:shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_16px_36px_-16px_var(--kpi-glow)]"
       >
-        <span className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-[var(--kpi-accent)] to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-[10px] font-bold leading-snug tracking-[0.14em] text-ink-muted uppercase">{title}</p>
-          <span
-            className={cn(
-              'flex size-9 shrink-0 items-center justify-center rounded-xl border transition-transform duration-300 group-hover:scale-105',
-              t.tile,
-            )}
-          >
-            <Icon className="size-[18px]" />
-          </span>
-        </div>
-        <p className="mt-3 text-3xl font-extrabold leading-none tracking-tight text-ink tabular-nums">
-          <CountUp value={value} format={format} suffix={suffix} />
-        </p>
-        {subtitle && <p className="mt-1.5 text-[11px] font-medium text-ink-soft">{subtitle}</p>}
+        <span className="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-[var(--kpi-accent)] to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
+        <span
+          className={cn(
+            'flex size-7 shrink-0 items-center justify-center rounded-lg border transition-transform duration-300 group-hover:scale-105',
+            t.tile,
+          )}
+        >
+          <Icon className="size-3.5" />
+        </span>
+        {isText ? (
+          <p className="mt-2 truncate text-xl font-extrabold leading-none tracking-tight text-ink">{textValue}</p>
+        ) : (
+          <p className="mt-2 text-2xl font-extrabold leading-none tracking-tight text-ink tabular-nums">
+            <CountUp value={value} format={format} suffix={suffix} />
+          </p>
+        )}
+        <p className="mt-1 text-[10px] font-bold leading-tight tracking-[0.12em] text-ink-muted uppercase">{title}</p>
+        {subtitle && <p className="mt-1 text-[10px] font-medium leading-tight text-ink-soft">{subtitle}</p>}
       </div>
     </motion.div>
   );

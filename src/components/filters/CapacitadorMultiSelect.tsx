@@ -11,6 +11,7 @@ interface CapacitadorMultiSelectProps {
   value: string[];
   onChange: (next: string[]) => void;
   options: string[];
+  showChips?: boolean;
 }
 
 function useEffectiveOptions(options: string[]): string[] {
@@ -25,7 +26,7 @@ function useEffectiveOptions(options: string[]): string[] {
   }, [options, records]);
 }
 
-export function CapacitadorMultiSelect({ value, onChange, options }: CapacitadorMultiSelectProps) {
+export function CapacitadorMultiSelect({ value, onChange, options, showChips }: CapacitadorMultiSelectProps) {
   const effective = useEffectiveOptions(options);
   return (
     <MultiSelectFilter
@@ -36,6 +37,7 @@ export function CapacitadorMultiSelect({ value, onChange, options }: Capacitador
       emptyLabel="Todos los capacitadores"
       searchPlaceholder="Buscar capacitador..."
       countToken="capacitadores"
+      showChips={showChips}
     />
   );
 }

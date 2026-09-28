@@ -1,8 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { useDataStore, selectFilteredRecords } from '@/store/useDataStore';
 import { computeKpis } from '@/services/analytics/kpis';
-import { ingresosPorJurisdiccion, ingresosPorZonaComercial, ingresosPorSede, analizarCapacitadores, resultadoCapacitacion, ingresosPorMes } from '@/services/analytics/charts';
-import { computeAsistencia } from '@/services/analytics/attendance';
+import { ingresosPorJurisdiccion, ingresosPorZonaComercial, ingresosPorSede, analizarCapacitadores, ingresosPorMes, ingresosMensualesPorJurisdiccion } from '@/services/analytics/charts';
 import { computeEmbudo, rankingPorMotivo, rankingPorSubMotivo } from '@/services/analytics/falls';
 
 export function useAppData() {
@@ -35,11 +34,10 @@ export function useAppData() {
     const zonas = ingresosPorZonaComercial(filtered);
     const sedes = ingresosPorSede(filtered, 12);
     const { capacitadores, capacitadoresReales, registrosExcluidos } = analizarCapacitadores(filtered);
-    const resultado = resultadoCapacitacion(filtered);
-    const asistencia = computeAsistencia(filtered);
     const motivosCaida = rankingPorMotivo(filtered);
     const subMotivosCaida = rankingPorSubMotivo(filtered);
     const porMes = ingresosPorMes(filtered);
+    const ingresosPorMesJurisdiccion = ingresosMensualesPorJurisdiccion(filtered);
 
     if (shouldMeasure) console.timeEnd('Gráficos');
 
@@ -53,12 +51,11 @@ export function useAppData() {
       capacitadores,
       capacitadoresReales,
       registrosExcluidos,
-      resultado,
       embudo,
-      asistencia,
       motivosCaida,
       subMotivosCaida,
       porMes,
+      ingresosPorMesJurisdiccion,
       filters,
       searchTerm,
     };

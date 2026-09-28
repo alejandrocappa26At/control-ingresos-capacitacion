@@ -76,22 +76,6 @@ export function cargaPorCapacitador(records: Promotor[]): CapacitadorSummary[] {
   return analizarCapacitadores(records).capacitadores;
 }
 
-export function resultadoCapacitacion(records: Promotor[]): SerieItem[] {
-  const pasa = records.filter((r) => r.pasaAOperaciones === 1).length;
-  const desercion = records.filter(esDesercion).length;
-  const bajasCapacitacion = records.filter(esBajaCapacitacion).length;
-  const pendiente = records.length - pasa - desercion - bajasCapacitacion;
-  return toSerie(
-    [
-      { name: 'Pasa a operaciones', value: pasa },
-      { name: 'Baja durante capacitación', value: bajasCapacitacion },
-      { name: 'Deserción', value: desercion },
-      { name: 'En capacitación', value: pendiente },
-    ],
-    records.length,
-  ).filter((item) => item.value > 0 || item.name === 'En capacitación');
-}
-
 export function ingresosPorMes(records: Promotor[]): SerieItem[] {
   const map = new Map<string, number>();
   for (const r of records) {
@@ -103,4 +87,38 @@ export function ingresosPorMes(records: Promotor[]): SerieItem[] {
   return Array.from(map.entries())
     .map(([name, value]) => ({ name, value, porcentaje: 0 }))
     .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export interface IngresoMensual {
+  mes: number;
+  lima: number;
+  provincia: number;
+  total: number;
+}
+
+/**
+ * Serie mensual fija de enero a diciembre, siempre 12 registros (con 0 en los
+ * meses sin datos), separada por jurisdicción. La suma lima + provincia
+ * coincide con los KPIs porque replica el mismo criterio de `computeKpis`
+ * (LIMA explícito, el resto cuenta como Provincia).
+ */
+export function ingresosMensualesPorJurisdiccion(records: Promotor[]): IngresoMensual[] {
+  const lima = Array.from({ length: 12 }, () => 0);
+  const provincia = Array.from({ length: 12 }, () => 0);
+
+  for (const r of records) {
+    const iso = r.fechasISO.fechaIngreso;
+    if (!iso) continue;
+    const idx = Number(iso.slice(5, 7)) - 1;
+    if (!Number.isInteger(idx) || idx < 0 || idx > 11) continue;
+    if (r.jurisdiccion === 'LIMA') lima[idx] += 1;
+    else provincia[idx] += 1;
+  }
+
+  return lima.map((value, i) => ({
+    mes: i + 1,
+    lima: value,
+    provincia: provincia[i],
+    total: value + provincia[i],
+  }));
 }

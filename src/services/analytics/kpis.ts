@@ -1,45 +1,71 @@
 import type { Kpis, Promotor } from '@/types';
-import { esDesercion, esBajaCapacitacion } from './desercionBase';
+import {
+  diagnosticoClasificacion,
+  esAprobado,
+  esBajaCapacitacion,
+  esCapacitacionFinalizada,
+  esDesercion,
+  esEnCapacitacion,
+  esSinClasificar,
+  iniciaCapacitacion,
+} from './desercionBase';
 
 export function computeKpis(records: Promotor[]): Kpis {
   const totalIngresos = records.length;
 
   let lima = 0;
-  let pasanAOperaciones = 0;
+  let inicianCapacitacion = 0;
   let desercion = 0;
+  let enCapacitacion = 0;
+  let capacitacionFinalizada = 0;
+  let pasanAOperaciones = 0;
   let bajasCapacitacion = 0;
+  let sinClasificar = 0;
 
   for (const r of records) {
     if (r.jurisdiccion === 'LIMA') lima += 1;
-    if (r.pasaAOperaciones === 1) pasanAOperaciones += 1;
-    else if (esDesercion(r)) desercion += 1;
+
+    // INICIAN CAPACITACIÓN: TOTAL DE DÍAS >= 1
+    if (iniciaCapacitacion(r)) inicianCapacitacion += 1;
+    if (esCapacitacionFinalizada(r)) capacitacionFinalizada += 1;
+    if (esAprobado(r)) pasanAOperaciones += 1;
     else if (esBajaCapacitacion(r)) bajasCapacitacion += 1;
+    else if (esEnCapacitacion(r)) enCapacitacion += 1;
+    else if (esDesercion(r)) desercion += 1;
+    else if (esSinClasificar(r)) sinClasificar += 1;
   }
 
   const provincia = totalIngresos - lima;
-  const enCapacitacion = totalIngresos - pasanAOperaciones - desercion - bajasCapacitacion;
-  const procesosFinalizados = pasanAOperaciones + desercion + bajasCapacitacion;
 
-  const porcentajeAprobacion = procesosFinalizados > 0
-    ? (pasanAOperaciones / procesosFinalizados) * 100
-    : 0;
+  // % Aprobación = APROBADOS / INICIAN CAPACITACIÓN x 100
+  const porcentajeAprobacion = inicianCapacitacion > 0 ? (pasanAOperaciones / inicianCapacitacion) * 100 : 0;
+  const porcentajeBajas = inicianCapacitacion > 0 ? (bajasCapacitacion / inicianCapacitacion) * 100 : 0;
+  const porcentajeDesercion = totalIngresos > 0 ? (desercion / totalIngresos) * 100 : 0;
 
-  const porcentajeCaida = procesosFinalizados > 0
-    ? ((desercion + bajasCapacitacion) / procesosFinalizados) * 100
-    : 0;
+  if (process.env.NODE_ENV === 'development' && sinClasificar > 0) {
+    const d = diagnosticoClasificacion(records);
+    console.warn(
+      `[KPIs] Partición incompleta -> Total ${totalIngresos} ≠ Deserción ${desercion} + Inician ${inicianCapacitacion}` +
+        ` (diferencia ${d.diferenciaTotal}). Registros con TOTAL DE DÍAS vacío: ${d.sinDias}.` +
+        ' Revisar esas filas del Excel.',
+    );
+  }
 
   return {
     totalIngresos,
     lima,
     provincia,
+    inicianCapacitacion,
     enCapacitacion,
-    capacitacionFinalizada: procesosFinalizados,
+    capacitacionFinalizada,
     pasanAOperaciones,
     desercion,
     bajasCapacitacion,
+    sinClasificar,
     porcentajeAprobacion,
-    porcentajeCaida,
-    procesosFinalizados,
+    porcentajeBajas,
+    porcentajeDesercion,
+    procesosFinalizados: capacitacionFinalizada,
   };
 }
 

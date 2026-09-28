@@ -1,5 +1,6 @@
 import { format, isValid, parse, formatISO, addMonths, subMonths, startOfQuarter } from 'date-fns';
 import { es } from 'date-fns/locale';
+import type { DateFilterValue } from '@/types';
 
 export const EMPTY_ISO = '';
 
@@ -225,6 +226,37 @@ export function monthChipLabel(month: string): string {
   if (!month) return '';
   const date = parse(month, 'yyyy-MM', new Date());
   return isValid(date) ? format(date, 'MMMM yyyy', { locale: es }).toUpperCase() : month;
+}
+
+export const HISTORICO_COMPLETO = 'HISTÓRICO COMPLETO';
+
+function dayLabel(iso: string): string {
+  const date = parse(iso, 'yyyy-MM-dd', new Date());
+  return isValid(date) ? format(date, "d 'de' MMMM 'de' yyyy", { locale: es }).toUpperCase() : iso.toUpperCase();
+}
+
+/**
+ * Etiqueta en mayúsculas del período analizado a partir del filtro de
+ * fecha de ingreso. Ejemplos: "SEPTIEMBRE 2026", "AÑO 2026 COMPLETO",
+ * "ENERO 2026 - SEPTIEMBRE 2026", "HISTÓRICO COMPLETO".
+ */
+export function periodoLabel(value: DateFilterValue | undefined): string {
+  if (!value || value.type === 'all') return HISTORICO_COMPLETO;
+
+  if (value.type === 'day') return value.day ? dayLabel(value.day) : HISTORICO_COMPLETO;
+  if (value.type === 'month') return value.month ? monthChipLabel(value.month) : HISTORICO_COMPLETO;
+  if (value.type === 'year') return value.year ? `AÑO ${value.year} COMPLETO` : HISTORICO_COMPLETO;
+
+  const from = value.from ?? '';
+  const to = value.to ?? '';
+  if (!from && !to) return HISTORICO_COMPLETO;
+  if (from && !to) return `DESDE ${monthChipLabel(from.slice(0, 7))}`;
+  if (!from && to) return `HASTA ${monthChipLabel(to.slice(0, 7))}`;
+
+  const fromMonth = from.slice(0, 7);
+  const toMonth = to.slice(0, 7);
+  if (fromMonth === toMonth) return monthChipLabel(fromMonth);
+  return `${monthChipLabel(fromMonth)} - ${monthChipLabel(toMonth)}`;
 }
 
 export function pad2(n: number) {

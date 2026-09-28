@@ -1,25 +1,27 @@
 'use client';
 
-import { useState } from 'react';
-import { GraduationCap, CheckCircle2, UserCheck, UserX, Clock3, AlertCircle } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Users, GraduationCap, CheckCircle2, UserCheck, UserX, AlertCircle } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SectionTitle } from '@/components/common/SectionTitle';
 import { KpiCard } from '@/components/dashboard/KpiCard';
-import { DataTable } from '@/components/tables/DataTable';
-import { PromotorDetailModal } from '@/components/modals/PromotorDetailModal';
 import { NoDataYet } from '@/components/common/NoDataYet';
-import { CapacitadoresTable, ResultadoDonut } from '@/components/dashboard/CapacitacionCharts';
+import { CapacitadoresTable } from '@/components/dashboard/CapacitacionCharts';
+import { RendimientoCapacitadores } from '@/components/dashboard/capacitacion/RendimientoCapacitadores';
+import { CapacitadorDetailModal } from '@/components/dashboard/capacitacion/CapacitadorDetailModal';
 import { useAppData } from '@/hooks/useAppData';
-import type { Promotor } from '@/types';
+import { periodoLabel } from '@/lib/dates';
 
 export default function CapacitacionPage() {
-  const { records, filtered, kpis, capacitadores, resultado } = useAppData();
-  const [selected, setSelected] = useState<Promotor | null>(null);
+  const { records, filtered, kpis, capacitadores, filters } = useAppData();
+  const [capDetalle, setCapDetalle] = useState<string | null>(null);
+
+  const periodo = useMemo(() => periodoLabel(filters.fechaIngreso), [filters.fechaIngreso]);
 
   if (records.length === 0) {
     return (
       <>
-        <PageHeader title="Capacitación" description="Gestión y seguimiento del proceso de capacitación de los promotores" />
+        <PageHeader title="Capacitación" description="Seguimiento operativo del proceso de capacitación" />
         <NoDataYet />
       </>
     );
@@ -31,37 +33,37 @@ export default function CapacitacionPage() {
     <>
       <PageHeader
         title="Capacitación"
-        description={`${capacitadores.length} capacitadores activos · seguimiento del proceso formativo`}
+        description="Seguimiento operativo del proceso: cuántos ingresaron, cuántos siguen en curso, finalizaron, aprobaron, dieron de baja o desertaron."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <KpiCard index={0} title="EN CAPACITACIÓN" value={kpis.enCapacitacion} icon={GraduationCap} tone="orange" subtitle={`${enProcesoCapacitadores} asignaciones en proceso`} />
-        <KpiCard index={1} title="CAPACITACIÓN FINALIZADA" value={kpis.capacitacionFinalizada} icon={CheckCircle2} tone="slate" />
-        <KpiCard index={2} title="APROBADOS" value={kpis.pasanAOperaciones} icon={UserCheck} tone="green" subtitle={`${kpis.porcentajeAprobacion.toFixed(1)}% de aprobación`} />
-        <KpiCard index={3} title="BAJAS CAPACITACIÓN" value={kpis.bajasCapacitacion} icon={AlertCircle} tone="amber" />
-        <KpiCard index={4} title="DESERCIÓN" value={kpis.desercion} icon={UserX} tone="slate" subtitle={`${kpis.porcentajeCaida.toFixed(1)}% de caída`} />
-      </div>
-
-      <section className="mt-6 grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <SectionTitle icon={<GraduationCap className="size-4" />} title="4. Carga de capacitación por capacitador" />
-          <CapacitadoresTable data={capacitadores} />
-        </div>
-        <div>
-          <ResultadoDonut data={resultado} total={kpis.totalIngresos} records={filtered} />
-        </div>
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <KpiCard index={0} title="Total Ingresos" value={kpis.totalIngresos} icon={Users} tone="blue" subtitle={`${kpis.lima} Lima · ${kpis.provincia} Provincia`} />
+        <KpiCard index={1} title="En Capacitación" value={kpis.enCapacitacion} icon={GraduationCap} tone="orange" subtitle={`${enProcesoCapacitadores} asignaciones en proceso`} />
+        <KpiCard index={2} title="Capacitación Finalizada" value={kpis.capacitacionFinalizada} icon={CheckCircle2} tone="slate" subtitle="Procesos concluidos" />
+        <KpiCard index={3} title="Aprobados" value={kpis.pasanAOperaciones} icon={UserCheck} tone="green" subtitle={`${kpis.porcentajeAprobacion.toFixed(1)}% de los que iniciaron`} />
+        <KpiCard index={4} title="Bajas durante Capacitación" value={kpis.bajasCapacitacion} icon={AlertCircle} tone="amber" subtitle={`${kpis.porcentajeBajas.toFixed(1)}% de los que iniciaron`} />
+        <KpiCard index={5} title="Deserción" value={kpis.desercion} icon={UserX} tone="slate" subtitle={`Nunca asistieron · ${kpis.porcentajeDesercion.toFixed(1)}% del total`} />
       </section>
 
-      <section className="mt-8">
+      <section className="mt-6">
+        <RendimientoCapacitadores data={capacitadores} kpis={kpis} onSelectCapacitador={setCapDetalle} />
+      </section>
+
+      <section className="mt-6">
         <SectionTitle
-          icon={<Clock3 className="size-4" />}
-          title="Detalle de capacitación"
-          subtitle={`${filtered.length} registros según los filtros aplicados. Haz clic en un promotor para ver la línea de tiempo completa.`}
+          icon={<GraduationCap className="size-4" />}
+          title="Carga de capacitación por capacitador"
+          subtitle={`${capacitadores.length} capacitadores · ${kpis.capacitacionFinalizada} procesos concluidos`}
         />
-        <DataTable data={filtered} onRowClick={setSelected} pageSize={10} />
+        <CapacitadoresTable data={capacitadores} />
       </section>
 
-      <PromotorDetailModal promotor={selected} onClose={() => setSelected(null)} />
+      <CapacitadorDetailModal
+        capacitador={capDetalle}
+        records={filtered}
+        periodo={periodo}
+        onClose={() => setCapDetalle(null)}
+      />
     </>
   );
 }

@@ -1,11 +1,14 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users } from 'lucide-react';
+import { ChevronRight, Users } from 'lucide-react';
 import { cn, formatNumber } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RANGOS_SEMAFORO, SEMAFORO_STYLES } from '@/services/analytics/reclutadores';
 import type { ResumenReclutador } from '@/services/analytics/reclutadores';
+import type { Promotor } from '@/types';
+import { ReclutadorDetailModal } from './ReclutadorDetailModal';
 
 function pillStyle(color: string) {
   return {
@@ -15,7 +18,14 @@ function pillStyle(color: string) {
   };
 }
 
-export function MatrizReclutadores({ data }: { data: ResumenReclutador[] }) {
+interface MatrizReclutadoresProps {
+  data: ResumenReclutador[];
+  records: Promotor[];
+  onSelectPromotor?: (p: Promotor) => void;
+}
+
+export function MatrizReclutadores({ data, records, onSelectPromotor }: MatrizReclutadoresProps) {
+  const [seleccion, setSeleccion] = useState<ResumenReclutador | null>(null);
   const rows = [...data].slice(0, 12);
   const max = Math.max(...rows.map((r) => r.ingresos), 1);
   const criticos = data.filter((r) => r.nivel === 'critico' && r.deserciones > 0).length;
@@ -30,7 +40,10 @@ export function MatrizReclutadores({ data }: { data: ResumenReclutador[] }) {
             </span>
             <div>
               <CardTitle className="text-sm tracking-tight">Matriz de reclutadores</CardTitle>
-              <p className="mt-0.5 text-xs text-ink-soft">Ingresos · deserciones · tasa por responsable A&S</p>
+              <p className="mt-0.5 text-xs text-ink-soft">
+                Ordenado por ingresos · {criticos > 0 ? `${criticos} en nivel crítico de deserción` : 'sin niveles críticos'}
+                {' · clic para ver el detalle'}
+              </p>
             </div>
           </div>
         </CardHeader>
@@ -45,7 +58,8 @@ export function MatrizReclutadores({ data }: { data: ResumenReclutador[] }) {
   }
 
   return (
-    <Card className="h-full">
+    <>
+      <Card className="h-full">
       <CardHeader className="flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400">
@@ -61,12 +75,13 @@ export function MatrizReclutadores({ data }: { data: ResumenReclutador[] }) {
       </CardHeader>
 
       <CardContent className="pt-4">
-        <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_3.5rem_4rem_3.5rem] items-center gap-3 border-b border-line pb-2 text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+        <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_3.5rem_4rem_3.5rem_1.25rem] items-center gap-3 border-b border-line pb-2 text-[10px] font-bold tracking-wider text-ink-muted uppercase">
           <span>Reclutador</span>
           <span className="text-right">Ingresos</span>
           <span className="text-right">Deserciones</span>
           <span className="text-right">Tasa</span>
           <span className="text-right">Perm.</span>
+          <span className="sr-only">Detalle</span>
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -80,9 +95,19 @@ export function MatrizReclutadores({ data }: { data: ResumenReclutador[] }) {
                 initial={{ opacity: 0, x: -14 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                onClick={() => setSeleccion(r)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setSeleccion(r);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Ver detalle de ${r.responsable}`}
                 className={cn(
-                  'grid grid-cols-[minmax(0,1fr)_3.5rem_3.5rem_4rem_3.5rem] items-center gap-3 rounded-lg px-2 py-2 transition-colors',
-                  esRadar ? 'bg-rose-500/[0.06]' : 'hover:bg-surface-3/50',
+                  'group/row grid cursor-pointer grid-cols-[minmax(0,1fr)_3.5rem_3.5rem_4rem_3.5rem_1.25rem] items-center gap-3 rounded-lg px-2 py-2 transition-all duration-200 hover:shadow-[0_8px_24px_-16px_rgba(225,6,19,0.8)] focus-visible:outline-none',
+                  esRadar ? 'bg-rose-500/[0.06] hover:bg-rose-500/10' : 'hover:bg-surface-3/50',
                 )}
               >
                 <div className="min-w-0">
@@ -125,6 +150,10 @@ export function MatrizReclutadores({ data }: { data: ResumenReclutador[] }) {
                 <span className="text-right font-bold tabular-nums text-emerald-400">
                   {r.procesosFinalizados > 0 ? `${r.tasaPermanencia.toFixed(1)}%` : '—'}
                 </span>
+
+                <span className="flex items-center justify-end">
+                  <ChevronRight className="size-4 text-ink-soft transition-all duration-200 group-hover/row:translate-x-0.5 group-hover/row:text-brand-400" />
+                </span>
               </motion.div>
             );
           })}
@@ -145,5 +174,14 @@ export function MatrizReclutadores({ data }: { data: ResumenReclutador[] }) {
         </div>
       </CardContent>
     </Card>
+
+      <ReclutadorDetailModal
+        reclutador={seleccion?.responsable ?? null}
+        resumen={seleccion}
+        records={records}
+        onClose={() => setSeleccion(null)}
+        onSelectPromotor={onSelectPromotor}
+      />
+    </>
   );
 }

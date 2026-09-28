@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { CalendarDays, Crown, Trophy } from 'lucide-react';
+import { CalendarDays, ChevronRight, Crown, Trophy } from 'lucide-react';
 import { cn, formatNumber } from '@/lib/utils';
 import type { CaidaDimensionDia } from '@/services/analytics/falls';
 
@@ -36,12 +36,14 @@ interface LeaderboardDiaCaidaSupervisorProps {
   data: CaidaDimensionDia[];
   totalCaidas: number;
   subtitle?: string;
+  onSelect?: (name: string) => void;
 }
 
 export function LeaderboardDiaCaidaSupervisor({
   data,
   totalCaidas,
   subtitle,
+  onSelect,
 }: LeaderboardDiaCaidaSupervisorProps) {
   const rows = [...data]
     .filter((r) => r.total > 0)
@@ -73,7 +75,10 @@ export function LeaderboardDiaCaidaSupervisor({
         </span>
         <div className="min-w-0 leading-tight">
           <p className="truncate text-[13px] font-bold tracking-wide text-ink uppercase">Caídas por supervisor</p>
-          <p className="truncate text-xs text-ink-soft">Volumen · día promedio · % del total{subtitle ? ` · ${subtitle}` : ''}</p>
+          <p className="truncate text-xs text-ink-soft">
+            Volumen · día promedio · % del total{subtitle ? ` · ${subtitle}` : ''}
+            {onSelect ? ' · clic para ver el detalle' : ''}
+          </p>
         </div>
       </div>
 
@@ -89,11 +94,27 @@ export function LeaderboardDiaCaidaSupervisor({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              onClick={onSelect ? () => onSelect(r.name) : undefined}
+              onKeyDown={
+                onSelect
+                  ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onSelect(r.name);
+                      }
+                    }
+                  : undefined
+              }
+              role={onSelect ? 'button' : undefined}
+              tabIndex={onSelect ? 0 : undefined}
+              aria-label={onSelect ? `Ver detalle de ${r.name}` : undefined}
               className={cn(
-                'flex items-center gap-3 rounded-xl border p-2.5 pr-3 transition-all duration-200 hover:-translate-y-0.5',
+                'group/row flex items-center gap-3 rounded-xl border p-2.5 pr-3 transition-all duration-200',
+                onSelect && 'cursor-pointer hover:-translate-y-0.5 focus-visible:-translate-y-0.5 focus-visible:outline-none',
                 isChampion
                   ? cn('border-amber-400/40 bg-gradient-to-r', s.bg)
                   : 'border-line bg-surface-3/40 hover:border-rose-400/30 hover:bg-rose-500/[0.06]',
+                onSelect && 'hover:shadow-[0_10px_28px_-16px_rgba(244,63,94,0.7)]',
               )}
             >
               <span
@@ -143,6 +164,10 @@ export function LeaderboardDiaCaidaSupervisor({
               >
                 {formatNumber(r.total)} · {pctTotal.toFixed(1)}%
               </span>
+
+              {onSelect && (
+                <ChevronRight className="size-4 shrink-0 text-ink-soft transition-all duration-200 group-hover/row:translate-x-0.5 group-hover/row:text-rose-400" />
+              )}
             </motion.div>
           );
         })}

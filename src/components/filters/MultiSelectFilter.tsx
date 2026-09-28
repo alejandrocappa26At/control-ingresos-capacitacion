@@ -15,6 +15,7 @@ interface MultiSelectFilterProps {
   countToken: string;
   icon: LucideIcon;
   noun?: string;
+  showChips?: boolean;
 }
 
 const ESTIMATED_LIST_HEIGHT = 460;
@@ -33,6 +34,7 @@ export function MultiSelectFilter({
   searchPlaceholder,
   countToken,
   icon: Icon,
+  showChips = true,
 }: MultiSelectFilterProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -266,7 +268,7 @@ export function MultiSelectFilter({
       </button>
 
       <AnimatePresence>
-        {value.length > 0 && (
+        {showChips && value.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}

@@ -1,11 +1,13 @@
 'use client';
 
 import type { EChartsOption } from 'echarts';
-import { Workflow } from 'lucide-react';
+import { AlertTriangle, Flame, TrendingDown, Workflow } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
 import { ChartCard } from '@/components/charts/ChartCard';
 import { QiEChart, tipHeader, tipRow } from '@/components/charts/EChart';
+import { KpiCard } from '@/components/dashboard/KpiCard';
 import type { EmbudoCapacitacion } from '@/services/analytics/falls';
+import type { Kpis } from '@/types';
 
 const EMBUDO_COLORS: Array<{ name: string; fill: string; glow: string }> = [
   { name: 'Total de ingresos', fill: '#e30613', glow: 'rgba(227,6,19,0.35)' },
@@ -13,14 +15,33 @@ const EMBUDO_COLORS: Array<{ name: string; fill: string; glow: string }> = [
   { name: 'Pasan a operaciones', fill: '#00d26a', glow: 'rgba(0,210,106,0.3)' },
 ];
 
-function EmbudoCapacitacion({ embudo }: { embudo: EmbudoCapacitacion }) {
+const MES_POR_NOMBRE: Record<string, string> = {
+  Enero: 'ENE',
+  Febrero: 'FEB',
+  Marzo: 'MAR',
+  Abril: 'ABR',
+  Mayo: 'MAY',
+  Junio: 'JUN',
+  Julio: 'JUL',
+  Agosto: 'AGO',
+  Septiembre: 'SEP',
+  Octubre: 'OCT',
+  Noviembre: 'NOV',
+  Diciembre: 'DIC',
+};
+
+function mesCorto(mes: string): string {
+  return MES_POR_NOMBRE[mes] ?? mes.slice(0, 3).toUpperCase();
+}
+
+function embudoOption(embudo: EmbudoCapacitacion): EChartsOption {
   const steps = [
     { name: 'Total de ingresos', value: embudo.totalIngresos, pct: 100 },
     { name: 'Inician capacitación', value: embudo.inicianCapacitacion, pct: embudo.inicianPct },
     { name: 'Pasan a operaciones', value: embudo.pasanOperaciones, pct: embudo.pasanPct },
   ].filter((s) => s.value > 0);
 
-  const option: EChartsOption = {
+  return {
     tooltip: {
       formatter: (params) => {
         const p = params as { name?: string; data?: { value: number; pct: number } };
@@ -65,40 +86,88 @@ function EmbudoCapacitacion({ embudo }: { embudo: EmbudoCapacitacion }) {
           name: s.name,
           value: s.value,
           pct: s.pct,
-          itemStyle: { color: EMBUDO_COLORS.find((c) => c.name === s.name)?.fill, shadowColor: EMBUDO_COLORS.find((c) => c.name === s.name)?.glow, shadowBlur: 10 },
+          itemStyle: {
+            color: EMBUDO_COLORS.find((c) => c.name === s.name)?.fill,
+            shadowColor: EMBUDO_COLORS.find((c) => c.name === s.name)?.glow,
+            shadowBlur: 10,
+          },
         })),
       },
     ],
   };
-
-  return (
-    <ChartCard
-      title="Embudo de Capacitación"
-      description="Flujo principal: ingresan → inician → pasan a operaciones"
-      icon={<Workflow className="size-4" />}
-    >
-      <QiEChart option={option} height={280} />
-      <p className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] font-medium text-ink-soft">
-        <span>
-          Conversión total: <span className="font-bold text-emerald-400">{embudo.pasanPct.toFixed(1)}%</span>
-        </span>
-        <span>
-          En capacitación: <span className="font-bold text-ink">{formatNumber(embudo.enCapacitacion)}</span> (
-          {embudo.enCapacitacionPct.toFixed(1)}%)
-        </span>
-      </p>
-    </ChartCard>
-  );
 }
 
-export function CaidasFunnelKPIs({ embudo }: { embudo: EmbudoCapacitacion }) {
+export function CaidasFunnelKPIs({
+  embudo,
+  kpis,
+  mesMayor,
+  desercionDiaCero,
+}: {
+  embudo: EmbudoCapacitacion;
+  kpis: Kpis;
+  mesMayor: { mes: string; cantidad: number; porcentaje: number } | null;
+  /** Por definición toda la deserción ocurre con 0 días (nunca asistió). */
+  desercionDiaCero: boolean;
+}) {
   return (
-    <div className="space-y-4">
-      <EmbudoCapacitacion embudo={embudo} />
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_232px]">
+      <div className="flex min-w-0 flex-col gap-4">
+        <ChartCard
+          title="Embudo de Capacitación"
+          description="Flujo principal: ingresan → inician → pasan a operaciones"
+          icon={<Workflow className="size-4" />}
+        >
+          <QiEChart option={embudoOption(embudo)} height={300} />
+          <p className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] font-medium text-ink-soft">
+            <span>
+              Conversión total:{' '}
+              <span className="font-bold text-emerald-400">{embudo.pasanPct.toFixed(1)}%</span>
+            </span>
+            <span>
+              En capacitación: <span className="font-bold text-ink">{formatNumber(embudo.enCapacitacion)}</span> (
+              {embudo.enCapacitacionPct.toFixed(1)}%)
+            </span>
+          </p>
+        </ChartCard>
 
-      <p className="text-center text-[11px] font-semibold tracking-wide text-ink-soft">
-        Flujo del proceso: ingresan → inician capacitación → pasan a operaciones
-      </p>
+        <p className="text-center text-[11px] font-semibold tracking-wide text-ink-soft">
+          Flujo del proceso: ingresan → inician capacitación → pasan a operaciones
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-1">
+        <KpiCard
+          index={0}
+          title="Tasa de Deserción"
+          value={kpis.porcentajeDesercion}
+          format="percent"
+          icon={TrendingDown}
+          tone="slate"
+          subtitle={`${formatNumber(kpis.desercion)} de ${formatNumber(kpis.totalIngresos)} ingresos`}
+        />
+        <KpiCard
+          index={1}
+          title="Bajas Durante Capacitación"
+          value={kpis.bajasCapacitacion}
+          icon={AlertTriangle}
+          tone="amber"
+          subtitle={`${kpis.porcentajeBajas.toFixed(1)}% de los que iniciaron`}
+        />
+        <KpiCard
+          index={2}
+          title="Mes con Mayor Deserción"
+          value={mesMayor ? mesCorto(mesMayor.mes) : '—'}
+          icon={Flame}
+          tone="rose"
+          subtitle={
+            mesMayor
+              ? `${formatNumber(mesMayor.cantidad)} · ${mesMayor.porcentaje.toFixed(1)}% de las deserciones`
+              : desercionDiaCero
+                ? 'Sin deserciones registradas'
+                : '—'
+          }
+        />
+      </div>
     </div>
   );
 }
