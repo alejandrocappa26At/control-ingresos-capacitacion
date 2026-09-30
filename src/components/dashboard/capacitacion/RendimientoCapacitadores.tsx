@@ -2,12 +2,22 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, CheckCircle2, AlertCircle, UserX, MousePointerClick, type LucideIcon } from 'lucide-react';
+import {
+  BarChart3,
+  CheckCircle2,
+  AlertCircle,
+  UserX,
+  MousePointerClick,
+  GraduationCap,
+  ShieldCheck,
+  ShieldAlert,
+  type LucideIcon,
+} from 'lucide-react';
 import type { BarSeriesOption, EChartsOption } from 'echarts';
 import type { CapacitadorSummary, Kpis } from '@/types';
 import { useDataStore } from '@/store/useDataStore';
 import { ChartCard } from '@/components/charts/ChartCard';
-import { QiEChart, qiVTextGradient, tipHeader, tipRow } from '@/components/charts/EChart';
+import { QiEChart, qiVTextGradient, tipDivider, tipFooter, tipHeader, tipRow } from '@/components/charts/EChart';
 import { ChartEmpty } from '@/components/charts/charts';
 import { CapacitadorMultiSelect } from '@/components/filters/CapacitadorMultiSelect';
 import { CountUp } from '@/components/ui/count-up';
@@ -15,11 +25,21 @@ import { periodoLabel } from '@/lib/dates';
 import { formatNumber } from '@/lib/utils';
 import { PeriodoHeader, type PeriodoCifras } from './PeriodoHeader';
 
+const COLOR = {
+  totalIngresos: '#3b82f6',
+  inician: '#38bdf8',
+  aprobados: '#10b981',
+  bajas: '#f97316',
+  desercion: '#52525b',
+  enCapacitacion: '#FACC15',
+} as const;
+
 const SERIES = [
-  { key: 'asignados', label: 'Total Ingresos', color: '#3b82f6' },
-  { key: 'aprobados', label: 'Aprobados', color: '#10b981' },
-  { key: 'bajasCapacitacion', label: 'Bajas durante Capacitación', color: '#f97316' },
-  { key: 'desercion', label: 'Deserción', color: '#52525b' },
+  { key: 'asignados', label: 'Total Ingresos', color: COLOR.totalIngresos },
+  { key: 'aprobados', label: 'Aprobados', color: COLOR.aprobados },
+  { key: 'bajasCapacitacion', label: 'Bajas durante Capacitación', color: COLOR.bajas },
+  { key: 'desercion', label: 'Deserción', color: COLOR.desercion },
+  { key: 'enCapacitacion', label: 'En Capacitación', color: COLOR.enCapacitacion },
 ] as const;
 
 function withAlpha(hex: string, alpha: number): string {
@@ -30,16 +50,22 @@ function withAlpha(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+/** % Aprobación = APROBADOS / INICIAN CAPACITACIÓN (mismo criterio que los KPIs). */
 function tasaAprobacion(r: CapacitadorSummary): number {
-  return r.finalizados > 0 ? (r.aprobados / r.finalizados) * 100 : 0;
+  return r.inicianCapacitacion > 0 ? (r.aprobados / r.inicianCapacitacion) * 100 : 0;
 }
 
 function tasaCaida(r: CapacitadorSummary): number {
-  return r.finalizados > 0 ? ((r.bajasCapacitacion + r.desercion) / r.finalizados) * 100 : 0;
+  return r.inicianCapacitacion > 0 ? (r.bajasCapacitacion / r.inicianCapacitacion) * 100 : 0;
 }
 
 function share(r: CapacitadorSummary, value: number): number {
-  return r.finalizados > 0 ? (value / r.finalizados) * 100 : 0;
+  return r.asignados > 0 ? (value / r.asignados) * 100 : 0;
+}
+
+/** VALIDACIÓN: APROBADOS + BAJAS + EN CAPACITACIÓN = INICIAN CAPACITACIÓN */
+function particionCierra(r: CapacitadorSummary): boolean {
+  return r.aprobados + r.bajasCapacitacion + r.enCapacitacion === r.inicianCapacitacion;
 }
 
 const MAX_AXIS_LABEL = 24;
@@ -98,9 +124,11 @@ export function RendimientoCapacitadores({ data, kpis, onSelectCapacitador }: Re
   const globalCifras: PeriodoCifras = useMemo(
     () => ({
       ingresos: kpis.totalIngresos,
+      inician: kpis.inicianCapacitacion,
       aprobados: kpis.pasanAOperaciones,
       bajas: kpis.bajasCapacitacion,
       desercion: kpis.desercion,
+      enCapacitacion: kpis.enCapacitacion,
     }),
     [kpis],
   );
@@ -110,11 +138,13 @@ export function RendimientoCapacitadores({ data, kpis, onSelectCapacitador }: Re
     const total = rows.reduce(
       (acc, r) => ({
         ingresos: acc.ingresos + r.asignados,
+        inician: acc.inician + r.inicianCapacitacion,
         aprobados: acc.aprobados + r.aprobados,
         bajas: acc.bajas + r.bajasCapacitacion,
         desercion: acc.desercion + r.desercion,
+        enCapacitacion: acc.enCapacitacion + r.enCapacitacion,
       }),
-      { ingresos: 0, aprobados: 0, bajas: 0, desercion: 0 },
+      { ingresos: 0, inician: 0, aprobados: 0, bajas: 0, desercion: 0, enCapacitacion: 0 },
     );
     const etiqueta =
       rows.length === 1
@@ -123,15 +153,45 @@ export function RendimientoCapacitadores({ data, kpis, onSelectCapacitador }: Re
     return { ...total, etiqueta };
   }, [rows, selected.length]);
 
+  /**
+   * VALIDACIÓN: la suma de las ramas de "Inician Capacitación" debe cerrar
+   * contra el propio total, y el total contra Deserción + Inician + Sin
+   * clasificar. Se muestra en pantalla para que ningún registro quede
+   * "faltante" sin que el usuario lo note.
+   */
+  const validacion = useMemo(() => {
+    const tot = rows.reduce(
+      (acc, r) => ({
+        asignados: acc.asignados + r.asignados,
+        inician: acc.inician + r.inicianCapacitacion,
+        aprobados: acc.aprobados + r.aprobados,
+        bajas: acc.bajas + r.bajasCapacitacion,
+        desercion: acc.desercion + r.desercion,
+        enCapacitacion: acc.enCapacitacion + r.enCapacitacion,
+        sinClasificar: acc.sinClasificar + r.sinClasificar,
+      }),
+      { asignados: 0, inician: 0, aprobados: 0, bajas: 0, desercion: 0, enCapacitacion: 0, sinClasificar: 0 },
+    );
+    const ramas = tot.aprobados + tot.bajas + tot.enCapacitacion;
+    const desbalance = rows.filter((r) => !particionCierra(r));
+    return {
+      ...tot,
+      ramas,
+      ok: ramas === tot.inician && tot.asignados === tot.desercion + tot.inician + tot.sinClasificar && desbalance.length === 0,
+      desbalance,
+    };
+  }, [rows]);
+
   const highlights = useMemo(() => {
     if (rows.length === 0) return null;
-    const conFinalizados = rows.filter((r) => r.finalizados > 0);
+    const conIniciados = rows.filter((r) => r.inicianCapacitacion > 0);
     return {
-      mejorAprobacion: conFinalizados.length
-        ? conFinalizados.reduce((a, b) => (tasaAprobacion(b) > tasaAprobacion(a) ? b : a))
+      mejorAprobacion: conIniciados.length
+        ? conIniciados.reduce((a, b) => (tasaAprobacion(b) > tasaAprobacion(a) ? b : a))
         : null,
       mayorDesercion: rows.reduce((a, b) => (b.desercion > a.desercion ? b : a)),
       mayorBaja: rows.reduce((a, b) => (b.bajasCapacitacion > a.bajasCapacitacion ? b : a)),
+      mayorEnCapacitacion: rows.reduce((a, b) => (b.enCapacitacion > a.enCapacitacion ? b : a)),
     };
   }, [rows]);
 
@@ -177,10 +237,14 @@ export function RendimientoCapacitadores({ data, kpis, onSelectCapacitador }: Re
           if (!row) return '';
           return (
             tipHeader(row.capacitador) +
-            tipRow('#3b82f6', 'Total ingresos', formatNumber(row.asignados)) +
-            tipRow('#10b981', 'Aprobados', formatNumber(row.aprobados), `${tasaAprobacion(row).toFixed(1)}%`) +
-            tipRow('#f97316', 'Bajas durante capacitación', formatNumber(row.bajasCapacitacion)) +
-            tipRow('#52525b', 'Deserción', formatNumber(row.desercion), `${tasaCaida(row).toFixed(1)}%`)
+            tipRow(COLOR.totalIngresos, 'Total Ingresos', formatNumber(row.asignados)) +
+            tipRow(COLOR.inician, 'Inician Capacitación', formatNumber(row.inicianCapacitacion)) +
+            tipRow(COLOR.aprobados, 'Aprobados', formatNumber(row.aprobados)) +
+            tipRow(COLOR.bajas, 'Bajas durante Capacitación', formatNumber(row.bajasCapacitacion)) +
+            tipRow(COLOR.desercion, 'Deserción', formatNumber(row.desercion)) +
+            tipRow(COLOR.enCapacitacion, 'En Capacitación', formatNumber(row.enCapacitacion)) +
+            tipDivider() +
+            tipFooter(COLOR.aprobados, '% Aprobación', `${tasaAprobacion(row).toFixed(1)}%`)
           );
         },
       },
@@ -212,9 +276,9 @@ export function RendimientoCapacitadores({ data, kpis, onSelectCapacitador }: Re
           name: s.label,
           type: 'bar',
           cursor: 'pointer',
-          barMaxWidth: 24,
-          barGap: '20%',
-          barCategoryGap: '34%',
+          barMaxWidth: 20,
+          barGap: '16%',
+          barCategoryGap: '30%',
           itemStyle: {
             borderRadius: [6, 6, 0, 0],
             color: qiVTextGradient(s.color, 0.95, 0.4),
@@ -253,41 +317,51 @@ export function RendimientoCapacitadores({ data, kpis, onSelectCapacitador }: Re
   return (
     <section>
       {highlights && (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <HighlightCard
             index={0}
             icon={CheckCircle2}
             label="Mayor aprobación"
-            color="#10b981"
+            color={COLOR.aprobados}
             entry={highlights.mejorAprobacion}
             value={highlights.mejorAprobacion ? tasaAprobacion(highlights.mejorAprobacion) : 0}
             format="percent"
-            emptyLabel="Sin procesos concluidos"
+            emptyLabel="Sin procesos iniciados"
             helper={
               highlights.mejorAprobacion
-                ? `${formatNumber(highlights.mejorAprobacion.aprobados)} aprobados de ${formatNumber(highlights.mejorAprobacion.finalizados)} concluidos`
+                ? `${formatNumber(highlights.mejorAprobacion.aprobados)} aprobados de ${formatNumber(highlights.mejorAprobacion.inicianCapacitacion)} que iniciaron`
                 : '—'
             }
           />
           <HighlightCard
             index={1}
+            icon={GraduationCap}
+            label="Mayor carga activa"
+            color={COLOR.enCapacitacion}
+            entry={highlights.mayorEnCapacitacion}
+            value={highlights.mayorEnCapacitacion.enCapacitacion}
+            emptyLabel="Sin registros en capacitación"
+            helper={`${formatNumber(highlights.mayorEnCapacitacion.enCapacitacion)} de ${formatNumber(highlights.mayorEnCapacitacion.inicianCapacitacion)} que iniciaron`}
+          />
+          <HighlightCard
+            index={2}
             icon={UserX}
             label="Mayor deserción"
             color="#71717a"
             entry={highlights.mayorDesercion}
             value={highlights.mayorDesercion.desercion}
             emptyLabel="Sin deserciones"
-            helper={`${share(highlights.mayorDesercion, highlights.mayorDesercion.desercion).toFixed(1)}% de sus ${formatNumber(highlights.mayorDesercion.finalizados)} procesos concluidos`}
+            helper={`${share(highlights.mayorDesercion, highlights.mayorDesercion.desercion).toFixed(1)}% de sus ${formatNumber(highlights.mayorDesercion.asignados)} ingresos`}
           />
           <HighlightCard
-            index={2}
+            index={3}
             icon={AlertCircle}
             label="Mayor baja en capacitación"
-            color="#f97316"
+            color={COLOR.bajas}
             entry={highlights.mayorBaja}
             value={highlights.mayorBaja.bajasCapacitacion}
             emptyLabel="Sin bajas"
-            helper={`${share(highlights.mayorBaja, highlights.mayorBaja.bajasCapacitacion).toFixed(1)}% de sus ${formatNumber(highlights.mayorBaja.finalizados)} procesos concluidos`}
+            helper={`${tasaCaida(highlights.mayorBaja).toFixed(1)}% de los ${formatNumber(highlights.mayorBaja.inicianCapacitacion)} que iniciaron`}
           />
         </div>
       )}
@@ -297,7 +371,7 @@ export function RendimientoCapacitadores({ data, kpis, onSelectCapacitador }: Re
 
         <ChartCard
           title="Rendimiento de capacitación por capacitador"
-          description="Comparativa de ingresos, aprobados, bajas y deserciones"
+          description="Ingresos, aprobados, bajas, deserciones y los que siguen activos en capacitación"
           icon={<BarChart3 className="size-4" />}
           toolbar={
             <div className="w-[248px]">
@@ -328,6 +402,7 @@ export function RendimientoCapacitadores({ data, kpis, onSelectCapacitador }: Re
                   registros.
                 </p>
               </motion.div>
+              <ValidacionParticion validacion={validacion} rows={rows.length} />
               <QiEChart option={option} height={520} onEvents={chartEvents} />
             </>
           ) : (
@@ -336,6 +411,76 @@ export function RendimientoCapacitadores({ data, kpis, onSelectCapacitador }: Re
         </ChartCard>
       </div>
     </section>
+  );
+}
+
+interface ValidacionParticionData {
+  asignados: number;
+  inician: number;
+  aprobados: number;
+  bajas: number;
+  desercion: number;
+  enCapacitacion: number;
+  sinClasificar: number;
+  ramas: number;
+  ok: boolean;
+  desbalance: CapacitadorSummary[];
+}
+
+/**
+ * VALIDACIÓN visible de la partición:
+ *   APROBADOS + BAJAS + EN CAPACITACIÓN = INICIAN CAPACITACIÓN
+ *   TOTAL INGRESOS = DESERCIÓN + INICIAN + SIN CLASIFICAR
+ */
+function ValidacionParticion({ validacion, rows }: { validacion: ValidacionParticionData; rows: number }) {
+  const { ok, ramas, inician, asignados, sinClasificar, desbalance } = validacion;
+  const Icon = ok ? ShieldCheck : ShieldAlert;
+  const tone = ok ? '#10b981' : '#f97316';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+      className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-xl border px-3 py-2"
+      style={{ borderColor: withAlpha(tone, 0.3), background: withAlpha(tone, 0.07) }}
+      data-testid="validacion-particion"
+      data-ok={ok}
+    >
+      <span className="flex items-center gap-1.5">
+        <Icon className="size-3.5" style={{ color: tone }} />
+        <span className="text-[11px] font-bold" style={{ color: tone }}>
+          {ok ? 'Partición validada' : 'Revisar datos'}
+        </span>
+      </span>
+      <p className="text-[11px] leading-snug font-medium text-ink-soft">
+        Aprobados <span className="font-bold text-ink tabular-nums">{formatNumber(validacion.aprobados)}</span> + Bajas{' '}
+        <span className="font-bold text-ink tabular-nums">{formatNumber(validacion.bajas)}</span> + En Capacitación{' '}
+        <span className="font-bold text-ink tabular-nums">{formatNumber(validacion.enCapacitacion)}</span> = Inician
+        Capacitación <span className="font-bold text-ink tabular-nums">{formatNumber(inician)}</span>
+        {ok ? (
+          <span className="text-ink-muted"> · {rows} capacitadores sin registros faltantes</span>
+        ) : (
+          <>
+                        {' '}
+            · desbalance{' '}
+            <span className="font-bold text-ink tabular-nums">{formatNumber(Math.abs(ramas - inician))}</span>
+{' '}
+            {desbalance.length > 0 && (
+              <span className="text-ink-muted">
+                {' '}
+                en {desbalance.map((d) => d.capacitador).join(', ')}
+              </span>
+            )}
+          </>
+        )}
+      </p>
+      {sinClasificar > 0 && (
+        <p className="text-[10px] font-semibold text-ink-muted">
+          {formatNumber(sinClasificar)} de {formatNumber(asignados)} sin TOTAL DE DÍAS registrado
+        </p>
+      )}
+    </motion.div>
   );
 }
 

@@ -1,15 +1,26 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { CalendarDays, Users, CheckCircle2, AlertCircle, UserX, type LucideIcon } from 'lucide-react';
+import {
+  CalendarDays,
+  Users,
+  PlayCircle,
+  CheckCircle2,
+  AlertCircle,
+  UserX,
+  GraduationCap,
+  type LucideIcon,
+} from 'lucide-react';
 import { CountUp } from '@/components/ui/count-up';
 import { formatNumber } from '@/lib/utils';
 
 export interface PeriodoCifras {
   ingresos: number;
+  inician: number;
   aprobados: number;
   bajas: number;
   desercion: number;
+  enCapacitacion: number;
 }
 
 interface PeriodoHeaderProps {
@@ -20,9 +31,11 @@ interface PeriodoHeaderProps {
 
 const STATS: Array<{ key: keyof PeriodoCifras; label: string; icon: LucideIcon; color: string }> = [
   { key: 'ingresos', label: 'Total Ingresos', icon: Users, color: '#3b82f6' },
+  { key: 'inician', label: 'Inician Capacitación', icon: PlayCircle, color: '#38bdf8' },
   { key: 'aprobados', label: 'Aprobados', icon: CheckCircle2, color: '#10b981' },
   { key: 'bajas', label: 'Baja en capacitación', icon: AlertCircle, color: '#f97316' },
   { key: 'desercion', label: 'Deserción', icon: UserX, color: '#71717a' },
+  { key: 'enCapacitacion', label: 'En Capacitación', icon: GraduationCap, color: '#FACC15' },
 ];
 
 export function PeriodoHeader({ periodo, global, seleccion }: PeriodoHeaderProps) {
@@ -46,7 +59,7 @@ export function PeriodoHeader({ periodo, global, seleccion }: PeriodoHeaderProps
         </div>
       </div>
 
-      <div className="relative grid grid-cols-2 gap-2 px-4 pb-3.5 sm:grid-cols-4 sm:px-5">
+      <div className="relative grid grid-cols-2 gap-2 px-4 pb-3.5 sm:grid-cols-3 sm:px-5 xl:grid-cols-6">
         {STATS.map(({ key, label, icon: Icon, color }) => (
           <div
             key={key}
@@ -77,9 +90,11 @@ export function PeriodoHeader({ periodo, global, seleccion }: PeriodoHeaderProps
           </p>
           <p className="text-[11px] font-semibold tabular-nums text-ink-muted">
             <span className="text-ink">{formatNumber(seleccion.ingresos)}</span> ingresos ·{' '}
+            <span className="text-ink">{formatNumber(seleccion.inician)}</span> iniciaron ·{' '}
             <span className="text-emerald-400">{formatNumber(seleccion.aprobados)}</span> aprobados ·{' '}
             <span className="text-amber-400">{formatNumber(seleccion.bajas)}</span> bajas ·{' '}
-            <span className="text-zinc-400">{formatNumber(seleccion.desercion)}</span> deserciones
+            <span className="text-zinc-400">{formatNumber(seleccion.desercion)}</span> deserciones ·{' '}
+            <span className="text-yellow-300">{formatNumber(seleccion.enCapacitacion)}</span> en capacitación
           </p>
         </div>
       )}

@@ -8,6 +8,7 @@ import {
   Building2,
   ChevronDown,
   GraduationCap,
+  Layers,
   Map,
   MapPin,
   MapPinned,
@@ -25,11 +26,13 @@ import { Select } from '@/components/ui/input';
 import { CapacitadorMultiSelect } from '@/components/filters/CapacitadorMultiSelect';
 import { MultiSelectFilter } from '@/components/filters/MultiSelectFilter';
 import { PeriodoAnalisis } from '@/components/filters/PeriodoAnalisis';
+import { ResultsFilter, type ResultOption } from '@/components/filters/ResultsFilter';
 import {
   DateFilterInput,
   DATE_LABELS,
   useCapacitadorOptions,
   useUniqueValues,
+  useValueCounts,
 } from '@/components/filters/fields';
 import { activeFiltersOf } from '@/lib/filterDescriptions';
 import { formatNumber } from '@/lib/utils';
@@ -120,6 +123,8 @@ export function FilterDrawer() {
   const capacitadores = useCapacitadorOptions();
   const motivos = useUniqueValues('motivoCaida');
   const subMotivos = useUniqueValues('subMotivoCaida');
+  const motivoCounts = useValueCounts('motivoCaida');
+  const subMotivoCounts = useValueCounts('subMotivoCaida');
 
   const toggleGroup = (id: string) => setCollapsed((c) => ({ ...c, [id]: !c[id] }));
   const isCollapsed = (id: string) => collapsed[id] === true;
@@ -128,8 +133,22 @@ export function FilterDrawer() {
 
   const ubicacionActive = activeFiltersOf(filters, ['jurisdiccion', 'zonaComercial', 'sede', 'distrito', 'tienda']);
   const gestionActive = activeFiltersOf(filters, ['supervisor', 'responsableAS']);
-  const capacitacionActive = activeFiltersOf(filters, ['modalidad', 'capacitador', 'inicioCapacitacion', 'finCapacitacion', 'entregaOperaciones']);
-  const resultadosActive = activeFiltersOf(filters, ['pasaAOperaciones', 'motivoCaida', 'subMotivoCaida']);
+  const capacitacionActive = activeFiltersOf(filters, ['modalidad', 'capacitador', 'finCapacitacion', 'entregaOperaciones']);
+  const resultadosActive =
+    filters.pasaAOperaciones.length + filters.motivoCaida.length + filters.subMotivoCaida.length;
+
+  const pasaOptions: ResultOption[] = [
+    { value: '1', label: 'Pasa a operaciones', count: records.filter((r) => r.pasaAOperaciones === 1).length },
+    { value: '0', label: 'No pasa', count: records.filter((r) => r.pasaAOperaciones === 0).length },
+    { value: 'Pendiente', label: 'Pendiente', count: records.filter((r) => r.pasaAOperaciones === null).length },
+  ];
+
+  const motivoOptions: ResultOption[] = motivos
+    .map((m) => ({ value: m, label: m, count: motivoCounts.get(m) ?? 0 }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'es'));
+  const subMotivoOptions: ResultOption[] = subMotivos
+    .map((m) => ({ value: m, label: m, count: subMotivoCounts.get(m) ?? 0 }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'es'));
 
   if (typeof document === 'undefined') return null;
 
@@ -305,13 +324,6 @@ export function FilterDrawer() {
                 </div>
                 <div className="sm:col-span-2">
                   <DateFilterInput
-                    label={DATE_LABELS.inicioCapacitacion}
-                    value={filters.inicioCapacitacion}
-                    onChange={(v) => update({ inicioCapacitacion: v })}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <DateFilterInput
                     label={DATE_LABELS.finCapacitacion}
                     value={filters.finCapacitacion}
                     onChange={(v) => update({ finCapacitacion: v })}
@@ -333,32 +345,42 @@ export function FilterDrawer() {
                 collapsed={isCollapsed('resultados')}
                 onToggle={() => toggleGroup('resultados')}
               >
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold tracking-wide text-ink-muted">Pasa a operaciones</label>
-                  <Select value={filters.pasaAOperaciones} onChange={(e) => update({ pasaAOperaciones: e.target.value })}>
-                    <option value="">Todos</option>
-                    <option value="1">Sí (aprobado)</option>
-                    <option value="0">No (no aprobado)</option>
-                    <option value="Pendiente">Pendiente</option>
-                  </Select>
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold tracking-wide text-ink-muted">Motivo de caída</label>
-                  <Select value={filters.motivoCaida} onChange={(e) => update({ motivoCaida: e.target.value })}>
-                    <option value="">Todos</option>
-                    {motivos.map((m) => (
-                      <option key={m} value={m}>{m}</option>
-                    ))}
-                  </Select>
+                <div className="sm:col-span-2">
+                  <ResultsFilter
+                    label="Pasa a operaciones"
+                    icon={BadgeCheck}
+                    countToken="estados"
+                    emptyLabel="Todos"
+                    options={pasaOptions}
+                    value={filters.pasaAOperaciones}
+                    onChange={(v) => update({ pasaAOperaciones: v })}
+                  />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="mb-1.5 block text-xs font-semibold tracking-wide text-ink-muted">Submotivo de caída</label>
-                  <Select value={filters.subMotivoCaida} onChange={(e) => update({ subMotivoCaida: e.target.value })}>
-                    <option value="">Todos</option>
-                    {subMotivos.map((m) => (
-                      <option key={m} value={m}>{m}</option>
-                    ))}
-                  </Select>
+                  <ResultsFilter
+                    label="Motivo de caída"
+                    icon={TrendingDown}
+                    countToken="motivos"
+                    emptyLabel="Todos"
+                    options={motivoOptions}
+                    value={filters.motivoCaida}
+                    onChange={(v) => update({ motivoCaida: v })}
+                    searchable
+                    searchPlaceholder="Buscar motivo..."
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <ResultsFilter
+                    label="Submotivo de caída"
+                    icon={Layers}
+                    countToken="submotivos"
+                    emptyLabel="Todos"
+                    options={subMotivoOptions}
+                    value={filters.subMotivoCaida}
+                    onChange={(v) => update({ subMotivoCaida: v })}
+                    searchable
+                    searchPlaceholder="Buscar submotivo..."
+                  />
                 </div>
               </FilterGroup>
             </div>

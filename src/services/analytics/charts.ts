@@ -1,7 +1,7 @@
 import type { CapacitadorSummary, Promotor, SerieItem } from '@/types';
 import { countBy } from './kpis';
 import { normalizeKey, esCapacitadorGenerico } from '@/lib/utils';
-import { esDesercion, esBajaCapacitacion } from './desercionBase';
+import { esAprobado, esBajaCapacitacion, esDesercion, esEnCapacitacion } from './desercionBase';
 
 function toSerie(items: Array<{ name: string; value: number }>, total: number): SerieItem[] {
   return items.map(({ name, value }) => ({
@@ -30,11 +30,27 @@ export interface CapacitadoresResumen {
   capacitadores: CapacitadorSummary[];
   capacitadoresReales: number;
   registrosExcluidos: number;
+  /**
+   * Residual de la partición por capacitador: `desercion + inicianCapacitacion
+   * + sinClasificar - asignados`. Siempre 0 mientras el Excel esté completo;
+   * sirve para detectar registros "faltantes" en la fuente.
+   */
+  diferenciaTotal: number;
+  /** Capacitadores cuya partición interna no cuadra. */
+  desbalances: Array<{ capacitador: string; diferencia: number }>;
 }
 
+/**
+ * Agrupa por capacitador replicando las reglas de `desercionBase`, de modo que
+ * la suma de las ramas por capacitador siempre cierra contra el total:
+ *
+ *   INICIAN = APROBADOS + BAJAS + EN CAPACITACIÓN
+ *   TOTAL   = DESERCIÓN + INICIAN + SIN CLASIFICAR
+ */
 export function analizarCapacitadores(records: Promotor[]): CapacitadoresResumen {
   const map = new Map<string, CapacitadorSummary>();
   let registrosExcluidos = 0;
+
   for (const r of records) {
     const key = normalizeKey(r.capacitador);
     if (esCapacitadorGenerico(key)) {
@@ -44,31 +60,53 @@ export function analizarCapacitadores(records: Promotor[]): CapacitadoresResumen
     const entry = map.get(key) ?? {
       capacitador: key,
       asignados: 0,
-      finalizados: 0,
-      enProceso: 0,
+      inicianCapacitacion: 0,
       aprobados: 0,
-      desercion: 0,
       bajasCapacitacion: 0,
+      enCapacitacion: 0,
+      desercion: 0,
+      sinClasificar: 0,
+      finalizados: 0,
     };
     entry.asignados += 1;
-    if (r.pasaAOperaciones === 1) {
-      entry.finalizados += 1;
+    if (esAprobado(r)) {
+      entry.inicianCapacitacion += 1;
       entry.aprobados += 1;
-    } else if (esDesercion(r)) {
       entry.finalizados += 1;
-      entry.desercion += 1;
     } else if (esBajaCapacitacion(r)) {
-      entry.finalizados += 1;
+      entry.inicianCapacitacion += 1;
       entry.bajasCapacitacion += 1;
+      entry.finalizados += 1;
+    } else if (esEnCapacitacion(r)) {
+      entry.inicianCapacitacion += 1;
+      entry.enCapacitacion += 1;
+    } else if (esDesercion(r)) {
+      entry.desercion += 1;
     } else {
-      entry.enProceso += 1;
+      entry.sinClasificar += 1;
     }
     map.set(key, entry);
   }
+
+  const capacitadores = Array.from(map.values()).sort((a, b) => b.asignados - a.asignados);
+
+  const desbalances: Array<{ capacitador: string; diferencia: number }> = [];
+  let diferenciaTotal = 0;
+  for (const c of capacitadores) {
+    const dif = c.asignados - (c.desercion + c.inicianCapacitacion + c.sinClasificar);
+    const difRamas = c.inicianCapacitacion - (c.aprobados + c.bajasCapacitacion + c.enCapacitacion);
+    if (dif !== 0 || difRamas !== 0) {
+      desbalances.push({ capacitador: c.capacitador, diferencia: dif + difRamas });
+      diferenciaTotal += dif + difRamas;
+    }
+  }
+
   return {
-    capacitadores: Array.from(map.values()).sort((a, b) => b.asignados - a.asignados),
+    capacitadores,
     capacitadoresReales: map.size,
     registrosExcluidos,
+    diferenciaTotal,
+    desbalances,
   };
 }
 

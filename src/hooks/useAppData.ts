@@ -33,7 +33,8 @@ export function useAppData() {
     const jurisdiccion = ingresosPorJurisdiccion(filtered);
     const zonas = ingresosPorZonaComercial(filtered);
     const sedes = ingresosPorSede(filtered, 12);
-    const { capacitadores, capacitadoresReales, registrosExcluidos } = analizarCapacitadores(filtered);
+    const { capacitadores, capacitadoresReales, registrosExcluidos, diferenciaTotal, desbalances } =
+      analizarCapacitadores(filtered);
     const motivosCaida = rankingPorMotivo(filtered);
     const subMotivosCaida = rankingPorSubMotivo(filtered);
     const porMes = ingresosPorMes(filtered);
@@ -51,6 +52,8 @@ export function useAppData() {
       capacitadores,
       capacitadoresReales,
       registrosExcluidos,
+      diferenciaTotal,
+      desbalances,
       embudo,
       motivosCaida,
       subMotivosCaida,

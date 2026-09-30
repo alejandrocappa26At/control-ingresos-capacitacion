@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import { Modal, ModalClose } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { esDesercion, esBajaCapacitacion } from '@/services/analytics/desercionBase';
+import { esAprobado, esBajaCapacitacion, esDesercion, esEnCapacitacion } from '@/services/analytics/desercionBase';
 import { cn, formatNumber, normalizeKey } from '@/lib/utils';
 import { ESTADO_DOT, ESTADO_LABELS } from '@/lib/constants';
 import type { Promotor } from '@/types';
@@ -29,7 +29,7 @@ const TABS: Array<{ id: TabId; label: string; color: string }> = [
   { id: 'aprobados', label: 'APROBADOS', color: '#10b981' },
   { id: 'bajas', label: 'BAJAS', color: '#f97316' },
   { id: 'desercion', label: 'DESERCIÓN', color: '#71717a' },
-  { id: 'enCapacitacion', label: 'EN CAPACITACIÓN', color: '#eab308' },
+  { id: 'enCapacitacion', label: 'EN CAPACITACIÓN', color: '#FACC15' },
 ];
 
 const EMPTY_COPY: Record<TabId, string> = {
@@ -64,10 +64,6 @@ function fold(value: string): string {
     .replace(/\p{Diacritic}/gu, '');
 }
 
-function esEnCapacitacion(r: Promotor): boolean {
-  return r.pasaAOperaciones !== 1 && r.pasaAOperaciones !== 0;
-}
-
 function slug(value: string): string {
   return (
     fold(value)
@@ -84,7 +80,7 @@ function stamp(): string {
 
 function MatchesTab({ tab, r }: { tab: TabId; r: Promotor }): boolean {
   if (tab === 'todos') return true;
-  if (tab === 'aprobados') return r.pasaAOperaciones === 1;
+  if (tab === 'aprobados') return esAprobado(r);
   if (tab === 'bajas') return esBajaCapacitacion(r);
   if (tab === 'desercion') return esDesercion(r);
   return esEnCapacitacion(r);
@@ -220,7 +216,7 @@ export function CapacitadorDetailModal({ capacitador, records, periodo, onClose 
           icon={<GraduationCap className="size-4" />}
           label="En capacitación"
           value={resumen.enCapacitacion}
-          color="#eab308"
+          color="#FACC15"
         />
       </div>
 

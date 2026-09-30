@@ -4,25 +4,26 @@ import { ddmmyyyy, monthChipLabel } from '@/lib/dates';
 export interface FilterChip {
   id: string;
   label: string;
+  short: string;
   kind?: 'date';
   remove: (filters: FilterState) => FilterState;
 }
 
 const DATE_FIELD_LABELS: Record<DateFilterKey, string> = {
   fechaIngreso: 'Fecha de ingreso',
-  inicioCapacitacion: 'Inicio capacitación',
   finCapacitacion: 'Fin capacitación',
   entregaOperaciones: 'Entrega operaciones',
 };
 
-type DateFilterKey = 'fechaIngreso' | 'inicioCapacitacion' | 'finCapacitacion' | 'entregaOperaciones';
+type DateFilterKey = 'fechaIngreso' | 'finCapacitacion' | 'entregaOperaciones';
 
-const DATE_FIELD_KEYS: DateFilterKey[] = [
-  'fechaIngreso',
-  'inicioCapacitacion',
-  'finCapacitacion',
-  'entregaOperaciones',
-];
+const DATE_FIELD_KEYS: DateFilterKey[] = ['fechaIngreso', 'finCapacitacion', 'entregaOperaciones'];
+
+export const PASA_A_OPERACIONES_LABELS: Record<string, string> = {
+  '1': 'Pasa a operaciones',
+  '0': 'No pasa',
+  Pendiente: 'Pendiente',
+};
 
 function dateChipLabel(value: DateFilterValue): string | null {
   switch (value.type) {
@@ -64,6 +65,7 @@ export function describeActiveFilters(filters: FilterState): FilterChip[] {
       chips.push({
         id: `${key}:${value}`,
         label: `${label}: ${value}`,
+        short: value,
         remove: (f) => ({ ...f, [key]: (f[key] as string[]).filter((v) => v !== value) } as FilterState),
       });
     }
@@ -75,6 +77,7 @@ export function describeActiveFilters(filters: FilterState): FilterChip[] {
     chips.push({
       id: `${key}:${value}`,
       label: `${shortLabel}: ${value}`,
+      short: value,
       remove: (f) => ({ ...f, [key]: '' } as FilterState),
     });
   };
@@ -89,6 +92,7 @@ export function describeActiveFilters(filters: FilterState): FilterChip[] {
     chips.push({
       id: `${key}:${value.type}`,
       label: `${prefix}${label}`,
+      short: label,
       kind: 'date',
       remove: (f) => ({ ...f, [key]: { type: 'all' } } as FilterState),
     });
@@ -98,26 +102,38 @@ export function describeActiveFilters(filters: FilterState): FilterChip[] {
     chips.push({
       id: `capacitador:${name}`,
       label: `Capacitador: ${name}`,
+      short: name,
       remove: (f) => ({ ...f, capacitador: f.capacitador.filter((n) => n !== name) }),
     });
   }
 
-  if (filters.pasaAOperaciones) {
-    const label =
-      filters.pasaAOperaciones === '1'
-        ? 'Pasa a operaciones: Sí'
-        : filters.pasaAOperaciones === '0'
-          ? 'Pasa a operaciones: No'
-          : 'Pasa a operaciones: Pendiente';
+  for (const value of filters.pasaAOperaciones) {
+    const label = PASA_A_OPERACIONES_LABELS[value] ?? value;
     chips.push({
-      id: `pasaAOperaciones:${filters.pasaAOperaciones}`,
-      label,
-      remove: (f) => ({ ...f, pasaAOperaciones: '' }),
+      id: `pasaAOperaciones:${value}`,
+      label: `Pasa a operaciones: ${label}`,
+      short: label,
+      remove: (f) => ({ ...f, pasaAOperaciones: f.pasaAOperaciones.filter((v) => v !== value) }),
     });
   }
 
-  pushText('motivoCaida', 'Motivo de caída');
-  pushText('subMotivoCaida', 'Submotivo de caída');
+  for (const value of filters.motivoCaida) {
+    chips.push({
+      id: `motivoCaida:${value}`,
+      label: `Motivo de caída: ${value}`,
+      short: value,
+      remove: (f) => ({ ...f, motivoCaida: f.motivoCaida.filter((v) => v !== value) }),
+    });
+  }
+
+  for (const value of filters.subMotivoCaida) {
+    chips.push({
+      id: `subMotivoCaida:${value}`,
+      label: `Submotivo de caída: ${value}`,
+      short: value,
+      remove: (f) => ({ ...f, subMotivoCaida: f.subMotivoCaida.filter((v) => v !== value) }),
+    });
+  }
 
   return chips;
 }

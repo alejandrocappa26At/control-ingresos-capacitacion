@@ -9,8 +9,6 @@ import { useDataStore } from '@/store/useDataStore';
 import { DateRangePicker } from '@/components/filters/DateRangePicker';
 import {
   matchesDateFilter,
-  todayISO,
-  addDaysISO,
   currentMonth,
   currentYear,
   ddmmyyyy,
@@ -54,19 +52,14 @@ function diasSeleccionados(value: DateFilterValue): number | null {
 interface Preset {
   id: string;
   label: string;
-  icon: 'bolt' | 'calendar' | 'range' | 'year';
   build: () => DateFilterValue;
 }
 
 const QUICK_PRESETS: Preset[] = [
-  { id: 'hoy', label: 'Hoy', icon: 'bolt', build: () => ({ type: 'day', day: todayISO() }) },
-  { id: 'ayer', label: 'Ayer', icon: 'calendar', build: () => ({ type: 'day', day: addDaysISO(todayISO(), -1) }) },
-  { id: '7d', label: 'Últimos 7 días', icon: 'range', build: () => ({ type: 'range', from: addDaysISO(todayISO(), -6), to: todayISO() }) },
-  { id: '30d', label: 'Últimos 30 días', icon: 'range', build: () => ({ type: 'range', from: addDaysISO(todayISO(), -29), to: todayISO() }) },
-  { id: 'mes', label: 'Mes actual', icon: 'calendar', build: () => ({ type: 'month', month: currentMonth() }) },
-  { id: 'mesAnterior', label: 'Mes anterior', icon: 'calendar', build: () => ({ type: 'month', month: previousMonthISO() }) },
-  { id: 'trimestre', label: 'Trimestre actual', icon: 'range', build: () => ({ type: 'range', ...currentQuarterRange() }) },
-  { id: 'anio', label: 'Año actual', icon: 'year', build: () => ({ type: 'year', year: currentYear() }) },
+  { id: 'mes', label: 'Mes actual', build: () => ({ type: 'month', month: currentMonth() }) },
+  { id: 'mesAnterior', label: 'Mes anterior', build: () => ({ type: 'month', month: previousMonthISO() }) },
+  { id: 'trimestre', label: 'Trimestre actual', build: () => ({ type: 'range', ...currentQuarterRange() }) },
+  { id: 'anio', label: 'Año actual', build: () => ({ type: 'year', year: currentYear() }) },
 ];
 
 export function PeriodoAnalisis(): React.JSX.Element {

@@ -1,27 +1,20 @@
 'use client';
 
-import { useEffect } from 'react';
-import { Sidebar } from './Sidebar';
+import { Sidebar, SIDEBAR_EXPANDED, SIDEBAR_RAIL } from './Sidebar';
 import { Header } from './Header';
-import { FilterChips } from '@/components/filters/FilterChips';
 import { FilterDrawer } from '@/components/filters/FilterDrawer';
 import { AuthGate } from '@/components/auth/AuthGate';
 import { useDataStore } from '@/store/useDataStore';
-import { cn } from '@/lib/utils';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePathname } from 'next/navigation';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const collapsed = useDataStore((s) => s.sidebarCollapsed);
-  const setSidebarCollapsed = useDataStore((s) => s.setSidebarCollapsed);
+  const pinned = useDataStore((s) => s.sidebarPinned);
+  const compact = useMediaQuery('(max-width: 767px)');
   const pathname = usePathname();
   const isLogin = pathname === '/login';
 
-  useEffect(() => {
-    const onResize = () => setSidebarCollapsed(window.innerWidth < 768);
-    onResize();
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [setSidebarCollapsed]);
+  const isPinned = pinned && !compact;
 
   return (
     <AuthGate>
@@ -35,13 +28,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
           <Sidebar />
           <div
-            className={cn(
-              'relative z-10 flex min-h-dvh flex-col transition-all duration-300 ease-out',
-              collapsed ? 'pl-[76px]' : 'pl-[248px]',
-            )}
+            className="relative z-10 flex min-h-dvh flex-col transition-[padding] duration-300 ease-out"
+            style={{ paddingLeft: isPinned ? SIDEBAR_EXPANDED : SIDEBAR_RAIL }}
           >
             <Header />
-            <FilterChips />
             <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
           </div>
           <FilterDrawer />

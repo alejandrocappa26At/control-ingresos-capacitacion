@@ -61,12 +61,11 @@ export interface FilterState {
   responsableAS: string[];
   modalidad: string;
   capacitador: string[];
-  inicioCapacitacion: DateFilterValue;
   finCapacitacion: DateFilterValue;
   entregaOperaciones: DateFilterValue;
-  pasaAOperaciones: string;
-  motivoCaida: string;
-  subMotivoCaida: string;
+  pasaAOperaciones: string[];
+  motivoCaida: string[];
+  subMotivoCaida: string[];
 }
 
 export interface UploadMeta {
@@ -130,14 +129,31 @@ export type SerieItem = {
   porcentaje: number;
 };
 
+/**
+ * Resumen por capacitador. Las ramas son excluyentes y replican exactamente
+ * `desercionBase`, de modo que la partición se puede validar por capacitador:
+ *
+ *   INICIAN CAPACITACIÓN = APROBADOS + BAJAS + EN CAPACITACIÓN
+ *   TOTAL INGRESOS       = DESERCIÓN   + INICIAN CAPACITACIÓN + SIN CLASIFICAR
+ */
 export interface CapacitadorSummary {
   capacitador: string;
+  /** Total Ingresos: todos los registros asignados. */
   asignados: number;
-  finalizados: number;
-  enProceso: number;
+  /** TOTAL DE DÍAS >= 1 */
+  inicianCapacitacion: number;
+  /** TOTAL DE DÍAS >= 1 Y PASA A OPERACIONES = 1 */
   aprobados: number;
-  desercion: number;
+  /** TOTAL DE DÍAS >= 1 Y PASA A OPERACIONES = 0 */
   bajasCapacitacion: number;
+  /** TOTAL DE DÍAS >= 1 Y PASA A OPERACIONES vacío */
+  enCapacitacion: number;
+  /** TOTAL DE DÍAS = 0 Y PASA A OPERACIONES = 0 */
+  desercion: number;
+  /** No encaja en ninguna regla (TOTAL DE DÍAS vacío o 0 con PASA != 0). */
+  sinClasificar: number;
+  /** Aprobados + Bajas: capacitación concluida (PASA informado). */
+  finalizados: number;
 }
 
 export interface CaidaRanking {

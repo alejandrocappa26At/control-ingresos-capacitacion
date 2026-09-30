@@ -287,6 +287,27 @@ body {
   -webkit-backdrop-filter: blur(22px) saturate(1.5);
 }
 
+.glass-tip {
+  position: relative;
+  background: color-mix(in srgb, var(--surface-2) 55%, transparent);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 12px 32px -12px rgba(0, 0, 0, 0.7),
+    0 0 22px -8px rgba(227, 6, 19, 0.55);
+}
+
+.glass-tip::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 55%);
+  pointer-events: none;
+}
+
 /* ------------------------------------------------------------------ */
 /* Shadows                                                              */
 /* ------------------------------------------------------------------ */
@@ -388,6 +409,65 @@ body {
   border: 1px solid transparent;
   backdrop-filter: blur(24px) saturate(1.4);
   -webkit-backdrop-filter: blur(24px) saturate(1.4);
+}
+
+/* ------------------------------------------------------------------ */
+/* Luminous aurora border (drag & drop premium)                         */
+/* ------------------------------------------------------------------ */
+
+@property --aurora-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes aurora-spin {
+  to {
+    --aurora-angle: 360deg;
+  }
+}
+
+.aurora-border {
+  --aurora-angle: 0deg;
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(color-mix(in srgb, var(--surface-2) 86%, transparent), color-mix(in srgb, var(--surface-2) 86%, transparent))
+      padding-box,
+    conic-gradient(
+      from var(--aurora-angle),
+      transparent 0 42%,
+      rgba(227, 6, 19, 0.5) 64%,
+      rgba(255, 138, 138, 0.75) 78%,
+      transparent 94%
+    ) border-box;
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  animation: aurora-spin 9s linear infinite;
+  transition: box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aurora-border[data-active='true'] {
+  background:
+    linear-gradient(color-mix(in srgb, var(--surface-2) 92%, transparent), color-mix(in srgb, var(--surface-2) 92%, transparent))
+      padding-box,
+    conic-gradient(
+      from var(--aurora-angle),
+      transparent 0 22%,
+      #e30613 52%,
+      #ff8a8a 70%,
+      #ff3b47 86%,
+      transparent 100%
+    ) border-box;
+  box-shadow:
+    0 0 0 1px rgba(227, 6, 19, 0.12),
+    0 24px 60px -24px rgba(227, 6, 19, 0.55);
+  animation-duration: 2.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-border {
+    animation: none;
+  }
 }
 
 /* ------------------------------------------------------------------ */

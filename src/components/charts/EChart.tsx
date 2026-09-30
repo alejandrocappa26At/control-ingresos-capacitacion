@@ -106,6 +106,16 @@ export function tipRow(color: string, label: string, value: string, trailing?: s
   return `<div style="display:flex;align-items:center;gap:6px;padding:2px 0"><span style="display:inline-block;width:9px;height:9px;border-radius:9999px;background:${color};box-shadow:0 0 6px ${color}55"></span><span style="color:#94a3b8">${label}</span><span style="margin-left:auto;font-weight:700;color:#f8fafc">${value}</span>${trail}</div>`;
 }
 
+/** Separador horizontal dentro del tooltip (para agrupar los totales de abajo). */
+export function tipDivider(): string {
+  return `<div style="border-top:1px solid rgba(255,255,255,0.1);margin:7px 0 5px"></div>`;
+}
+
+/** Fila destacada del tooltip, con el valor a la derecha y en color propio. */
+export function tipFooter(color: string, label: string, value: string): string {
+  return `<div style="display:flex;align-items:center;gap:6px;padding:2px 0"><span style="display:inline-block;width:9px;height:9px;border-radius:9999px;background:${color};box-shadow:0 0 6px ${color}55"></span><span style="color:#cbd5e1;font-weight:600">${label}</span><span style="margin-left:auto;font-weight:800;color:${color}">${value}</span></div>`;
+}
+
 export function qiVTextGradient(color: string, topOpacity: number, bottomOpacity: number) {
   return {
     type: 'linear' as const,

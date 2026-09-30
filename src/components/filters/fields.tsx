@@ -26,9 +26,22 @@ export function useCapacitadorOptions(): string[] {
   return Array.from(set).sort((a, b) => a.localeCompare(b, 'es'));
 }
 
-export const DATE_LABELS: Record<keyof Pick<FilterState, 'fechaIngreso' | 'inicioCapacitacion' | 'finCapacitacion' | 'entregaOperaciones'>, string> = {
+export function useValueCounts<K extends keyof Promotor>(key: K): Map<string, number> {
+  const records = useDataStore((s) => s.records);
+  const counts = new Map<string, number>();
+  for (const r of records) {
+    const value = r[key];
+    if (typeof value !== 'string' || !value || value === '—') continue;
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  return counts;
+}
+
+export const DATE_LABELS: Record<
+  keyof Pick<FilterState, 'fechaIngreso' | 'finCapacitacion' | 'entregaOperaciones'>,
+  string
+> = {
   fechaIngreso: 'Fecha de ingreso',
-  inicioCapacitacion: 'Fecha inicio capacitación',
   finCapacitacion: 'Fecha fin capacitación',
   entregaOperaciones: 'Fecha entrega operaciones',
 };

@@ -1,24 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Flame, PanelLeftClose, PanelLeftOpen, Search, ChevronRight, Home, X } from 'lucide-react';
+import { Flame, Search, X } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import { useDataStore } from '@/store/useDataStore';
 import { useSessionStore } from '@/store/useSessionStore';
 import { useDebounce } from '@/hooks/useDebounce';
-import { usePathname } from 'next/navigation';
+import { FilterChips } from '@/components/filters/FilterChips';
 import { formatNumber } from '@/lib/utils';
 
 const TITLES: Record<string, string> = {
   '/': 'Dashboard',
   '/capacitacion': 'Capacitación',
   '/caidas': 'Análisis de Caídas',
-  '/upload': 'Cargar Excel',
+  '/upload': 'Importar Excel',
 };
 
 export function Header() {
   const pathname = usePathname();
-  const collapsed = useDataStore((s) => s.sidebarCollapsed);
-  const toggleSidebar = useDataStore((s) => s.toggleSidebar);
   const setSearchTerm = useDataStore((s) => s.setSearchTerm);
   const records = useDataStore((s) => s.records);
   const activeFiltersCount = useDataStore((s) => s.activeFiltersCount);
@@ -33,35 +32,12 @@ export function Header() {
   }, [debounced, setSearchTerm]);
 
   const title = TITLES[pathname] ?? 'Control de Ingresos y Capacitación';
-  const isHome = pathname === '/';
 
   return (
     <header className="glass-strong sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-line px-4 sm:px-6">
-      <button
-        onClick={toggleSidebar}
-        className="inline-flex size-10 items-center justify-center rounded-xl text-ink-soft transition-all duration-300 hover:bg-surface-3 hover:text-ink"
-        aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
-      >
-        {collapsed ? <PanelLeftOpen className="size-5" /> : <PanelLeftClose className="size-5" />}
-      </button>
+      <h1 className="min-w-0 max-w-[45%] shrink-0 truncate text-sm font-bold tracking-tight text-ink">{title}</h1>
 
-      <nav className="hidden min-w-0 items-center gap-1.5 sm:flex" aria-label="Breadcrumb">
-        {!isHome && (
-          <>
-            <span className="flex items-center gap-1.5 text-xs font-medium text-ink-soft">
-              <Home className="size-3.5" />
-              Dashboard
-            </span>
-            <ChevronRight className="size-3.5 text-ink-soft/50" />
-          </>
-        )}
-        <h1 className="truncate text-sm font-bold tracking-tight text-ink">{title}</h1>
-        <span className="ml-1.5 hidden rounded-md border border-line bg-surface-3 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-ink-soft uppercase lg:inline-block">
-          Plataforma de análisis
-        </span>
-      </nav>
-
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2">
         <button
           onClick={openFilterDrawer}
           aria-label={`Abrir filtros avanzados · ${activeFiltersCount} activo${activeFiltersCount === 1 ? '' : 's'}`}
@@ -77,11 +53,12 @@ export function Header() {
           </span>
           <span className="relative shrink-0 rounded-full border border-white/30 bg-white/15 px-2 py-0.5 text-[10px] font-bold text-white tabular-nums backdrop-blur-sm">
             {activeFiltersCount}
-            <span className="hidden lg:inline"> activo{activeFiltersCount === 1 ? '' : 's'}</span>
           </span>
         </button>
 
-        <div className="relative w-44 md:w-80">
+        <FilterChips />
+
+        <div className="relative w-40 shrink-0 sm:w-52 xl:w-72">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-soft" />
           <input
             value={value}
@@ -90,13 +67,14 @@ export function Header() {
               if (e.key === 'Escape') setValue('');
             }}
             placeholder="Buscar promotor..."
+            aria-label="Buscar promotor"
             className="h-10 w-full rounded-xl border border-line bg-surface/70 pr-10 pl-9 text-sm text-ink placeholder:text-ink-soft backdrop-blur transition-all duration-300 focus:border-brand-400/70 focus:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
           />
           {value && (
             <button
               onClick={() => setValue('')}
-              className="absolute top-1/2 right-2.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-md text-ink-soft transition-colors hover:bg-surface-3 hover:text-ink"
               aria-label="Limpiar búsqueda"
+              className="absolute top-1/2 right-2.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-md text-ink-soft transition-colors hover:bg-surface-3 hover:text-ink"
             >
               <X className="size-3.5" />
             </button>

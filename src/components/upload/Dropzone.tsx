@@ -1,21 +1,24 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type DragEvent } from 'react';
 import { motion } from 'framer-motion';
-import { UploadCloud, CheckCircle2, FileDown, SearchX, Loader2, Clock3, Database } from 'lucide-react';
+import { UploadCloud, CheckCircle2, SearchX, Loader2, Clock3, Database, FileSpreadsheet } from 'lucide-react';
 import { readExcelFile } from '@/services/excel/reader';
-import { generarPlantilla } from '@/services/excel/template';
 import { useDataStore } from '@/store/useDataStore';
 import { useAppData } from '@/hooks/useAppData';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { formatISOToDisplay } from '@/lib/dates';
 import type { ExcelProgress, ExcelStage } from '@/services/excel/progress';
 import { formatElapsed } from '@/services/excel/progress';
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 export function Dropzone() {
   const inputRef = useRef<HTMLInputElement>(null);
   const startedAtRef = useRef(0);
+  const dragDepthRef = useRef(0);
   const [dragOver, setDragOver] = useState(false);
   const [progress, setProgress] = useState<ExcelProgress | null>(null);
   const isProcessing = useDataStore((s) => s.isProcessing);
@@ -74,7 +77,9 @@ export function Dropzone() {
         console.info(
           `[Dropzone] FIN PROCESAMIENTO: ${Date.now() - inicio} ms (registros en el store, renderizado disparado)`,
         );
-        console.info(`[Dropzone] éxito: ${result.records.length} registros (Lima ${limaCount} | Provincia ${result.records.length - limaCount})`);
+        console.info(
+          `[Dropzone] éxito: ${result.records.length} registros (Lima ${limaCount} | Provincia ${result.records.length - limaCount})`,
+        );
         toast.success(
           `Procesamiento exitoso: ${result.records.length} registros cargados (Lima: ${limaCount} | Provincia: ${result.records.length - limaCount})`,
         );
@@ -108,26 +113,22 @@ export function Dropzone() {
     return () => window.clearInterval(id);
   }, [isProcessing]);
 
-  const descargarPlantilla = useCallback(() => {
-    generarPlantilla().catch((error: unknown) => {
-      console.error('[Dropzone] no se pudo generar la plantilla:', error);
-      const name = error instanceof Error ? error.name : '';
-      if (/ChunkLoadError/i.test(name)) {
-        toast.error('No se pudo cargar el motor de Excel. Recarga la página e intenta de nuevo.', {
-          action: {
-            label: 'Recargar',
-            onClick: () => window.location.reload(),
-          },
-        });
-      } else {
-        toast.error('No se pudo generar la plantilla. Inténtalo de nuevo.');
-      }
-    });
+  const onDragEnter = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    dragDepthRef.current += 1;
+    setDragOver(true);
+  }, []);
+
+  const onDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+    if (dragDepthRef.current === 0) setDragOver(false);
   }, []);
 
   const onDrop = useCallback(
-    (e: React.DragEvent) => {
+    (e: DragEvent<HTMLDivElement>) => {
       e.preventDefault();
+      dragDepthRef.current = 0;
       setDragOver(false);
       const file = e.dataTransfer.files?.[0];
       if (file) void processFile(file);
@@ -149,22 +150,31 @@ export function Dropzone() {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragOver(true);
-        }}
-        onDragLeave={() => setDragOver(false)}
+        transition={{ duration: 0.4, ease: EASE }}
+        onDragEnter={onDragEnter}
+        onDragOver={(e) => e.preventDefault()}
+        onDragLeave={onDragLeave}
         onDrop={onDrop}
         onClick={() => inputRef.current?.click()}
+        data-active={dragOver}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
+        aria-label="Cargar Excel de capacitación"
         className={cn(
-          'relative cursor-pointer overflow-hidden rounded-3xl border-2 border-dashed bg-surface-2/80 p-10 text-center shadow-card backdrop-blur transition-all duration-300 sm:p-14',
-          dragOver
-            ? 'scale-[1.02] border-brand-400 bg-brand-500/5 shadow-glow'
-            : 'border-line-2 hover:border-brand-300 hover:shadow-glow-sm',
+          'aurora-border group relative cursor-pointer rounded-3xl px-6 py-14 text-center shadow-card outline-none transition-transform duration-300 ease-out sm:px-10 sm:py-16',
+          'hover:shadow-glow-sm focus-visible:shadow-glow-sm',
+          dragOver && 'scale-[1.015] shadow-glow',
+          isProcessing && 'pointer-events-none',
         )}
       >
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+
         <input
           ref={inputRef}
           type="file"
@@ -172,39 +182,41 @@ export function Dropzone() {
           className="sr-only"
           onChange={onSelect}
         />
-        <div className="mx-auto flex size-20 items-center justify-center rounded-3xl gradient-brand text-white shadow-glow">
-          <UploadCloud className="size-9" />
-        </div>
-        <h2 className="mt-6 text-xl font-bold tracking-tight text-ink">CARGAR EXCEL DE CAPACITACIÓN</h2>
-        <p className="mx-auto mt-2 max-w-md text-sm text-ink-muted">
-          Arrastra y suelta tu archivo aquí, o haz clic para seleccionarlo.
-          <br />
-          Formatos permitidos: <span className="font-semibold text-ink">.xls</span> y{' '}
-          <span className="font-semibold text-ink">.xlsx</span>
-        </p>
 
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink-muted">
-            Requiere hojas: CAPACITACIÓN LIMA y CAPACITACIÓN PROVINCIA
-          </span>
-          <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink-muted">
-            Validación automática de columnas
-          </span>
+        <motion.div
+          animate={dragOver ? { scale: 1.08, y: -4 } : { scale: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+          className="relative mx-auto flex size-20 items-center justify-center rounded-3xl gradient-brand text-white shadow-glow"
+        >
+          {dragOver ? <FileSpreadsheet className="size-9" /> : <UploadCloud className="size-9" />}
+          <span className="absolute inset-0 -z-10 animate-pulse-glow rounded-3xl bg-brand-500/40 blur-xl" />
+        </motion.div>
+
+        <h2 className="mt-7 text-xl font-bold tracking-tight text-ink sm:text-2xl">CARGAR EXCEL DE CAPACITACIÓN</h2>
+        <p className="mx-auto mt-2.5 max-w-sm text-sm text-ink-muted">Arrastra o selecciona tu archivo.</p>
+
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+          {['.xls', '.xlsx'].map((ext) => (
+            <span
+              key={ext}
+              className="rounded-lg border border-line bg-surface/60 px-2.5 py-1 text-xs font-bold text-ink-soft backdrop-blur-sm transition-colors duration-300 group-hover:border-brand-400/40 group-hover:text-brand-300"
+            >
+              {ext}
+            </span>
+          ))}
         </div>
 
         {isProcessing && (
-          <div className="mt-6">
+          <div className="mt-8">
             {progress ? (
               <>
                 <Progress value={progress.percent} className="mt-4" />
-                <div className="mt-3 flex flex-col items-center gap-1">
+                <div className="mt-3 flex flex-col items-center gap-1.5">
                   <div className="flex items-center gap-2 text-sm font-bold text-ink">
                     <Loader2 className="size-4 animate-spin text-brand-500" />
-                    {progress.stage === 'registros'
-                      ? `Procesando ${progress.recordsProcessed.toLocaleString('es-PE')} registros...`
-                      : progressLabelForStage(progress.stage)}
+                    {progressLabelForStage(progress.stage)}
                   </div>
-                  <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] font-semibold text-ink-soft">
+                  <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] font-semibold text-ink-soft tabular-nums">
                     <span>{Math.round(progress.percent)}%</span>
                     <span className="flex items-center gap-1">
                       <Clock3 className="size-3" />
@@ -225,40 +237,32 @@ export function Dropzone() {
             )}
           </div>
         )}
-
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            descargarPlantilla();
-          }}
-          className="mt-6 inline-flex items-center gap-2 rounded-xl border border-brand-300/50 bg-brand-500/8 px-4 py-2.5 text-sm font-semibold text-brand-500 transition-colors hover:bg-brand-500/15"
-        >
-          <FileDown className="size-4" />
-          Descargar plantilla de ejemplo
-        </button>
       </motion.div>
 
       {uploadMeta && !isProcessing && (
-        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/8 p-5 shadow-card transition-all duration-300 hover:shadow-glow-emerald">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: EASE }}
+          className="rounded-2xl border border-emerald-500/20 bg-emerald-500/8 p-5 shadow-card"
+        >
           <div className="flex items-start gap-3">
             <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-500" />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-emerald-400">
-                Archivo procesado correctamente
-              </p>
-              <p className="mt-1 text-xs text-ink-muted">
-                {uploadMeta.totalRegistros.toLocaleString('es-PE')} registros procesados · Ahora puedes filtrar, buscar y
-                analizar los datos desde el Dashboard y las demás secciones.
+              <p className="truncate text-sm font-bold text-emerald-400">{uploadMeta.fileName}</p>
+              <p className="mt-1 text-xs text-ink-muted tabular-nums">
+                {uploadMeta.totalRegistros.toLocaleString('es-PE')} registros ·{' '}
+                {formatISOToDisplay(uploadMeta.uploadedAt)}
               </p>
               {filtered.length === 0 && (
                 <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-400">
-                  <SearchX className="size-4" />
-                  Los filtros activos actualmente no muestran registros. Limpia los filtros para ver toda la información.
+                  <SearchX className="size-4 shrink-0" />
+                  Los filtros activos no muestran registros. Límpialos para ver toda la información.
                 </div>
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
     </div>
   );
@@ -268,15 +272,13 @@ function progressLabelForStage(stage: ExcelStage): string {
   switch (stage) {
     case 'leer':
       return 'Leyendo archivo...';
-    case 'hojas':
-      return 'Validando hojas...';
-    case 'columnas':
-      return 'Validando columnas...';
     case 'registros':
       return 'Procesando registros...';
     case 'kpis':
-      return 'Calculando KPIs...';
+      return 'Calculando indicadores...';
+    case 'hojas':
+    case 'columnas':
     case 'fin':
-      return 'Finalizado.';
+      return 'Procesando...';
   }
 }
