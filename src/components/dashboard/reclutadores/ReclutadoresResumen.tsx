@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { motion } from 'framer-motion';
-import { Users, UserRoundPlus, CalendarRange, CheckCircle2, Trophy, type LucideIcon } from 'lucide-react';
+import { Users, UserRoundPlus, CalendarRange, CheckCircle2, Trophy, AlertTriangle, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CountUp } from '@/components/ui/count-up';
 import type { ReclutadoresAnalisis, ResumenReclutador } from '@/services/analytics/reclutadores';
@@ -85,7 +85,7 @@ function ResumenCard({ index, title, value, sub, icon: Icon, tone }: ResumenCard
 
 function mejorPermanencia(list: ResumenReclutador[]): ResumenReclutador | undefined {
   return [...list]
-    .filter((r) => r.procesosFinalizados > 0)
+    .filter((r) => r.ingresos > 0)
     .sort((a, b) => b.tasaPermanencia - a.tasaPermanencia)[0];
 }
 
@@ -93,7 +93,7 @@ export function ReclutadoresResumen({ data }: { data: ReclutadoresAnalisis }) {
   const mejor = mejorPermanencia(data.productividad);
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       <ResumenCard
         index={0}
         title="Total reclutadores"
@@ -120,17 +120,25 @@ export function ReclutadoresResumen({ data }: { data: ReclutadoresAnalisis }) {
       />
       <ResumenCard
         index={3}
+        title="Total caídas en capacitación"
+        value={<CountUp value={data.totalCaidasCapacitacion} />}
+        sub="Iniciaron y abandonaron la capacitación"
+        icon={AlertTriangle}
+        tone="amber"
+      />
+      <ResumenCard
+        index={4}
         title="Pasan a operaciones"
-        value={<CountUp value={data.totalPasanOperaciones} />}
+        value={<CountUp value={data.totalAprobados} />}
         sub="Ingresos que completan el proceso"
         icon={CheckCircle2}
         tone="emerald"
       />
       <ResumenCard
-        index={4}
+        index={5}
         title="Mejor permanencia"
         value={mejor ? `${mejor.tasaPermanencia.toFixed(1)}%` : '—'}
-        sub={mejor ? mejor.responsable : 'Sin procesos finalizados'}
+        sub={mejor ? mejor.responsable : 'Sin registros'}
         icon={Trophy}
         tone="amber"
       />

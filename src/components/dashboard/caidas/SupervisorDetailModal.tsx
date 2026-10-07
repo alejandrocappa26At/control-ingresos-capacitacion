@@ -20,10 +20,10 @@ import {
 
 type TabId = 'todos' | 'desercion' | 'bajas';
 
-const TABS: Array<{ id: TabId; label: string; color: string }> = [
-  { id: 'todos', label: 'TODOS', color: '#94a3b8' },
-  { id: 'desercion', label: 'DESERCIÓN', color: '#94a3b8' },
-  { id: 'bajas', label: 'BAJAS', color: '#f59e0b' },
+const TABS: Array<{ id: TabId; label: string }> = [
+  { id: 'todos', label: 'TODOS' },
+  { id: 'desercion', label: 'DESERCIÓN' },
+  { id: 'bajas', label: 'BAJAS' },
 ];
 
 const EMPTY_COPY: Record<TabId, string> = {
@@ -179,8 +179,8 @@ export function SupervisorDetailModal({
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 sm:px-7">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
-            {TABS.map(({ id, label, color }) => {
+          <div className="-mx-1 flex gap-1 overflow-x-auto px-1 py-1">
+            {TABS.map(({ id, label }) => {
               const active = tab === id;
               return (
                 <button
@@ -188,22 +188,27 @@ export function SupervisorDetailModal({
                   onClick={() => setTab(id)}
                   aria-pressed={active}
                   className={cn(
-                    'relative shrink-0 rounded-xl px-3 py-2 text-[11px] font-bold tracking-wide whitespace-nowrap transition-colors duration-300',
-                    active ? 'text-ink' : 'text-ink-soft hover:text-ink',
+                    'relative shrink-0 rounded-xl px-3 py-2 text-[11px] tracking-wide whitespace-nowrap transition-all duration-300 ease-out active:scale-[0.97] active:duration-150',
+                    active
+                      ? '-translate-y-px font-extrabold text-white'
+                      : 'font-bold text-ink-soft hover:text-ink',
                   )}
-                  style={active ? { background: `${color}1f`, color } : undefined}
                 >
                   {active && (
                     <motion.span
                       layoutId="supervisor-tab"
-                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute inset-0 rounded-xl border"
-                      style={{ borderColor: `${color}47` }}
+                      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                      className="absolute inset-0 rounded-xl border border-[#1DB954]/45 bg-[linear-gradient(135deg,rgba(29,185,84,0.24),rgba(29,185,84,0.06))] shadow-[0_0_16px_-5px_rgba(29,185,84,0.8)]"
                     />
                   )}
                   <span className="relative flex items-center gap-1.5">
                     {label}
-                    <span className="rounded-md bg-ink/10 px-1.5 py-0.5 text-[10px] tabular-nums">
+                    <span
+                      className={cn(
+                        'rounded-md px-1.5 py-0.5 text-[10px] tabular-nums transition-colors duration-300',
+                        active ? 'bg-[#1DB954]/20 text-[#1DB954]' : 'bg-ink/10',
+                      )}
+                    >
                       {formatNumber(conteos[id])}
                     </span>
                   </span>

@@ -19,7 +19,7 @@ import { useAppData } from '@/hooks/useAppData';
 import type { Promotor } from '@/types';
 import { computeEmbudo, caidasPorDiaPorSede, caidasPorDiaPorSupervisor } from '@/services/analytics/falls';
 import { analizarDesercion } from '@/services/analytics/desercion';
-import { analizarReclutadores } from '@/services/analytics/reclutadores';
+import { analizarReclutadores, validarCalculosReclutadores } from '@/services/analytics/reclutadores';
 import { analizarZonas } from '@/services/analytics/zonas';
 import { validarConsistenciaDesercion } from '@/services/analytics/validacion';
 
@@ -31,6 +31,7 @@ export default function CaidasPage() {
   useEffect(() => {
     if (filtered.length === 0) return;
     validarConsistenciaDesercion(filtered);
+    validarCalculosReclutadores(filtered);
   }, [filtered]);
 
   const ejecutivo = useMemo(() => {

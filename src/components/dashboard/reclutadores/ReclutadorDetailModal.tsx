@@ -5,11 +5,10 @@ import { motion } from 'framer-motion';
 import { AlertCircle, CheckCircle2, Search, Target, UserX } from 'lucide-react';
 import { Modal, ModalClose } from '@/components/ui/modal';
 import { Badge } from '@/components/ui/badge';
-import { esAprobado, esBajaCapacitacion, esDesercion } from '@/services/analytics/desercionBase';
+import { esAprobado, esCaidaCapacitacion, esDesercion, esEnCapacitacion, SEMAFORO_STYLES } from '@/services/analytics/reclutadores';
+import type { ResumenReclutador } from '@/services/analytics/reclutadores';
 import { cn, formatNumber, normalizeKey } from '@/lib/utils';
 import type { Promotor } from '@/types';
-import type { ResumenReclutador } from '@/services/analytics/reclutadores';
-import { SEMAFORO_STYLES } from '@/services/analytics/reclutadores';
 import {
   BotonExportar,
   ModalKpi,
@@ -22,11 +21,11 @@ import {
 
 type TabId = 'todos' | 'aprobados' | 'bajas' | 'desercion';
 
-const TABS: Array<{ id: TabId; label: string; color: string }> = [
-  { id: 'todos', label: 'TODOS', color: '#94a3b8' },
-  { id: 'aprobados', label: 'APROBADOS', color: '#10b981' },
-  { id: 'bajas', label: 'BAJAS', color: '#f59e0b' },
-  { id: 'desercion', label: 'DESERCIÓN', color: '#94a3b8' },
+const TABS: Array<{ id: TabId; label: string }> = [
+  { id: 'todos', label: 'TODOS' },
+  { id: 'aprobados', label: 'APROBADOS' },
+  { id: 'bajas', label: 'BAJAS' },
+  { id: 'desercion', label: 'DESERCIÓN' },
 ];
 
 const EMPTY_COPY: Record<TabId, string> = {
@@ -39,7 +38,7 @@ const EMPTY_COPY: Record<TabId, string> = {
 function matchTab(tab: TabId, r: Promotor): boolean {
   if (tab === 'todos') return true;
   if (tab === 'aprobados') return esAprobado(r);
-  if (tab === 'bajas') return esBajaCapacitacion(r);
+  if (tab === 'bajas') return esCaidaCapacitacion(r);
   return esDesercion(r);
 }
 
@@ -70,14 +69,16 @@ export function ReclutadorDetailModal({
 
   const conteos = useMemo(() => {
     let aprobados = 0;
-    let bajas = 0;
+    let caidasCapacitacion = 0;
     let desercion = 0;
+    let enCapacitacion = 0;
     for (const r of propios) {
       if (esAprobado(r)) aprobados += 1;
-      else if (esBajaCapacitacion(r)) bajas += 1;
+      else if (esCaidaCapacitacion(r)) caidasCapacitacion += 1;
       else if (esDesercion(r)) desercion += 1;
+      else if (esEnCapacitacion(r)) enCapacitacion += 1;
     }
-    return { todos: propios.length, aprobados, bajas, desercion };
+    return { todos: propios.length, aprobados, bajas: caidasCapacitacion, desercion, enCapacitacion };
   }, [propios]);
 
   const visibles = useMemo(() => {
@@ -91,7 +92,7 @@ export function ReclutadorDetailModal({
 
   const calculado = useMemo(() => {
     const caidas = conteos.bajas + conteos.desercion;
-    const finalizados = conteos.aprobados + conteos.bajas;
+    const permanenciaBase = conteos.aprobados + conteos.enCapacitacion;
     return {
       ingresos: propios.length,
       aprobados: conteos.aprobados,
@@ -99,7 +100,7 @@ export function ReclutadorDetailModal({
       desercion: conteos.desercion,
       caidas,
       pctDesercion: propios.length > 0 ? (conteos.desercion / propios.length) * 100 : 0,
-      pctPermanencia: finalizados > 0 ? (conteos.aprobados / finalizados) * 100 : 0,
+      pctPermanencia: propios.length > 0 ? (permanenciaBase / propios.length) * 100 : 0,
     };
   }, [propios, conteos]);
 
@@ -209,8 +210,8 @@ export function ReclutadorDetailModal({
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 sm:px-7">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
-            {TABS.map(({ id, label, color }) => {
+          <div className="-mx-1 flex gap-1 overflow-x-auto px-1 py-1">
+            {TABS.map(({ id, label }) => {
               const active = tab === id;
               return (
                 <button
@@ -218,22 +219,27 @@ export function ReclutadorDetailModal({
                   onClick={() => setTab(id)}
                   aria-pressed={active}
                   className={cn(
-                    'relative shrink-0 rounded-xl px-3 py-2 text-[11px] font-bold tracking-wide whitespace-nowrap transition-colors duration-300',
-                    active ? 'text-ink' : 'text-ink-soft hover:text-ink',
+                    'relative shrink-0 rounded-xl px-3 py-2 text-[11px] tracking-wide whitespace-nowrap transition-all duration-300 ease-out active:scale-[0.97] active:duration-150',
+                    active
+                      ? '-translate-y-px font-extrabold text-white'
+                      : 'font-bold text-ink-soft hover:text-ink',
                   )}
-                  style={active ? { background: `${color}1f`, color } : undefined}
                 >
                   {active && (
                     <motion.span
                       layoutId="reclutador-tab"
-                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute inset-0 rounded-xl border"
-                      style={{ borderColor: `${color}47` }}
+                      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                      className="absolute inset-0 rounded-xl border border-[#1DB954]/45 bg-[linear-gradient(135deg,rgba(29,185,84,0.24),rgba(29,185,84,0.06))] shadow-[0_0_16px_-5px_rgba(29,185,84,0.8)]"
                     />
                   )}
                   <span className="relative flex items-center gap-1.5">
                     {label}
-                    <span className="rounded-md bg-ink/10 px-1.5 py-0.5 text-[10px] tabular-nums">
+                    <span
+                      className={cn(
+                        'rounded-md px-1.5 py-0.5 text-[10px] tabular-nums transition-colors duration-300',
+                        active ? 'bg-[#1DB954]/20 text-[#1DB954]' : 'bg-ink/10',
+                      )}
+                    >
                       {formatNumber(conteos[id])}
                     </span>
                   </span>
