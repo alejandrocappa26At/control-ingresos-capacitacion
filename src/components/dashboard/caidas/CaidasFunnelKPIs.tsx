@@ -35,23 +35,43 @@ function mesCorto(mes: string): string {
 }
 
 function embudoOption(embudo: EmbudoCapacitacion): EChartsOption {
+  const pctInician =
+    embudo.totalIngresos > 0 ? (embudo.inicianCapacitacion / embudo.totalIngresos) * 100 : 0;
+  const pctPasan =
+    embudo.inicianCapacitacion > 0 ? (embudo.pasanOperaciones / embudo.inicianCapacitacion) * 100 : 0;
+
   const steps = [
-    { name: 'Total de ingresos', value: embudo.totalIngresos, pct: 100 },
-    { name: 'Inician capacitación', value: embudo.inicianCapacitacion, pct: embudo.inicianPct },
-    { name: 'Pasan a operaciones', value: embudo.pasanOperaciones, pct: embudo.pasanPct },
+    {
+      name: 'Total de ingresos',
+      value: embudo.totalIngresos,
+      pct: 100,
+      base: '% del total de ingresos',
+    },
+    {
+      name: 'Inician capacitación',
+      value: embudo.inicianCapacitacion,
+      pct: pctInician,
+      base: '% del total de ingresos',
+    },
+    {
+      name: 'Pasan a operaciones',
+      value: embudo.pasanOperaciones,
+      pct: pctPasan,
+      base: '% de Inician capacitación',
+    },
   ].filter((s) => s.value > 0);
 
   return {
     tooltip: {
       formatter: (params) => {
-        const p = params as { name?: string; data?: { value: number; pct: number } };
+        const p = params as { name?: string; data?: { value: number; pct: number; base: string } };
         const color = EMBUDO_COLORS.find((c) => c.name === p.name)?.fill ?? '#a1a1aa';
         const value = p.data?.value ?? 0;
         const pct = p.data?.pct ?? 0;
         return (
           tipHeader(String(p.name ?? '—')) +
           tipRow(color, 'Registros', formatNumber(value)) +
-          tipRow('#a1a1aa', '% del total de ingresos', `${pct.toFixed(1)}%`)
+          tipRow('#a1a1aa', p.data?.base ?? '% del total de ingresos', `${pct.toFixed(1)}%`)
         );
       },
     },
@@ -86,6 +106,7 @@ function embudoOption(embudo: EmbudoCapacitacion): EChartsOption {
           name: s.name,
           value: s.value,
           pct: s.pct,
+          base: s.base,
           itemStyle: {
             color: EMBUDO_COLORS.find((c) => c.name === s.name)?.fill,
             shadowColor: EMBUDO_COLORS.find((c) => c.name === s.name)?.glow,
