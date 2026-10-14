@@ -16,9 +16,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Control de Ingresos y Capacitación',
-  description:
-    'Plataforma analítica para gestionar, analizar y visualizar el proceso de capacitación de promotores nuevos.',
+  title: 'AT People | Gestión de Talento',
+  description: 'Plataforma analítica de ingresos, capacitación y resultados.',
+  icons: {
+    icon: [
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
