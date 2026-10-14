@@ -34,11 +34,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Usuario o contraseña incorrectos' }, { status: 401 });
   }
 
-  const token = await signSessionToken({
-    u: usuario.username,
-    r: usuario.role,
-    exp: Date.now() + SESSION_DURATION_MS,
-  });
+  let token: string;
+  try {
+    token = await signSessionToken({
+      u: usuario.username,
+      r: usuario.role,
+      exp: Date.now() + SESSION_DURATION_MS,
+    });
+  } catch (error) {
+    // El detalle real (p. ej. SESSION_SECRET ausente en producción) va
+    // SOLO al log del servidor; al cliente se le devuelve un error
+    // genérico estructurado en lugar de un500 sin cuerpo.
+    console.error('[auth/login] Error interno al emitir la sesión:', error);
+    return NextResponse.json(
+      { error: 'Error interno del servidor. Intente nuevamente o contacte al administrador.' },
+      { status: 500 },
+    );
+  }
 
   const sesion: SesionPublica = {
     user: usuario.username,

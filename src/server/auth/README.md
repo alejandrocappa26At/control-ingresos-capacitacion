@@ -49,7 +49,9 @@ El menú lateral se filtra con la misma fuente (`ROLES[role].permisos`), por lo 
 
 ## Variables de entorno
 
-- `SESSION_SECRET` — obligatoria en producción (firma HMAC). En desarrollo existe un fallback local con advertencia.
+- `SESSION_SECRET` — obligatoria en producción (firma HMAC). En desarrollo existe un fallback local con advertencia. **Sin esta variable, el login devuelve500 en producción** (el endpoint se niega a firmar sesiones con un secreto por defecto).
+  - **Local:** ya está definida en `.env.local` (gitignorado — `.env*`).
+  - **Vercel:** Project → Settings → Environment Variables → agregar `SESSION_SECRET` (generar con `openssl rand -hex 32`) para Production, Preview y Development, y redeployar.
 - ~~`NEXT_PUBLIC_APP_USER` / `NEXT_PUBLIC_APP_PASSWORD`~~ — **eliminadas**: exponían la credencial en texto plano en el bundle cliente.
 
 ## Alta de usuarios
