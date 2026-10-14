@@ -1,45 +1,68 @@
 'use client';
 
 import { create } from 'zustand';
-import {
-  clearStoredSession,
-  credentialsAreValid,
-  readStoredSession,
-  writeStoredSession,
-} from '@/lib/auth';
+import { fetchSession, loginRequest, logoutRequest } from '@/lib/auth';
+import type { Permiso, Rol, SesionPublica } from '@/lib/rbac';
 
-type SessionStatus = 'authenticated' | 'guest';
+export type SessionStatus = 'loading' | 'guest' | 'authenticated';
 
 interface SessionState {
   user: string | null;
+  displayName: string | null;
+  role: Rol | null;
+  permissions: Permiso[];
   status: SessionStatus;
-  login: (user: string, password: string) => boolean;
-  logout: () => void;
+  /** Restaura la sesión desde la cookie HttpOnly (refresco de página). */
+  bootstrap: () => Promise<void>;
+  login: (user: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
 }
 
-function initialSession(): Pick<SessionState, 'user' | 'status'> {
-  if (typeof window === 'undefined') return { user: null, status: 'guest' };
-  const stored = readStoredSession();
-  return stored
-    ? { user: stored.user, status: 'authenticated' }
-    : { user: null, status: 'guest' };
+/** Evita re-fetch de sesión en cada montaje del AuthGate. */
+let bootstrapped = false;
+
+function desdeSesion(sesion: SesionPublica): Pick<SessionState, 'user' | 'displayName' | 'role' | 'permissions' | 'status'> {
+  return {
+    user: sesion.user,
+    displayName: sesion.displayName,
+    role: sesion.role,
+    permissions: sesion.permissions,
+    status: 'authenticated',
+  };
 }
 
-const init = initialSession();
+const SIN_SESION: Pick<SessionState, 'user' | 'displayName' | 'role' | 'permissions'> = {
+  user: null,
+  displayName: null,
+  role: null,
+  permissions: [],
+};
 
 export const useSessionStore = create<SessionState>((set) => ({
-  user: init.user,
-  status: init.status,
-  login: (user, password) => {
-    const valid = credentialsAreValid(user, password);
-    if (!valid) return false;
-    const cleanUser = user.trim();
-    writeStoredSession(cleanUser);
-    set({ user: cleanUser, status: 'authenticated' });
+  ...SIN_SESION,
+  status: 'loading',
+
+  bootstrap: async () => {
+    if (bootstrapped) return;
+    bootstrapped = true;
+    const sesion = await fetchSession();
+    set(sesion ? desdeSesion(sesion) : { ...SIN_SESION, status: 'guest' });
+  },
+
+  login: async (user, password) => {
+    const sesion = await loginRequest(user, password);
+    bootstrapped = true;
+    if (!sesion) {
+      set({ ...SIN_SESION, status: 'guest' });
+      return false;
+    }
+    set(desdeSesion(sesion));
     return true;
   },
-  logout: () => {
-    clearStoredSession();
-    set({ user: null, status: 'guest' });
+
+  logout: async () => {
+    await logoutRequest();
+    bootstrapped = false;
+    set({ ...SIN_SESION, status: 'guest' });
   },
 }));

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { ChartEmpty } from '@/components/charts/charts';
-import { formatNumber } from '@/lib/utils';
+import { cn, formatNumber } from '@/lib/utils';
 
 interface RankColor {
   from: string;
@@ -28,6 +28,13 @@ const GRAY_COLOR: RankColor = {
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
+/**
+ * Alto visual recomendado del card. Si la cantidad de sedes supera esta
+ * cantidad de filas, el ranking activa un scroll vertical interno para
+ * mostrar todas ellas sin alargar el dashboard.
+ */
+const MAX_VISIBLE_ROWS = 8;
+
 export function SedeRanking({
   data,
   onSelect,
@@ -45,7 +52,12 @@ export function SedeRanking({
   const max = Math.max(...rows.map((d) => d.value), 1);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div
+      className={cn(
+        'flex flex-col gap-1',
+        rows.length > MAX_VISIBLE_ROWS && 'max-h-[432px] overflow-y-auto pr-1.5',
+      )}
+    >
       {rows.map((d, i) => {
         const color = RANK_COLORS[i] ?? GRAY_COLOR;
         const pct = total > 0 ? ((d.value / total) * 100).toFixed(1) : '0.0';

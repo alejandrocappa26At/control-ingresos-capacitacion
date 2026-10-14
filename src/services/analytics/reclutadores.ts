@@ -1,34 +1,135 @@
 import type { Promotor } from '@/types';
 import { normalizeKey } from '@/lib/utils';
 
-export type NivelDesercion = 'excelente' | 'bueno' | 'riesgo' | 'critico';
+/* ══════════════════════════════════════════════════════════════════
+ *  CLASIFICACIÓN KPI POR INDICADOR (fuente de verdad)
+ *  Cada métrica tiene sus propios rangos, etiquetas y color.
+ *  Los umbrales NO se comparten entre indicadores.
+ * ══════════════════════════════════════════════════════════════════
+ */
 
-export const RANGOS_SEMAFORO = [
-  { nivel: 'excelente' as const, emoji: '🟢', label: 'Excelente', max: 5, rango: '0-5%' },
-  { nivel: 'bueno' as const, emoji: '🟡', label: 'Bueno', max: 10, rango: '>5-10%' },
-  { nivel: 'riesgo' as const, emoji: '🟠', label: 'Riesgo', max: 15, rango: '>10-15%' },
-  { nivel: 'critico' as const, emoji: '🔴', label: 'Crítico', max: Infinity, rango: '>15%' },
-];
+export type NivelKpi = 'excelente' | 'aceptable' | 'riesgo' | 'critico';
 
-export const SEMAFORO_STYLES: Record<NivelDesercion, { emoji: string; label: string; color: string; dim: string }> = {
+export type IndicadorKpiId = 'desercion' | 'baja' | 'total' | 'permanencia';
+
+export interface NivelSemaforo {
+  emoji: string;
+  label: string;
+  color: string;
+  dim: string;
+}
+
+/** Colores del sistema: Verde Excelente · Amarillo Aceptable · Naranja Riesgo · Rojo Crítico. */
+export const SEMAFORO_STYLES: Record<NivelKpi, NivelSemaforo> = {
   excelente: { emoji: '🟢', label: 'Excelente', color: '#22c55e', dim: 'rgba(34,197,94,0.9)' },
-  bueno: { emoji: '🟡', label: 'Bueno', color: '#eab308', dim: 'rgba(234,179,8,0.9)' },
+  aceptable: { emoji: '🟡', label: 'Aceptable', color: '#eab308', dim: 'rgba(234,179,8,0.9)' },
   riesgo: { emoji: '🟠', label: 'Riesgo', color: '#f97316', dim: 'rgba(249,115,22,0.9)' },
   critico: { emoji: '🔴', label: 'Crítico', color: '#dc2626', dim: 'rgba(220,38,38,0.9)' },
 };
 
-export function nivelDesercion(tasa: number): NivelDesercion {
-  if (tasa < 3) return 'excelente';
-  if (tasa < 6) return 'bueno';
-  if (tasa < 9) return 'riesgo';
+export interface RangoKpi {
+  nivel: NivelKpi;
+  /** Texto visible del rango. */
+  rango: string;
+  /** Límite superior inclusivo (%). Solo tasas donde menor = mejor. */
+  max?: number;
+  /** Límite inferior inclusivo (%). Solo escalas invertidas (mayor = mejor). */
+  min?: number;
+}
+
+export interface ConfigIndicadorKpi {
+  id: IndicadorKpiId;
+  nombre: string;
+  descripcion: string;
+  formula: string;
+  /** 'asc': menor tasa = mejor · 'desc': mayor tasa = mejor (Permanencia). */
+  direccion: 'asc' | 'desc';
+  /** Niveles ordenados de mejor a peor. */
+  niveles: RangoKpi[];
+}
+
+export const INDICADORES_KPI: Record<IndicadorKpiId, ConfigIndicadorKpi> = {
+  desercion: {
+    id: 'desercion',
+    nombre: 'Tasa de deserción',
+    descripcion: 'Candidatos que ingresaron pero abandonaron antes de completar capacitación por decisión propia.',
+    formula: '(Total Deserciones ÷ Total Ingresos) × 100',
+    direccion: 'asc',
+    niveles: [
+      { nivel: 'excelente', max: 5, rango: '≤ 5%' },
+      { nivel: 'aceptable', max: 10, rango: '> 5% – 10%' },
+      { nivel: 'riesgo', max: 15, rango: '> 10% – 15%' },
+      { nivel: 'critico', rango: '> 15%' },
+    ],
+  },
+  baja: {
+    id: 'baja',
+    nombre: 'Tasa de baja en capacitación',
+    descripcion: 'Personas separadas por la empresa durante capacitación por evaluación, conducta u otros motivos.',
+    formula: '(Total Bajas en Capacitación ÷ Total Ingresos) × 100',
+    direccion: 'asc',
+    niveles: [
+      { nivel: 'excelente', max: 8, rango: '≤ 8%' },
+      { nivel: 'aceptable', max: 12, rango: '> 8% – 12%' },
+      { nivel: 'riesgo', max: 18, rango: '> 12% – 18%' },
+      { nivel: 'critico', rango: '> 18%' },
+    ],
+  },
+  total: {
+    id: 'total',
+    nombre: 'Tasa total de caídas',
+    descripcion: 'Pérdida total del proceso sumando deserciones y bajas durante capacitación.',
+    formula: '((Total Deserciones + Total Bajas) ÷ Total Ingresos) × 100',
+    direccion: 'asc',
+    niveles: [
+      { nivel: 'excelente', max: 5, rango: '≤ 5%' },
+      { nivel: 'aceptable', max: 10, rango: '> 5% – 10%' },
+      { nivel: 'riesgo', max: 15, rango: '> 10% – 15%' },
+      { nivel: 'critico', rango: '> 15%' },
+    ],
+  },
+  permanencia: {
+    id: 'permanencia',
+    nombre: 'Permanencia',
+    descripcion: 'Personas que continúan en proceso o llegaron a operación.',
+    formula: '((Aprobados + En Capacitación) ÷ Total Ingresos) × 100',
+    direccion: 'desc',
+    niveles: [
+      { nivel: 'excelente', min: 95, rango: '≥ 95%' },
+      { nivel: 'aceptable', min: 90, rango: '90% – 95%' },
+      { nivel: 'riesgo', min: 85, rango: '85% – 90%' },
+      { nivel: 'critico', rango: '< 85%' },
+    ],
+  },
+};
+
+/** Evalúa una tasa contra los rangos específicos del indicador indicado. */
+export function evaluarNivelKpi(id: IndicadorKpiId, tasa: number): NivelKpi {
+  const cfg = INDICADORES_KPI[id];
+  for (const rango of cfg.niveles) {
+    if (cfg.direccion === 'asc') {
+      if (rango.max === undefined || tasa <= rango.max) return rango.nivel;
+    } else if (rango.min === undefined || tasa >= rango.min) {
+      return rango.nivel;
+    }
+  }
   return 'critico';
 }
 
-export function nivelSemaforo(tasa: number): NivelDesercion {
-  if (tasa <= 5) return 'excelente';
-  if (tasa <= 10) return 'bueno';
-  if (tasa <= 15) return 'riesgo';
-  return 'critico';
+/** Clasificación + estilo (emoji/color/etiqueta) de una tasa de un indicador. */
+export function semaforoKpi(id: IndicadorKpiId, tasa: number): NivelSemaforo {
+  return SEMAFORO_STYLES[evaluarNivelKpi(id, tasa)];
+}
+
+/** Texto del rango (ej. '> 12% – 18%') de un nivel dentro de un indicador. */
+export function rangoNivel(id: IndicadorKpiId, nivel: NivelKpi): string | undefined {
+  return INDICADORES_KPI[id].niveles.find((r) => r.nivel === nivel)?.rango;
+}
+
+/** Tooltip estándar de un badge/pill: 'Crítico · > 15%'. */
+export function tooltipKpi(id: IndicadorKpiId, nivel: NivelKpi): string {
+  const rango = rangoNivel(id, nivel);
+  return rango ? `${SEMAFORO_STYLES[nivel].label} · ${rango}` : SEMAFORO_STYLES[nivel].label;
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -103,7 +204,14 @@ export interface ResumenReclutador {
   tasaPermanencia: number;
   pctDelTotal: number;
   pctDeserciones: number;
-  nivel: NivelDesercion;
+  /** Nivel de deserción (fila "radar" de la matriz). */
+  nivel: NivelKpi;
+  /** Nivel de baja en capacitación (rangos propios: 8/12/18). */
+  nivelBaja: NivelKpi;
+  /** Nivel de tasa total de caídas. */
+  nivelTotal: NivelKpi;
+  /** Nivel de permanencia (escala invertida: mayor = mejor). */
+  nivelPermanencia: NivelKpi;
 }
 
 export interface ReclutadoresAnalisis {
@@ -145,6 +253,9 @@ export function analizarReclutadores(records: Promotor[]): ReclutadoresAnalisis 
         pctDelTotal: 0,
         pctDeserciones: 0,
         nivel: 'excelente',
+        nivelBaja: 'excelente',
+        nivelTotal: 'excelente',
+        nivelPermanencia: 'excelente',
       };
       map.set(key, entry);
     }
@@ -168,7 +279,10 @@ export function analizarReclutadores(records: Promotor[]): ReclutadoresAnalisis 
     e.tasaPermanencia = e.ingresos > 0 ? ((e.aprobados + e.enCapacitacion) / e.ingresos) * 100 : 0;
     e.pctDelTotal = totalIngresos > 0 ? (e.ingresos / totalIngresos) * 100 : 0;
     e.pctDeserciones = totalDeserciones > 0 ? (e.deserciones / totalDeserciones) * 100 : 0;
-    e.nivel = nivelSemaforo(e.tasaDesercion);
+    e.nivel = evaluarNivelKpi('desercion', e.tasaDesercion);
+    e.nivelBaja = evaluarNivelKpi('baja', e.tasaBaja);
+    e.nivelTotal = evaluarNivelKpi('total', e.tasaTotal);
+    e.nivelPermanencia = evaluarNivelKpi('permanencia', e.tasaPermanencia);
   }
 
   const productividad = [...list].sort((a, b) => b.ingresos - a.ingresos);

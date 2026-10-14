@@ -32,7 +32,8 @@ export function useAppData() {
     const embudo = computeEmbudo(filtered);
     const jurisdiccion = ingresosPorJurisdiccion(filtered);
     const zonas = ingresosPorZonaComercial(filtered);
-    const sedes = ingresosPorSede(filtered, 12);
+    // Sin límite de sedes: el ranking aplica scroll interno si supera el alto recomendado.
+    const sedes = ingresosPorSede(filtered, Number.POSITIVE_INFINITY);
     const { capacitadores, capacitadoresReales, registrosExcluidos, diferenciaTotal, desbalances } =
       analizarCapacitadores(filtered);
     const motivosCaida = rankingPorMotivo(filtered);

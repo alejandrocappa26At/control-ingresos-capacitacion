@@ -20,6 +20,7 @@ import { useDataStore } from '@/store/useDataStore';
 import { useSessionStore } from '@/store/useSessionStore';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { computeKpis } from '@/services/analytics/kpis';
+import { PERMISOS_LABEL, ROLES, type Permiso } from '@/lib/rbac';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
 
@@ -40,6 +41,8 @@ interface NavItem {
   icon: LucideIcon;
   href?: string;
   badge?: Tone;
+  /** Permiso RBAC requerido para ver el módulo. */
+  permiso: Permiso;
 }
 
 const NAV_SECTIONS: Array<{ section: string; icon: LucideIcon; color: 'red' | 'amber'; items: NavItem[] }> = [
@@ -48,16 +51,16 @@ const NAV_SECTIONS: Array<{ section: string; icon: LucideIcon; color: 'red' | 'a
     icon: BrainCircuit,
     color: 'red',
     items: [
-      { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/capacitacion', label: 'Capacitación', icon: GraduationCap, badge: 'amber' },
-      { href: '/caidas', label: 'Caídas', icon: TrendingDown, badge: 'red' },
+      { href: '/', label: 'Dashboard', icon: LayoutDashboard, permiso: 'dashboard' },
+      { href: '/capacitacion', label: 'Capacitación', icon: GraduationCap, badge: 'amber', permiso: 'capacitacion' },
+      { href: '/caidas', label: 'Caídas', icon: TrendingDown, badge: 'red', permiso: 'caidas' },
     ],
   },
   {
     section: 'GESTIÓN DE DATOS',
     icon: DatabaseZap,
     color: 'amber',
-    items: [{ href: '/upload', label: 'Importar Excel', icon: FileSpreadsheet }],
+    items: [{ href: '/upload', label: 'Importar Excel', icon: FileSpreadsheet, permiso: 'upload_excel' }],
   },
 ];
 
@@ -72,6 +75,9 @@ export function Sidebar() {
   const togglePinned = useDataStore((s) => s.toggleSidebarPinned);
   const records = useDataStore((s) => s.records);
   const sessionUser = useSessionStore((s) => s.user);
+  const displayName = useSessionStore((s) => s.displayName);
+  const role = useSessionStore((s) => s.role);
+  const permissions = useSessionStore((s) => s.permissions);
   const logout = useSessionStore((s) => s.logout);
 
   const compact = useMediaQuery('(max-width: 767px)');
@@ -81,6 +87,20 @@ export function Sidebar() {
 
   const expanded = isPinned || (!compact && (hovered || focused));
   const collapsed = !expanded;
+
+  /** Menú dinámico: solo los módulos permitidos por el rol. */
+  const sections = useMemo(
+    () =>
+      NAV_SECTIONS.map((sec) => ({
+        ...sec,
+        items: sec.items.filter((item) => permissions.includes(item.permiso)),
+      })).filter((sec) => sec.items.length > 0),
+    [permissions],
+  );
+
+  const userLabel = displayName ?? sessionUser ?? '—';
+  const initials = (displayName ?? sessionUser ?? 'CA').slice(0, 2).toUpperCase();
+  const roleLabel = role ? ROLES[role].label : 'En línea';
 
   const badges = useMemo(() => {
     if (!records.length) return { capacitacion: 0, caidas: 0 };
@@ -162,7 +182,7 @@ export function Sidebar() {
 
         {/* Navegación por categorías */}
         <nav className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-2">
-          {NAV_SECTIONS.map(({ section, icon: SectionIcon, color, items }) => (
+          {sections.map(({ section, icon: SectionIcon, color, items }) => (
             <div key={section} className="mb-2">
               <div
                 className={cn(
@@ -293,10 +313,10 @@ export function Sidebar() {
         <div className="border-t border-line p-3">
           <div className={cn('flex items-center gap-2.5', collapsed && 'flex-col gap-2')}>
             {collapsed ? (
-              <Tooltip content={sessionUser ?? 'Sesión activa'} side="right">
+              <Tooltip content={userLabel} side="right">
                 <div className="relative shrink-0">
                   <div className="flex size-9 items-center justify-center rounded-xl gradient-brand text-xs font-bold text-white">
-                    {sessionUser ? sessionUser.slice(0, 2).toUpperCase() : 'CA'}
+                    {initials}
                   </div>
                   <span className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-2 bg-emerald-400" />
                 </div>
@@ -304,7 +324,7 @@ export function Sidebar() {
             ) : (
               <div className="relative shrink-0">
                 <div className="flex size-9 items-center justify-center rounded-xl gradient-brand text-xs font-bold text-white">
-                  {sessionUser ? sessionUser.slice(0, 2).toUpperCase() : 'CA'}
+                  {initials}
                 </div>
                 <span className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-2 bg-emerald-400" />
               </div>
@@ -317,11 +337,23 @@ export function Sidebar() {
                 transition={{ duration: 0.2, delay: 0.1, ease: EASE }}
                 className="min-w-0 flex-1"
               >
-                <p className="truncate text-xs font-bold text-ink">{sessionUser ?? 'capacitacion'}</p>
-                <p className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-400">
+                <p className="truncate text-xs font-bold text-ink">{userLabel}</p>
+                <p className="flex items-center gap-1.5 text-[10px] font-semibold text-brand-300">
                   <span className="size-1 rounded-full bg-emerald-400" />
-                  En línea
+                  {roleLabel}
                 </p>
+                {permissions.length > 0 && (
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {permissions.map((p) => (
+                      <span
+                        key={p}
+                        className="rounded-full border border-line bg-surface-3/70 px-1.5 py-px text-[9px] font-semibold text-ink-soft"
+                      >
+                        {PERMISOS_LABEL[p]}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             )}
 

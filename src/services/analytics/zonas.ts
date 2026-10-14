@@ -1,14 +1,18 @@
 import type { Promotor } from '@/types';
 import { normalizeKey } from '@/lib/utils';
 import { esDesercion as esDesercionUnica } from './desercionBase';
-import { nivelDesercion, type NivelDesercion } from './reclutadores';
+import { evaluarNivelKpi, INDICADORES_KPI, SEMAFORO_STYLES, type NivelKpi } from './reclutadores';
 
-export const ZONA_SEMAFORO_RANGOS = [
-  { nivel: 'excelente' as const, emoji: '🟢', label: 'Excelente', max: 3 },
-  { nivel: 'bueno' as const, emoji: '🟡', label: 'Aceptable', max: 6 },
-  { nivel: 'riesgo' as const, emoji: '🟠', label: 'Riesgo', max: 9 },
-  { nivel: 'critico' as const, emoji: '🔴', label: 'Crítico', max: Infinity },
-];
+/**
+ * Leyenda del semáforo de zonas: derivada de `INDICADORES_KPI.desercion`
+ * (fuente única de umbrales — misma clasificación que Reclutadores).
+ */
+export const ZONA_SEMAFORO_RANGOS = INDICADORES_KPI.desercion.niveles.map((r) => ({
+  nivel: r.nivel,
+  emoji: SEMAFORO_STYLES[r.nivel].emoji,
+  label: SEMAFORO_STYLES[r.nivel].label,
+  rango: r.rango,
+}));
 
 export interface ZonaDesercion {
   zona: string;
@@ -16,7 +20,7 @@ export interface ZonaDesercion {
   deserciones: number;
   tasaDesercion: number;
   pctDelTotal: number;
-  nivel: NivelDesercion;
+  nivel: NivelKpi;
 }
 
 export interface ZonasAnalisis {
@@ -66,7 +70,7 @@ export function analizarZonas(records: Promotor[]): ZonasAnalisis {
   for (const e of list) {
     e.tasaDesercion = e.ingresos > 0 ? (e.deserciones / e.ingresos) * 100 : 0;
     e.pctDelTotal = totalDeserciones > 0 ? (e.deserciones / totalDeserciones) * 100 : 0;
-    e.nivel = nivelDesercion(e.tasaDesercion);
+    e.nivel = evaluarNivelKpi('desercion', e.tasaDesercion);
   }
 
   const porCantidad = [...list].sort(

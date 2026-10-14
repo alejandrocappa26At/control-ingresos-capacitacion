@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight, Users } from 'lucide-react';
 import { cn, formatNumber } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RANGOS_SEMAFORO, SEMAFORO_STYLES, nivelSemaforo } from '@/services/analytics/reclutadores';
+import { SEMAFORO_STYLES, tooltipKpi } from '@/services/analytics/reclutadores';
 import type { ResumenReclutador } from '@/services/analytics/reclutadores';
 import type { Promotor } from '@/types';
 import { ReclutadorDetailModal } from './ReclutadorDetailModal';
@@ -116,8 +116,9 @@ export function MatrizReclutadores({ data, records, onSelectPromotor }: MatrizRe
             {rows.map((r, i) => {
               const pct = max > 0 ? (r.ingresos / max) * 100 : 0;
               const s = SEMAFORO_STYLES[r.nivel];
-              const sBaja = SEMAFORO_STYLES[nivelSemaforo(r.tasaBaja)];
-              const sTotal = SEMAFORO_STYLES[nivelSemaforo(r.tasaTotal)];
+              const sBaja = SEMAFORO_STYLES[r.nivelBaja];
+              const sTotal = SEMAFORO_STYLES[r.nivelTotal];
+              const sPermanencia = SEMAFORO_STYLES[r.nivelPermanencia];
               const esRadar = r.nivel === 'critico';
               return (
                 <motion.div
@@ -185,6 +186,7 @@ export function MatrizReclutadores({ data, records, onSelectPromotor }: MatrizRe
                     <span
                       className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-bold whitespace-nowrap tabular-nums"
                       style={pillStyle(s.color)}
+                      title={tooltipKpi('desercion', r.nivel)}
                     >
                       {s.emoji} {r.tasaDesercion.toFixed(1)}%
                     </span>
@@ -194,6 +196,7 @@ export function MatrizReclutadores({ data, records, onSelectPromotor }: MatrizRe
                     <span
                       className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-bold whitespace-nowrap tabular-nums"
                       style={pillStyle(sBaja.color)}
+                      title={tooltipKpi('baja', r.nivelBaja)}
                     >
                       {sBaja.emoji} {r.tasaBaja.toFixed(1)}%
                     </span>
@@ -203,15 +206,24 @@ export function MatrizReclutadores({ data, records, onSelectPromotor }: MatrizRe
                     <span
                       className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-bold whitespace-nowrap tabular-nums"
                       style={pillStyle(sTotal.color)}
+                      title={tooltipKpi('total', r.nivelTotal)}
                     >
                       {sTotal.emoji} {r.tasaTotal.toFixed(1)}%
                     </span>
                   </div>
 
                   <div className={BODY_CELL}>
-                    <span className="font-bold tabular-nums text-emerald-400">
-                      {r.ingresos > 0 ? `${r.tasaPermanencia.toFixed(1)}%` : '—'}
-                    </span>
+                    {r.ingresos > 0 ? (
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-bold whitespace-nowrap tabular-nums"
+                        style={pillStyle(sPermanencia.color)}
+                        title={tooltipKpi('permanencia', r.nivelPermanencia)}
+                      >
+                        {sPermanencia.emoji} {r.tasaPermanencia.toFixed(1)}%
+                      </span>
+                    ) : (
+                      <span className="font-bold tabular-nums text-ink-muted">—</span>
+                    )}
                   </div>
 
                   <span className="flex items-center justify-end py-2">
@@ -221,20 +233,6 @@ export function MatrizReclutadores({ data, records, onSelectPromotor }: MatrizRe
               );
             })}
           </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {RANGOS_SEMAFORO.map((r) => (
-            <div key={r.nivel} className="flex items-center gap-1.5 rounded-lg border border-line bg-surface-3/50 px-2.5 py-1.5">
-              <span className="text-xs leading-none">{r.emoji}</span>
-              <div className="min-w-0">
-                <p className="truncate text-[10px] font-bold text-ink tabular-nums">
-                  {r.rango}
-                </p>
-                <p className="text-[9px] font-semibold tracking-wide text-ink-soft uppercase">{r.label}</p>
-              </div>
-            </div>
-          ))}
         </div>
       </CardContent>
     </Card>

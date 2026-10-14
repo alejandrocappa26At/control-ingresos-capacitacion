@@ -7,6 +7,7 @@ import type { Promotor } from '@/types';
 import type { ReclutadoresAnalisis } from '@/services/analytics/reclutadores';
 import { ReclutadoresResumen } from './ReclutadoresResumen';
 import { MatrizReclutadores } from './MatrizReclutadores';
+import { GuiaInterpretacionIndicadores } from './GuiaInterpretacionIndicadores';
 
 interface AnalisisReclutadoresSectionProps {
   data: ReclutadoresAnalisis;
@@ -30,6 +31,8 @@ export function AnalisisReclutadoresSection({
       <ReclutadoresResumen data={data} />
 
       <MatrizReclutadores data={data.productividad} records={records} onSelectPromotor={onSelectPromotor} />
+
+      <GuiaInterpretacionIndicadores />
     </section>
   );
 }

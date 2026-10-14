@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:rangos": "node --import ./scripts/ts-resolve.mjs scripts/check-rangos-kpi.mjs",
+    "check:rbac": "node --import ./scripts/ts-resolve.mjs scripts/check-rbac.mjs",
+    "check:rbac:e2e": "node scripts/check-rbac-e2e.mjs",
+    "measure:guia": "node scripts/measure-guia-height.mjs"
   },
   "dependencies": {
     "@tanstack/react-table": "^8.21.3",
@@ -36,6 +40,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "playwright-core": "^1.64.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -7,6 +7,7 @@ import { useDataStore } from '@/store/useDataStore';
 import { useSessionStore } from '@/store/useSessionStore';
 import { useDebounce } from '@/hooks/useDebounce';
 import { FilterChips } from '@/components/filters/FilterChips';
+import { ROLES } from '@/lib/rbac';
 import { formatNumber } from '@/lib/utils';
 
 const TITLES: Record<string, string> = {
@@ -23,6 +24,8 @@ export function Header() {
   const activeFiltersCount = useDataStore((s) => s.activeFiltersCount);
   const openFilterDrawer = useDataStore((s) => s.openFilterDrawer);
   const sessionUser = useSessionStore((s) => s.user);
+  const displayName = useSessionStore((s) => s.displayName);
+  const role = useSessionStore((s) => s.role);
 
   const [value, setValue] = useState('');
   const debounced = useDebounce(value, 250);
@@ -84,15 +87,15 @@ export function Header() {
         <div className="relative ml-1 hidden items-center gap-2 rounded-xl border border-line bg-surface-2 py-1 pr-3 pl-1 shadow-card sm:flex">
           <div className="relative">
             <div className="flex size-8 items-center justify-center rounded-lg gradient-brand text-xs font-bold text-white">
-              {sessionUser ? sessionUser.slice(0, 2).toUpperCase() : 'IN'}
+              {(displayName ?? sessionUser ?? 'IN').slice(0, 2).toUpperCase()}
             </div>
             <span className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-2 bg-emerald-400" />
           </div>
           <div className="leading-tight">
-            <p className="max-w-[9rem] truncate text-xs font-bold text-ink">{sessionUser ?? 'Operador'}</p>
-            <p className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-400">
+            <p className="max-w-[9rem] truncate text-xs font-bold text-ink">{displayName ?? 'Operador'}</p>
+            <p className="flex items-center gap-1.5 text-[10px] font-semibold text-brand-300">
               <span className="size-1 rounded-full bg-emerald-400" />
-              En línea
+              {role ? ROLES[role].label : 'En línea'}
             </p>
           </div>
         </div>

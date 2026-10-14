@@ -147,9 +147,7 @@ export function MatrizZonaComercial({
             <div key={r.nivel} className="flex items-center gap-1.5 rounded-lg border border-line bg-surface-3/50 px-2.5 py-1.5">
               <span className="text-xs leading-none">{r.emoji}</span>
               <div className="min-w-0">
-                <p className="truncate text-[10px] font-bold text-ink tabular-nums">
-                  {r.max === Infinity ? '9%+' : `${r.max === 3 ? '0' : r.max - 3}-${r.max}%`}
-                </p>
+                <p className="truncate text-[10px] font-bold text-ink tabular-nums">{r.rango}</p>
                 <p className="text-[9px] font-semibold tracking-wide text-ink-soft uppercase">{r.label}</p>
               </div>
             </div>
