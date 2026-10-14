@@ -15,5 +15,9 @@ export async function GET() {
     app: 'AT People',
     commit: process.env.VERCEL_GIT_COMMIT_SHA ?? 'local',
     ambiente: process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? 'local',
+    // Booleano (no el valor): permite verificar con un curl que el
+    // entorno tiene SESSION_SECRET configurada — requisito para firmar
+    // sesiones en producción (/api/auth/login devuelve500 sin ella).
+    sessionSecretConfigurado: Boolean(process.env.SESSION_SECRET?.trim()),
   });
 }
