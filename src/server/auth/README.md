@@ -33,8 +33,11 @@
 | `GERENTE_VENTAS` | `/`, `/caidas`, `/capacitacion`, `/upload` | `dashboard`, `reclutadores`, `capacitacion`, `caidas`, `upload_excel` |
 | `CAPACITACION`   | `/capacitacion`, `/upload`    | `capacitacion`, `upload_excel`                                |
 | `GDT`            | `/`, `/caidas`, `/upload`     | `dashboard`, `caidas`, `upload_excel`                         |
+| `JEFA_CAPACITACION` | `/`, `/caidas`, `/capacitacion`, `/upload` | `dashboard`, `reclutadores`, `capacitacion`, `caidas`, `upload_excel` |
 
-**Nota:** la Matriz de Reclutadores es una sección dentro de `/caidas`. El permiso `reclutadores` es explícito solo de `GERENTE_VENTAS`; `GDT` accede al módulo `/caidas` completo (incluida la matriz), tal como define su especificación (su único módulo excluido es Capacitación).
+**Nota:** la Matriz de Reclutadores es una sección dentro de `/caidas`. El permiso `reclutadores` es explícito solo de `GERENTE_VENTAS` y `JEFA_CAPACITACION`; `GDT` accede al módulo `/caidas` completo (incluida la matriz), tal como define su especificación (su único módulo excluido es Capacitación).
+
+**Nota (JEFA_CAPACITACION):** rol de acceso total diseñado para la Jefatura de Capacitación — permisos idénticos a un administrador operativo. Los reportes y filtros no son permisos gateados: viven dentro de cada módulo y heredan el acceso del rol.
 
 ## Protección de rutas (3 capas)
 
@@ -57,8 +60,8 @@ El menú lateral se filtra con la misma fuente (`ROLES[role].permisos`), por lo 
 
 ## Validaciones automatizadas
 
-- `npm run check:rbac` — unit: roles exactos, mapeo ruta↔permiso, home por rol, tokens (round-trip, firma alterada, expiración, rol fantasma), directorio de usuarios y rechazo de contraseñas incorrectas. Con `CIC_PASS_GERENTE/CIC_PASS_CAP/CIC_PASS_GDT` definidas añade la verificación positiva de los3 hashes.
-- `npm run check:rbac:e2e` — E2E headless (Edge): login correcto/incorrecto de los3 usuarios, menú por rol, módulos permitidos, bloqueo por URL directa con mensaje, recuperación, carga Excel real con el rol más restringido, cierre de sesión al refrescar, cookie HttpOnly temporal (sin expiración fija), latido de pestaña y logout.
+- `npm run check:rbac` — unit: roles exactos, mapeo ruta↔permiso, home por rol, tokens (round-trip, firma alterada, expiración, rol fantasma), directorio de usuarios y rechazo de contraseñas incorrectas. Con `CIC_PASS_GERENTE/CIC_PASS_CAP/CIC_PASS_GDT/CIC_PASS_JEFA` definidas añade la verificación positiva de los4 hashes.
+- `npm run check:rbac:e2e` — E2E headless (Edge): login correcto/incorrecto de los4 usuarios, menú por rol, módulos permitidos, bloqueo por URL directa con mensaje, recuperación, carga Excel real con el rol más restringido, cierre de sesión al refrescar, cookie HttpOnly temporal (sin expiración fija), latido de pestaña y logout.
 
 ## Migración a backend real
 

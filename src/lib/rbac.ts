@@ -10,7 +10,7 @@
 
 export type Permiso = 'dashboard' | 'reclutadores' | 'capacitacion' | 'caidas' | 'upload_excel';
 
-export type Rol = 'GERENTE_VENTAS' | 'CAPACITACION' | 'GDT';
+export type Rol = 'GERENTE_VENTAS' | 'CAPACITACION' | 'GDT' | 'JEFA_CAPACITACION';
 
 export interface DefinicionRol {
   /** Nombre visible del rol. */
@@ -36,6 +36,11 @@ export const ROLES: Record<Rol, DefinicionRol> = {
     label: 'GDT',
     descripcion: 'Dashboard general, módulo de Caídas y carga de Excel.',
     permisos: ['dashboard', 'caidas', 'upload_excel'],
+  },
+  JEFA_CAPACITACION: {
+    label: 'JEFA_CAPACITACION',
+    descripcion: 'Acceso total al sistema (administrador operativo): dashboard, matriz de reclutadores, capacitación, caídas, informes, filtros y carga Excel.',
+    permisos: ['dashboard', 'reclutadores', 'capacitacion', 'caidas', 'upload_excel'],
   },
 };
 

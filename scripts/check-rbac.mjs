@@ -28,6 +28,11 @@ assert.deepStrictEqual(
   ['caidas', 'dashboard', 'upload_excel'],
   'GDT: dashboard + caídas + carga Excel',
 );
+assert.deepStrictEqual(
+  [...ROLES.JEFA_CAPACITACION.permisos].sort(),
+  ['caidas', 'capacitacion', 'dashboard', 'reclutadores', 'upload_excel'],
+  'JEFA_CAPACITACION: acceso total (administrador operativo)',
+);
 
 // Ningún rol no autorizado ve módulos ajenos
 assert.ok(!ROLES.CAPACITACION.permisos.includes('dashboard'), 'CAPACITACION sin dashboard');
@@ -48,6 +53,7 @@ assert.strictEqual(permisoParaPath('/api/auth/login'), null, '/api no requiere p
 assert.strictEqual(homePath('GERENTE_VENTAS'), '/');
 assert.strictEqual(homePath('CAPACITACION'), '/capacitacion', 'CAPACITACION aterriza en su único módulo');
 assert.strictEqual(homePath('GDT'), '/');
+assert.strictEqual(homePath('JEFA_CAPACITACION'), '/');
 
 assert.ok(puedeAcceder('GDT', 'caidas'), 'GDT accede a caídas');
 assert.ok(!puedeAcceder('GDT', 'capacitacion'), 'GDT no accede a capacitación');
@@ -84,7 +90,7 @@ assert.ok(SESSION_DURATION_MS > 0, 'duración de sesión definida');
 // ══════════════════════════════════════════════════════════════════
 //  4) USUARIOS Y CONTRASEÑAS (hash scrypt, jamás texto plano)
 // ══════════════════════════════════════════════════════════════════
-assert.strictEqual(USUARIOS.length, 3, 'exactamente3 usuarios');
+assert.strictEqual(USUARIOS.length, 4, 'exactamente4 usuarios');
 for (const u of USUARIOS) {
   assert.ok(u.passwordHash.startsWith('scrypt$'), `${u.username}: hash scrypt`);
   assert.ok(!/[{}]|contraseña|password[:=]/i.test(u.passwordHash), `${u.username}: hash sin texto plano`);
@@ -93,6 +99,7 @@ for (const u of USUARIOS) {
 assert.strictEqual(findUsuario('  mauricio.guerra ')?.role, 'GERENTE_VENTAS', 'login case-insensitive + trim');
 assert.strictEqual(findUsuario('Capacitacion.At')?.role, 'CAPACITACION');
 assert.strictEqual(findUsuario('Gdt.At')?.role, 'GDT');
+assert.strictEqual(findUsuario('  TATIANA.PATRICIA ')?.role, 'JEFA_CAPACITACION', 'JEFA_CAPACITACION case-insensitive + trim');
 assert.strictEqual(findUsuario('no.existe'), null, 'usuario inexistente → null');
 
 // Verificación de hashes: NO se prueban contraseñas en claro (no existen en
@@ -111,13 +118,14 @@ const PASS_ENV = {
   'Mauricio.Guerra': process.env.CIC_PASS_GERENTE,
   'Capacitacion.At': process.env.CIC_PASS_CAP,
   'Gdt.At': process.env.CIC_PASS_GDT,
+  'Tatiana.Patricia': process.env.CIC_PASS_JEFA,
 };
 const conEnv = USUARIOS.filter((u) => PASS_ENV[u.username]);
 if (conEnv.length === USUARIOS.length) {
   for (const u of USUARIOS) {
     assert.ok(verifyPassword(PASS_ENV[u.username], u.passwordHash), `${u.username}: hash corresponde a su contraseña`);
   }
-  console.log('   (+ verificación positiva de los3 hashes con CIC_PASS_*)');
+  console.log('   (+ verificación positiva de los4 hashes con CIC_PASS_*)');
 } else {
   console.log('   (CIC_PASS_* no definidas: verificación positiva de hashes omitida)');
 }

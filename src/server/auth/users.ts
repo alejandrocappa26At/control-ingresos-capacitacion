@@ -39,6 +39,13 @@ export const USUARIOS: readonly Usuario[] = [
     passwordHash:
       'scrypt$16384$8$1$acc9c3ebb4c6bee1454efb00badb3bbe$3149769cabf02b6a3d916508258e723953f1b843a4149c5a59365c45ec471a4442c777a8e02fedb9800e4adf1c121dd7a7ec68697011f1e93f679b3f7f7caf84',
   },
+  {
+    username: 'Tatiana.Patricia',
+    displayName: 'Jefa de Capacitación',
+    role: 'JEFA_CAPACITACION',
+    passwordHash:
+      'scrypt$16384$8$1$c6d1199bb3251b4eddf07ec228f05ac6$5e9b7aabf21ad3a131b0a9f9f3e0a609448d24aab3b93239eb3bce0e8573f1661032bc32a349dc35b19a9bf28216182a92585cd8dde838d157fb7da8c387168e',
+  },
 ];
 
 /** Busca por username sin distinguir mayúsculas ni espacios extremos. */

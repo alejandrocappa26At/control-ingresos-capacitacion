@@ -11,6 +11,7 @@ import { createRequire } from 'node:module';
  *   CIC_USER_GERENTE / CIC_PASS_GERENTE
  *   CIC_USER_CAP     / CIC_PASS_CAP
  *   CIC_USER_GDT     / CIC_PASS_GDT
+ *   CIC_USER_JEFA    / CIC_PASS_JEFA
  *   (opcional) CIC_E2E_BASE, default http://localhost:3000
  */
 
@@ -23,10 +24,11 @@ const USERS = {
   gerente: { user: process.env.CIC_USER_GERENTE, pass: process.env.CIC_PASS_GERENTE, displayName: 'Mauricio Guerra', roleLabel: 'Gerente de Ventas' },
   cap: { user: process.env.CIC_USER_CAP, pass: process.env.CIC_PASS_CAP, displayName: 'Capacitación AT', roleLabel: 'Capacitación' },
   gdt: { user: process.env.CIC_USER_GDT, pass: process.env.CIC_PASS_GDT, displayName: 'GDT AT', roleLabel: 'GDT' },
+  jefa: { user: process.env.CIC_USER_JEFA, pass: process.env.CIC_PASS_JEFA, displayName: 'Jefa de Capacitación', roleLabel: 'JEFA_CAPACITACION' },
 };
 
 if (Object.values(USERS).some((u) => !u.user || !u.pass)) {
-  console.error('Defina CIC_USER_GERENTE/CIC_PASS_GERENTE, CIC_USER_CAP/CIC_PASS_CAP y CIC_USER_GDT/CIC_PASS_GDT.');
+  console.error('Defina CIC_USER_GERENTE/CIC_PASS_GERENTE, CIC_USER_CAP/CIC_PASS_CAP, CIC_USER_GDT/CIC_PASS_GDT y CIC_USER_JEFA/CIC_PASS_JEFA.');
   process.exit(1);
 }
 
@@ -231,6 +233,67 @@ try {
     check('Sin sesión, /caidas redirige a /login', new URL(page.url()).pathname === '/login');
     const cookiesTras = await context.cookies();
     check('Logout elimina la cookie', !cookiesTras.some((c) => c.name === 'cic_session'));
+    await context.close();
+  }
+
+  // ═══ 5) JEFA DE CAPACITACIÓN: acceso total (administrador operativo) ═══
+  {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await login(page, USERS.jefa);
+    check('JEFA_CAPACITACION aterriza en /', new URL(page.url()).pathname === '/');
+    await page.waitForSelector('nav a[href]', { timeout: 30000 });
+    const hrefs = await navHrefs(page);
+    check(
+      'JEFA_CAPACITACION ve los4 módulos en el menú',
+      ['/', '/capacitacion', '/caidas', '/upload'].every((h) => hrefs.includes(h)),
+      hrefs.join(', '),
+    );
+    const texto = await cuerpo(page);
+    check(
+      'Header muestra nombre "Jefa de Capacitación" y rol JEFA_CAPACITACION',
+      texto.includes(USERS.jefa.displayName) && texto.includes(USERS.jefa.roleLabel),
+    );
+
+    // El sidebar arranca colapsado: se expande con hover para ver los chips de permisos.
+    await page.hover('nav');
+    await page.waitForTimeout(600);
+    const textoExpandido = await cuerpo(page);
+    check(
+      'JEFA_CAPACITACION ve Matriz de Reclutadores y Carga Excel',
+      textoExpandido.includes('Matriz de Reclutadores') && textoExpandido.includes('Carga Excel'),
+    );
+
+    for (const [path, esperado] of [
+      ['/caidas', 'Dashboard Ejecutivo de Caídas'],
+      ['/capacitacion', 'Capacitación'],
+      ['/upload', null],
+    ]) {
+      await page.goto(`${BASE}${path}`, { waitUntil: 'networkidle', timeout: 90000 });
+      const t = await cuerpo(page);
+      const ok =
+        new URL(page.url()).pathname === path &&
+        !t.includes('Acceso restringido') &&
+        (esperado === null || t.toLowerCase().includes(esperado.toLowerCase()));
+      check(`JEFA_CAPACITACION accede a ${path}`, ok);
+    }
+    const tieneInput = await page.$('input[type="file"]');
+    check('JEFA_CAPACITACION ve el input de carga en /upload', !!tieneInput);
+
+    // Política de sesión única: el refresco cierra la sesión…
+    await page.reload({ waitUntil: 'networkidle', timeout: 90000 });
+    await page.waitForURL('**/login', { timeout: 30000 });
+    check('Refresco vuelve a /login (política de sesión única)', true);
+
+    // …y al volver a entrar conserva el acceso completo al sistema.
+    await login(page, USERS.jefa);
+    await page.waitForSelector('nav a[href]', { timeout: 30000 });
+    const hrefsTras = await navHrefs(page);
+    check(
+      'JEFA_CAPACITACION conserva permisos completos tras refrescar y volver a entrar',
+      ['/', '/capacitacion', '/caidas', '/upload'].every((h) => hrefsTras.includes(h)),
+      hrefsTras.join(', '),
+    );
     await context.close();
   }
 } finally {
