@@ -86,6 +86,8 @@ export interface ParseMeta {
   totalRegistros: number;
   totalLima: number;
   totalProvincia: number;
+  /** Filas extra además de la primera ocurrencia de cada DNI (auditoría, no se descartan). */
+  totalDuplicados?: number;
   kpis?: Kpis;
 }
 

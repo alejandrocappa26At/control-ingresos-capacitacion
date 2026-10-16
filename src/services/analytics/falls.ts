@@ -257,13 +257,20 @@ export function auditarTotalDias(records: Promotor[]): void {
   );
 
   if (sinCategoria.length > 0) {
+    // Detalle acotado: esta auditoría se ejecuta en CADA recálculo (cambio de
+    // filtro/búsqueda). Imprimir miles de console.warn provocaba lag real en el
+    // navegador; con 20 líneas se conserva la diagnóstica sin saturar la consola.
+    const MAX_DETALLE = 20;
     console.warn(
-      `REGISTROS SIN CATEGORÍA EN TOTAL DE DÍAS (${sinCategoria.length}) — Lista (Nombre | Supervisor | Zona | TotalDias | Pasa):`,
+      `REGISTROS SIN CATEGORÍA EN TOTAL DE DÍAS (${sinCategoria.length}) — Detalle (Nombre | Supervisor | Zona | TotalDias | Pasa) [primeros ${MAX_DETALLE}]:`,
     );
-    for (const r of sinCategoria) {
+    for (const r of sinCategoria.slice(0, MAX_DETALLE)) {
       console.warn(
         `${r.apellidosNombres} | ${r.supervisor} | ${r.zonaComercial} | totalDias=${String(r.totalDias)} | pasa=${String(r.pasaAOperaciones)} | hoja=${r.origenHoja}`,
       );
+    }
+    if (sinCategoria.length > MAX_DETALLE) {
+      console.warn(`… y ${sinCategoria.length - MAX_DETALLE} registros más con TOTAL DE DÍAS sin categoría.`);
     }
   } else {
     console.warn('REGISTROS SIN CATEGORÍA EN TOTAL DE DÍAS: 0');

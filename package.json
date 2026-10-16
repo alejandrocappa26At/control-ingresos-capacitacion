@@ -10,7 +10,8 @@
     "check:rangos": "node --import ./scripts/ts-resolve.mjs scripts/check-rangos-kpi.mjs",
     "check:rbac": "node --import ./scripts/ts-resolve.mjs scripts/check-rbac.mjs",
     "check:rbac:e2e": "node scripts/check-rbac-e2e.mjs",
-    "measure:guia": "node scripts/measure-guia-height.mjs"
+    "measure:guia": "node scripts/measure-guia-height.mjs",
+    "bench:import": "node --import ./scripts/ts-resolve.mjs scripts/bench-import.mjs"
   },
   "dependencies": {
     "@tanstack/react-table": "^8.21.3",

@@ -8,7 +8,7 @@ import { useDataStore } from '@/store/useDataStore';
 import { useAppData } from '@/hooks/useAppData';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { cn, formatNumber } from '@/lib/utils';
 import { formatISOToDisplay } from '@/lib/dates';
 import type { ExcelProgress, ExcelStage } from '@/services/excel/progress';
 import { formatElapsed } from '@/services/excel/progress';
@@ -19,6 +19,9 @@ export function Dropzone() {
   const inputRef = useRef<HTMLInputElement>(null);
   const startedAtRef = useRef(0);
   const dragDepthRef = useRef(0);
+  // Guarda síncrona: aunque el estado isProcessing tarde en propagarse (dos
+  // eventos casi simultáneos), la segunda importación no puede iniciar.
+  const processingRef = useRef(false);
   const [dragOver, setDragOver] = useState(false);
   const [progress, setProgress] = useState<ExcelProgress | null>(null);
   const isProcessing = useDataStore((s) => s.isProcessing);
@@ -30,7 +33,8 @@ export function Dropzone() {
 
   const processFile = useCallback(
     async (file: File) => {
-      if (isProcessing) return;
+      if (isProcessing || processingRef.current) return;
+      processingRef.current = true;
       setIsProcessing(true);
       const inicio = Date.now();
       startedAtRef.current = inicio;
@@ -80,8 +84,10 @@ export function Dropzone() {
         console.info(
           `[Dropzone] éxito: ${result.records.length} registros (Lima ${limaCount} | Provincia ${result.records.length - limaCount})`,
         );
+        const duplicados = result.meta?.totalDuplicados ?? 0;
         toast.success(
-          `Procesamiento exitoso: ${result.records.length} registros cargados (Lima: ${limaCount} | Provincia: ${result.records.length - limaCount})`,
+          `Procesamiento exitoso: ${result.records.length} registros cargados (Lima: ${limaCount} | Provincia: ${result.records.length - limaCount})` +
+            (duplicados > 0 ? ` · Duplicados detectados: ${formatNumber(duplicados)}` : ''),
         );
       } catch (error) {
         console.error('[Dropzone] error durante el procesamiento:', error);
@@ -98,6 +104,7 @@ export function Dropzone() {
         }
       } finally {
         console.info(`[Dropzone] FIN REAL: ${Date.now() - inicio} ms (isProcessing=false)`);
+        processingRef.current = false;
         setIsProcessing(false);
         setProgress(null);
       }

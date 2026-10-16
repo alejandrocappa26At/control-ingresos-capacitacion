@@ -59,13 +59,17 @@ async function runWithWorker(
 
   return new Promise<{ used: boolean; result?: ParseResult }>((resolve) => {
     let responded = false;
+    // El timeout solo cubre la PRIMERA señal del worker (arranque + descarga del
+    // chunk del motor xlsx). Con archivos grandes en conexiones lentas,5 s se
+    // quedaba corto: se mataba el worker y todo se reparseaba en el hilo
+    // principal (duplicando el tiempo y congelando la UI).15 s da margen real.
     const timeout = setTimeout(() => {
       if (responded) return;
       responded = true;
-      console.warn('[worker] tardó más de 5s en responder la primera señal, uso el hilo principal.');
+      console.warn('[worker] tardó más de 15s en responder la primera señal, uso el hilo principal.');
       worker.terminate();
       resolve({ used: false });
-    }, 5000);
+    }, 15000);
 
     worker.addEventListener('message', (event: MessageEvent<ExcelWorkerResponse>) => {
       const message = event.data;
