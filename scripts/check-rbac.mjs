@@ -90,7 +90,7 @@ assert.ok(SESSION_DURATION_MS > 0, 'duración de sesión definida');
 // ══════════════════════════════════════════════════════════════════
 //  4) USUARIOS Y CONTRASEÑAS (hash scrypt, jamás texto plano)
 // ══════════════════════════════════════════════════════════════════
-assert.strictEqual(USUARIOS.length, 4, 'exactamente4 usuarios');
+assert.strictEqual(USUARIOS.length, 5, 'exactamente 5 usuarios');
 for (const u of USUARIOS) {
   assert.ok(u.passwordHash.startsWith('scrypt$'), `${u.username}: hash scrypt`);
   assert.ok(!/[{}]|contraseña|password[:=]/i.test(u.passwordHash), `${u.username}: hash sin texto plano`);
@@ -100,6 +100,7 @@ assert.strictEqual(findUsuario('  mauricio.guerra ')?.role, 'GERENTE_VENTAS', 'l
 assert.strictEqual(findUsuario('Capacitacion.At')?.role, 'CAPACITACION');
 assert.strictEqual(findUsuario('Gdt.At')?.role, 'GDT');
 assert.strictEqual(findUsuario('  TATIANA.PATRICIA ')?.role, 'JEFA_CAPACITACION', 'JEFA_CAPACITACION case-insensitive + trim');
+assert.strictEqual(findUsuario('  hiroshi.shimatsu ')?.role, 'GERENTE_VENTAS', 'Hiroshi.Shimatsu: acceso completo case-insensitive + trim');
 assert.strictEqual(findUsuario('no.existe'), null, 'usuario inexistente → null');
 
 // Verificación de hashes: NO se prueban contraseñas en claro (no existen en
@@ -119,13 +120,14 @@ const PASS_ENV = {
   'Capacitacion.At': process.env.CIC_PASS_CAP,
   'Gdt.At': process.env.CIC_PASS_GDT,
   'Tatiana.Patricia': process.env.CIC_PASS_JEFA,
+  'Hiroshi.Shimatsu': process.env.CIC_PASS_HIROSHI,
 };
 const conEnv = USUARIOS.filter((u) => PASS_ENV[u.username]);
 if (conEnv.length === USUARIOS.length) {
   for (const u of USUARIOS) {
     assert.ok(verifyPassword(PASS_ENV[u.username], u.passwordHash), `${u.username}: hash corresponde a su contraseña`);
   }
-  console.log('   (+ verificación positiva de los4 hashes con CIC_PASS_*)');
+  console.log('   (+ verificación positiva de los 5 hashes con CIC_PASS_*)');
 } else {
   console.log('   (CIC_PASS_* no definidas: verificación positiva de hashes omitida)');
 }

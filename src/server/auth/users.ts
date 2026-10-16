@@ -46,6 +46,13 @@ export const USUARIOS: readonly Usuario[] = [
     passwordHash:
       'scrypt$16384$8$1$c6d1199bb3251b4eddf07ec228f05ac6$5e9b7aabf21ad3a131b0a9f9f3e0a609448d24aab3b93239eb3bce0e8573f1661032bc32a349dc35b19a9bf28216182a92585cd8dde838d157fb7da8c387168e',
   },
+  {
+    username: 'Hiroshi.Shimatsu',
+    displayName: 'Hiroshi Shimatsu',
+    role: 'GERENTE_VENTAS',
+    passwordHash:
+      'scrypt$16384$8$1$f0781dfcd1398efdb6b915bf4fb6874a$ffaa7054c1204718e9d4fe08c5271c00e684b9700304ad272699650c1415a273229e49d92290bb6c7c5e78f902e00534b7797e14f33a110eebee238dfdfc5714',
+  },
 ];
 
 /** Busca por username sin distinguir mayúsculas ni espacios extremos. */
