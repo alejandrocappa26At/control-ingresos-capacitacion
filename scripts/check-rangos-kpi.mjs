@@ -34,13 +34,15 @@ assert.strictEqual(nivel('baja', 18), 'riesgo', 'baja 18%');
 assert.strictEqual(nivel('baja', 18.01), 'critico', 'baja 18.01%');
 assert.strictEqual(nivel('baja', 100), 'critico', 'baja 100%');
 
-// TASA TOTAL DE CAÍDAS: ≤5 / >5-10 / >10-15 / >15
-assert.strictEqual(nivel('total', 5), 'excelente', 'total 5%');
-assert.strictEqual(nivel('total', 5.01), 'aceptable', 'total 5.01%');
-assert.strictEqual(nivel('total', 10), 'aceptable', 'total 10%');
-assert.strictEqual(nivel('total', 10.01), 'riesgo', 'total 10.01%');
-assert.strictEqual(nivel('total', 15), 'riesgo', 'total 15%');
-assert.strictEqual(nivel('total', 15.01), 'critico', 'total 15.01%');
+// CONVERSIÓN A OPERACIONES (escala invertida): ≥88 / ≥83<88 / ≥78<83 / <78
+assert.strictEqual(nivel('conversion', 100), 'excelente', 'conversion 100%');
+assert.strictEqual(nivel('conversion', 88), 'excelente', 'conversion 88% (límite inclusivo)');
+assert.strictEqual(nivel('conversion', 87.99), 'aceptable', 'conversion 87.99%');
+assert.strictEqual(nivel('conversion', 83), 'aceptable', 'conversion 83%');
+assert.strictEqual(nivel('conversion', 82.99), 'riesgo', 'conversion 82.99%');
+assert.strictEqual(nivel('conversion', 78), 'riesgo', 'conversion 78%');
+assert.strictEqual(nivel('conversion', 77.99), 'critico', 'conversion 77.99%');
+assert.strictEqual(nivel('conversion', 0), 'critico', 'conversion 0%');
 
 // PERMANENCIA (escala invertida): ≥95 / ≥90<95 / ≥85<90 / <85
 assert.strictEqual(nivel('permanencia', 100), 'excelente', 'permanencia 100%');
@@ -56,9 +58,10 @@ assert.strictEqual(nivel('permanencia', 0), 'critico', 'permanencia 0%');
 //  2) NO EXISTEN RANGOS COMPARTIDOS ENTRE INDICADORES
 // ══════════════════════════════════════════════════════════════════
 assert.notStrictEqual(nivel('baja', 16), nivel('desercion', 16), 'baja 16% (riesgo, ≤18) ≠ desercion 16% (crítico, >15): umbrales propios');
-assert.notStrictEqual(nivel('baja', 16), nivel('total', 16), 'baja 16% ≠ total 16%');
+assert.notStrictEqual(nivel('baja', 16), nivel('conversion', 16), 'baja 16% ≠ conversion 16%');
 assert.strictEqual(INDICADORES_KPI.desercion.niveles[1].max, 10, 'desercion aceptable cierra en 10');
 assert.strictEqual(INDICADORES_KPI.baja.niveles[1].max, 12, 'baja aceptable cierra en 12');
+assert.strictEqual(INDICADORES_KPI.conversion.direccion, 'desc', 'conversion es escala invertida');
 assert.strictEqual(INDICADORES_KPI.permanencia.direccion, 'desc', 'permanencia es escala invertida');
 
 // ══════════════════════════════════════════════════════════════════
@@ -113,13 +116,13 @@ assert.strictEqual(a.totalEnCapacitacion, 2, 'en capacitación (días >= 1 y PAS
 // Tasas exactas: fórmulas intactas
 assert.ok(Math.abs(rp.tasaDesercion - (2 / 7) * 100) < 1e-9, 'tasa deserción = deserciones/ingresos*100');
 assert.ok(Math.abs(rp.tasaBaja - (1 / 7) * 100) < 1e-9, 'tasa baja = bajas/ingresos*100');
-assert.ok(Math.abs(rp.tasaTotal - (3 / 7) * 100) < 1e-9, 'tasa total = (deserciones+bajas)/ingresos*100');
+assert.ok(Math.abs(rp.tasaConversion - (2 / 7) * 100) < 1e-9, 'tasa conversion = aprobados/ingresos*100');
 assert.ok(Math.abs(rp.tasaPermanencia - (4 / 7) * 100) < 1e-9, 'permanencia = (aprobados+encap)/ingresos*100');
 
 // Niveles precalculados coherentes con evaluarNivelKpi
 assert.strictEqual(rp.nivel, evaluarNivelKpi('desercion', rp.tasaDesercion), 'nivel deserción coherente');
 assert.strictEqual(rp.nivelBaja, evaluarNivelKpi('baja', rp.tasaBaja), 'nivel baja coherente');
-assert.strictEqual(rp.nivelTotal, evaluarNivelKpi('total', rp.tasaTotal), 'nivel total coherente');
+assert.strictEqual(rp.nivelConversion, evaluarNivelKpi('conversion', rp.tasaConversion), 'nivel conversion coherente');
 assert.strictEqual(rp.nivelPermanencia, evaluarNivelKpi('permanencia', rp.tasaPermanencia), 'nivel permanencia coherente');
 
 // ══════════════════════════════════════════════════════════════════
@@ -134,9 +137,9 @@ assert.deepStrictEqual(Object.keys(SEMAFORO_STYLES), ['excelente', 'aceptable', 
 // ══════════════════════════════════════════════════════════════════
 assert.strictEqual(tooltipKpi('desercion', 'critico'), 'Crítico · > 15%', 'tooltip deserción crítico');
 assert.strictEqual(tooltipKpi('baja', 'riesgo'), 'Riesgo · > 12% – 18%', 'tooltip baja riesgo (rango propio)');
-assert.strictEqual(tooltipKpi('total', 'aceptable'), 'Aceptable · > 5% – 10%', 'tooltip total aceptable');
+assert.strictEqual(tooltipKpi('conversion', 'aceptable'), 'Aceptable · 83% – 88%', 'tooltip conversion aceptable');
 assert.strictEqual(tooltipKpi('permanencia', 'excelente'), 'Excelente · ≥ 95%', 'tooltip permanencia excelente');
-assert.strictEqual(rangoNivel('total', 'aceptable'), '> 5% – 10%', 'rangoNivel total aceptable');
+assert.strictEqual(rangoNivel('conversion', 'aceptable'), '83% – 88%', 'rangoNivel conversion aceptable');
 assert.strictEqual(rangoNivel('baja', 'excelente'), '≤ 8%', 'rangoNivel baja excelente');
 
 // ══════════════════════════════════════════════════════════════════

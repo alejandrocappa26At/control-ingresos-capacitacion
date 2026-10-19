@@ -107,7 +107,7 @@ export function MatrizReclutadores({ data, records, onSelectPromotor }: MatrizRe
             <HeadCell lines={['Total bajas', 'en', 'capacitación']} />
             <HeadCell lines={['Tasa', 'deserción']} />
             <HeadCell lines={['Tasa baja']} />
-            <HeadCell lines={['Tasa total']} />
+            <HeadCell lines={['Conversión', 'a operaciones']} />
             <HeadCell lines={['Permanencia']} />
             <span className="sr-only">Detalle</span>
           </div>
@@ -117,7 +117,7 @@ export function MatrizReclutadores({ data, records, onSelectPromotor }: MatrizRe
               const pct = max > 0 ? (r.ingresos / max) * 100 : 0;
               const s = SEMAFORO_STYLES[r.nivel];
               const sBaja = SEMAFORO_STYLES[r.nivelBaja];
-              const sTotal = SEMAFORO_STYLES[r.nivelTotal];
+              const sConversion = SEMAFORO_STYLES[r.nivelConversion];
               const sPermanencia = SEMAFORO_STYLES[r.nivelPermanencia];
               const esRadar = r.nivel === 'critico';
               return (
@@ -203,13 +203,17 @@ export function MatrizReclutadores({ data, records, onSelectPromotor }: MatrizRe
                   </div>
 
                   <div className={BODY_CELL}>
-                    <span
-                      className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-bold whitespace-nowrap tabular-nums"
-                      style={pillStyle(sTotal.color)}
-                      title={tooltipKpi('total', r.nivelTotal)}
-                    >
-                      {sTotal.emoji} {r.tasaTotal.toFixed(1)}%
-                    </span>
+                    {r.ingresos > 0 ? (
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-bold whitespace-nowrap tabular-nums"
+                        style={pillStyle('#22c55e')}
+                        title={tooltipKpi('conversion', r.nivelConversion)}
+                      >
+                        {sConversion.emoji} {r.tasaConversion.toFixed(1)}%
+                      </span>
+                    ) : (
+                      <span className="font-bold tabular-nums text-ink-muted">—</span>
+                    )}
                   </div>
 
                   <div className={BODY_CELL}>

@@ -48,7 +48,16 @@ const DOC: Record<IndicadorKpiId, DocIndicador> = {
       critico: 'Nivel alto de pérdida durante capacitación.',
     },
   },
-  total: { emoji: '🔴' },
+  conversion: {
+    emoji: '🟢',
+    regla: ['TOTAL DE DÍAS >= 1', 'AND', 'PASA A OPERACIONES = 1'],
+    notas: {
+      excelente: 'Excelente conversión. Reclutamiento de alta calidad.',
+      aceptable: 'Conversión dentro de lo esperado.',
+      riesgo: 'Revisar calidad del ingreso a capacitación.',
+      critico: 'Conversión muy baja. Requiere intervención inmediata.',
+    },
+  },
   permanencia: { emoji: '✅' },
 };
 

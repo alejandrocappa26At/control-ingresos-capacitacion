@@ -10,7 +10,7 @@ import { normalizeKey } from '@/lib/utils';
 
 export type NivelKpi = 'excelente' | 'aceptable' | 'riesgo' | 'critico';
 
-export type IndicadorKpiId = 'desercion' | 'baja' | 'total' | 'permanencia';
+export type IndicadorKpiId = 'desercion' | 'baja' | 'conversion' | 'permanencia';
 
 export interface NivelSemaforo {
   emoji: string;
@@ -75,17 +75,17 @@ export const INDICADORES_KPI: Record<IndicadorKpiId, ConfigIndicadorKpi> = {
       { nivel: 'critico', rango: '> 18%' },
     ],
   },
-  total: {
-    id: 'total',
-    nombre: 'Tasa total de caídas',
-    descripcion: 'Pérdida total del proceso sumando deserciones y bajas durante capacitación.',
-    formula: '((Total Deserciones + Total Bajas) ÷ Total Ingresos) × 100',
-    direccion: 'asc',
+  conversion: {
+    id: 'conversion',
+    nombre: 'Conversión a operaciones',
+    descripcion: 'Personas que completaron capacitación y pasaron a operaciones.',
+    formula: '(Aprobados ÷ Total Ingresos) × 100',
+    direccion: 'desc',
     niveles: [
-      { nivel: 'excelente', max: 5, rango: '≤ 5%' },
-      { nivel: 'aceptable', max: 10, rango: '> 5% – 10%' },
-      { nivel: 'riesgo', max: 15, rango: '> 10% – 15%' },
-      { nivel: 'critico', rango: '> 15%' },
+      { nivel: 'excelente', min: 88, rango: '≥ 88%' },
+      { nivel: 'aceptable', min: 83, rango: '83% – 88%' },
+      { nivel: 'riesgo', min: 78, rango: '78% – 83%' },
+      { nivel: 'critico', rango: '< 78%' },
     ],
   },
   permanencia: {
@@ -150,10 +150,10 @@ export function tooltipKpi(id: IndicadorKpiId, nivel: NivelKpi): string {
  *
  *  ── FÓRMULAS ───────────────────────────────────────────────────
  *  TOTAL INGRESOS A CAPACITACIÓN = APROBADOS + CAÍDAS EN CAPACITACIÓN + CAÍDAS POR DESERCIÓN + EN CAPACITACIÓN
- *  TASA DESERCIÓN  = CAÍDAS POR DESERCIÓN / TOTAL INGRESOS × 100
- *  TASA BAJA       = CAÍDAS EN CAPACITACIÓN / TOTAL INGRESOS × 100
- *  TASA TOTAL      = (CAÍDAS POR DESERCIÓN + CAÍDAS EN CAPACITACIÓN) / TOTAL INGRESOS × 100
- *  PERMANENCIA     = (APROBADOS + EN CAPACITACIÓN) / TOTAL INGRESOS × 100
+ *  TASA DESERCIÓN        = CAÍDAS POR DESERCIÓN / TOTAL INGRESOS × 100
+ *  TASA BAJA EN CAPACITACIÓN = CAÍDAS EN CAPACITACIÓN / TOTAL INGRESOS × 100
+ *  CONVERSIÓN A OPERACIONES = APROBADOS / TOTAL INGRESOS × 100
+ *  PERMANENCIA           = (APROBADOS + EN CAPACITACIÓN) / TOTAL INGRESOS × 100
  * ══════════════════════════════════════════════════════════════════
  */
 
@@ -199,8 +199,8 @@ export interface ResumenReclutador {
   tasaDesercion: number;
   /** CAÍDAS EN CAPACITACIÓN / INGRESOS × 100. */
   tasaBaja: number;
-  /** (DESERCIONES + CAÍDAS EN CAPACITACIÓN) / INGRESOS × 100: pérdida total. */
-  tasaTotal: number;
+  /** APROBADOS / INGRESOS × 100. */
+  tasaConversion: number;
   tasaPermanencia: number;
   pctDelTotal: number;
   pctDeserciones: number;
@@ -208,8 +208,8 @@ export interface ResumenReclutador {
   nivel: NivelKpi;
   /** Nivel de baja en capacitación (rangos propios: 8/12/18). */
   nivelBaja: NivelKpi;
-  /** Nivel de tasa total de caídas. */
-  nivelTotal: NivelKpi;
+  /** Nivel de conversión a operaciones. */
+  nivelConversion: NivelKpi;
   /** Nivel de permanencia (escala invertida: mayor = mejor). */
   nivelPermanencia: NivelKpi;
 }
@@ -248,13 +248,13 @@ export function analizarReclutadores(records: Promotor[]): ReclutadoresAnalisis 
         procesosFinalizados: 0,
         tasaDesercion: 0,
         tasaBaja: 0,
-        tasaTotal: 0,
+        tasaConversion: 0,
         tasaPermanencia: 0,
         pctDelTotal: 0,
         pctDeserciones: 0,
         nivel: 'excelente',
         nivelBaja: 'excelente',
-        nivelTotal: 'excelente',
+        nivelConversion: 'excelente',
         nivelPermanencia: 'excelente',
       };
       map.set(key, entry);
@@ -274,14 +274,13 @@ export function analizarReclutadores(records: Promotor[]): ReclutadoresAnalisis 
     e.procesosFinalizados = e.aprobados + e.caidasCapacitacion;
     e.tasaDesercion = e.ingresos > 0 ? (e.deserciones / e.ingresos) * 100 : 0;
     e.tasaBaja = e.ingresos > 0 ? (e.caidasCapacitacion / e.ingresos) * 100 : 0;
-    e.tasaTotal =
-      e.ingresos > 0 ? ((e.deserciones + e.caidasCapacitacion) / e.ingresos) * 100 : 0;
+    e.tasaConversion = e.ingresos > 0 ? (e.aprobados / e.ingresos) * 100 : 0;
     e.tasaPermanencia = e.ingresos > 0 ? ((e.aprobados + e.enCapacitacion) / e.ingresos) * 100 : 0;
     e.pctDelTotal = totalIngresos > 0 ? (e.ingresos / totalIngresos) * 100 : 0;
     e.pctDeserciones = totalDeserciones > 0 ? (e.deserciones / totalDeserciones) * 100 : 0;
     e.nivel = evaluarNivelKpi('desercion', e.tasaDesercion);
     e.nivelBaja = evaluarNivelKpi('baja', e.tasaBaja);
-    e.nivelTotal = evaluarNivelKpi('total', e.tasaTotal);
+    e.nivelConversion = evaluarNivelKpi('conversion', e.tasaConversion);
     e.nivelPermanencia = evaluarNivelKpi('permanencia', e.tasaPermanencia);
   }
 
@@ -310,7 +309,7 @@ export function analizarReclutadores(records: Promotor[]): ReclutadoresAnalisis 
  *    TOTAL DE DÍAS, PASA A OPERACIONES y MOTIVO DE CAÍDA.
  * 2) Imprime la tabla por reclutador para contrastarla con el Excel:
  *    RECLUTADOR · INGRESOS · DESERCIONES · CAÍDAS_CAPACITACION ·
- *    APROBADOS · EN_CAPACITACION · TASA_DESERCION · TASA_BAJA · TASA_TOTAL · PERMANENCIA
+ *    APROBADOS · EN_CAPACITACION · TASA_DESERCION · TASA_BAJA · TASA_CONVERSION · PERMANENCIA
  * 3) Valida que la partición por reclutador cierre contra los ingresos.
  */
 export function validarCalculosReclutadores(records: Promotor[]): void {
@@ -370,7 +369,7 @@ export function validarCalculosReclutadores(records: Promotor[]): void {
     EN_CAPACITACION: r.enCapacitacion,
     TASA_DESERCION: `${r.tasaDesercion.toFixed(1)}%`,
     TASA_BAJA: `${r.tasaBaja.toFixed(1)}%`,
-    TASA_TOTAL: `${r.tasaTotal.toFixed(1)}%`,
+    TASA_CONVERSION: `${r.tasaConversion.toFixed(1)}%`,
     PERMANENCIA: `${r.tasaPermanencia.toFixed(1)}%`,
   }));
 
@@ -386,11 +385,7 @@ export function validarCalculosReclutadores(records: Promotor[]): void {
     EN_CAPACITACION: a.totalEnCapacitacion,
     TASA_DESERCION: `${a.totalIngresos > 0 ? ((a.totalDeserciones / a.totalIngresos) * 100).toFixed(1) : '0.0'}%`,
     TASA_BAJA: `${a.totalIngresos > 0 ? ((a.totalCaidasCapacitacion / a.totalIngresos) * 100).toFixed(1) : '0.0'}%`,
-    TASA_TOTAL: `${
-      a.totalIngresos > 0
-        ? (((a.totalDeserciones + a.totalCaidasCapacitacion) / a.totalIngresos) * 100).toFixed(1)
-        : '0.0'
-    }%`,
+    TASA_CONVERSION: `${a.totalIngresos > 0 ? ((a.totalAprobados / a.totalIngresos) * 100).toFixed(1) : '0.0'}%`,
     PERMANENCIA: `${a.totalIngresos > 0 ? (((a.totalAprobados + a.totalEnCapacitacion) / a.totalIngresos) * 100).toFixed(1) : '0.0'}%`,
   };
   console.table([totales]);
@@ -413,8 +408,8 @@ export function validarCalculosReclutadores(records: Promotor[]): void {
       `${a.totalCaidasCapacitacion} / ${a.totalIngresos} × 100 = ${totales.TASA_BAJA}`,
   );
   console.log(
-    `TASA_TOTAL = (DESERCIONES + CAÍDAS_CAPACITACIÓN) / INGRESOS × 100 → ` +
-      `(${a.totalDeserciones} + ${a.totalCaidasCapacitacion}) / ${a.totalIngresos} × 100 = ${totales.TASA_TOTAL}`,
+    `TASA_CONVERSION = APROBADOS / INGRESOS × 100 → ` +
+      `${a.totalAprobados} / ${a.totalIngresos} × 100 = ${totales.TASA_CONVERSION}`,
   );
   console.log(
     `PERMANENCIA = (APROBADOS + EN_CAPACITACIÓN) / INGRESOS × 100 → ` +

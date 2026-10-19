@@ -35,17 +35,17 @@ Fórmula: `(Total Bajas en Capacitación ÷ Total Ingresos) × 100`
 | 🟠 Riesgo    | `> 12% – 18%` | 12 < tasa ≤ 18    |
 | 🔴 Crítico   | `> 18%`       | tasa > 18         |
 
-### Tasa total de caídas — escala directa
+### Conversión a operaciones — escala invertida (mayor = mejor)
 
-Pérdida total del proceso sumando deserciones y bajas durante capacitación.
-Fórmula: `((Total Deserciones + Total Bajas) ÷ Total Ingresos) × 100`
+Personas que completaron capacitación y pasaron a operaciones.
+Fórmula: `(Aprobados ÷ Total Ingresos) × 100`
 
-| Nivel     | Rango         | Regla            |
-| --------- | ------------- | ---------------- |
-| 🟢 Excelente | `≤ 5%`        | tasa ≤ 5         |
-| 🟡 Aceptable | `> 5% – 10%`  | 5 < tasa ≤ 10    |
-| 🟠 Riesgo    | `> 10% – 15%` | 10 < tasa ≤ 15   |
-| 🔴 Crítico   | `> 15%`       | tasa > 15        |
+| Nivel     | Rango         | Regla             |
+| --------- | ------------- | ----------------- |
+| 🟢 Excelente | `≥ 88%`       | tasa ≥ 88         |
+| 🟡 Aceptable | `83% – 88%`   | 83 ≤ tasa < 88    |
+| 🟠 Riesgo    | `78% – 83%`   | 78 ≤ tasa < 83    |
+| 🔴 Crítico   | `< 78%`       | tasa < 78         |
 
 ### Permanencia — escala invertida (mayor = mejor)
 
@@ -67,7 +67,7 @@ Fórmula: `((Aprobados + En Capacitación) ÷ Total Ingresos) × 100`
 
 ```ts
 INDICADORES_KPI: Record<IndicadorKpiId, ConfigIndicadorKpi> = {
-  desercion | baja | total | permanencia: {
+  desercion | baja | conversion | permanencia: {
     id, nombre, descripcion, formula,
     direccion: 'asc' | 'desc',   // 'asc': menor = mejor · 'desc': mayor = mejor
     niveles: [                   // ordenados de mejor a peor
@@ -89,7 +89,7 @@ INDICADORES_KPI: Record<IndicadorKpiId, ConfigIndicadorKpi> = {
 | `tooltipKpi(id, nivel)`           | Tooltip estándar de badges: `'Riesgo · > 12% – 18%'`   |
 
 `analizarReclutadores()` precalcula por reclutador: `nivel` (deserción),
-`nivelBaja`, `nivelTotal` y `nivelPermanencia`. **Las fórmulas de tasas viven solo
+`nivelBaja`, `nivelConversion` y `nivelPermanencia`. **Las fórmulas de tasas viven solo
 ahí** — los componentes únicamente renderizan.
 
 ## Consumidores
@@ -108,7 +108,7 @@ npm run check:rangos   # valores límite, no-shared-ranges, fórmulas intactas,
                        # etiquetas, tooltips y alineación de Zonas
 ```
 
-Los valores límite inclusivos (5/10/15, 8/12/18, 85/90/95) están cubiertos por
+Los valores límite inclusivos (5/10/15, 8/12/18, 78/83/88, 85/90/95) están cubiertos por
 ese script — ejecutarlo tras tocar cualquier umbral.
 
 ## Cómo agregar o modificar un indicador
